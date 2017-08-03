@@ -1,0 +1,151 @@
+//! metadata handles parsing of GPX-spec metadata.
+
+extern crate xml;
+
+/*use geo::Bbox;*/
+
+use errors::*;
+use std::iter::Peekable;
+use std::io::Read;
+use xml::reader::Events;
+use xml::reader::XmlEvent;
+use chrono::DateTime;
+use chrono::prelude::Utc;
+
+use parser::person;
+use parser::link;
+use parser::string;
+use parser::time;
+
+/// Metadata formats for a `metadataType`.
+///
+/// ```xml
+/// <...>
+///   <name> xsd:string </name> [0..1] ?
+///   <desc> xsd:string </desc> [0..1] ?
+///   <author> personType </author> [0..1] ?
+///   <copyright> copyrightType </copyright> [0..1] ?
+///   <link> linkType </link> [0..*] ?
+///   <time> xsd:dateTime </time> [0..1] ?
+///   <keywords> xsd:string </keywords> [0..1] ?
+///   <bounds> boundsType </bounds> [0..1] ?
+///   <extensions> extensionsType </extensions> [0..1] ?
+/// </...>
+/// ```
+#[derive(Default)]
+pub struct Metadata {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub author: Option<person::Person>,
+    /*copyright: GpxCopyrightType,*/
+    pub links: Vec<link::Link>,
+    pub time: Option<DateTime<Utc>>,
+    pub keywords: Option<String>,
+    /*pub bounds: Option<Bbox<f64>>,*/
+    /*extensions: GpxExtensionsType,*/
+}
+
+pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
+    let mut metadata: Metadata = Default::default();
+
+    while let Some(event) = reader.next() {
+        match event.chain_err(|| "error while parsing XML")? {
+            XmlEvent::StartElement { name, .. } => {
+                match name.local_name.as_ref() {
+                    "name" => metadata.name = Some(string::consume(reader)?),
+                    "description" => metadata.description = Some(string::consume(reader)?),
+                    "author" => metadata.author = Some(person::consume(reader)?),
+                    "keywords" => metadata.keywords = Some(string::consume(reader)?),
+                    "time" => metadata.time = Some(time::consume(reader)?),
+                    "link" => metadata.links.push(link::consume(reader)?),
+                    "metadata" => {}
+                    _ => {
+                        return Err("bad child element for metadata".into());
+                    }
+                }
+            }
+
+            XmlEvent::EndElement { .. } => {
+                return Ok(metadata);
+            }
+
+            _ => {}
+        }
+    }
+
+    return Err("no end tag for metadata".into());
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::BufReader;
+    use xml::reader::EventReader;
+    use chrono::prelude::*;
+
+    use super::consume;
+
+    #[test]
+    fn consume_empty() {
+        let result = consume!("<metadata></metadata>");
+
+        assert!(result.is_ok());
+
+        let result = result.unwrap();
+        assert!(result.name.is_none());
+        assert!(result.description.is_none());
+        assert!(result.author.is_none());
+        assert!(result.keywords.is_none());
+        assert!(result.time.is_none());
+    }
+
+    #[test]
+    fn consume_metadata() {
+        let result = consume!(
+            "
+            <metadata>
+                <link href=\"example.com\" />
+                <name>xxname</name>
+                <description>xxdescription</description>
+                <author>
+                    <name>John Doe</name>
+                    <email id=\"john.doe\" domain=\"example.com\" />
+                    <link href=\"example.com\">
+                        <text>hello world</text>
+                        <type>some type</type>
+                    </link>
+                </author>
+                <keywords>some keywords here</keywords>
+                <time>2017-08-16T04:03:33.735Z</time>
+            </metadata>
+            "
+        );
+
+        assert!(result.is_ok());
+
+        let result = result.unwrap();
+
+        assert!(result.name.is_some());
+        assert_eq!(result.name.unwrap(), "xxname");
+
+        assert!(result.description.is_some());
+        assert_eq!(result.description.unwrap(), "xxdescription");
+
+        assert!(result.author.is_some());
+        let author = result.author.unwrap();
+
+        assert_eq!(author.name.unwrap(), "John Doe");
+        assert!(author.email.is_some());
+        assert!(author.link.is_some());
+
+        assert!(result.keywords.is_some());
+        assert_eq!(result.keywords.unwrap(), "some keywords here");
+
+        assert!(result.time.is_some());
+        assert_eq!(
+            result.time.unwrap(),
+            Utc.ymd(2017, 8, 16).and_hms_micro(4, 3, 33, 735_000)
+        );
+
+        assert_eq!(result.links.len(), 1);
+    }
+}

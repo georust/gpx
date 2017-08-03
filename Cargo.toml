@@ -2,6 +2,12 @@
 
 name = "gpx"
 description = "Rust read/write support for GPS Exchange Format (GPX)"
-license = "Apache-2.0"
+license = "MIT"
 version = "0.0.1"
-authors = ["Corey Farwell <coreyf@rwell.org>"]
+authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@rwell.org>"]
+
+[dependencies]
+geo = "0.4.9"
+xml-rs = "0.6"
+chrono = "0.4"
+error-chain = "0.10.0"
