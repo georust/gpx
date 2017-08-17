@@ -10,7 +10,7 @@ use xml::reader::XmlEvent;
 
 /// Email represents an email address. Broken into two parts (id and domain)
 /// to help prevent email harvesting.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Email {
     /// The id half of email address.
     pub id: String,

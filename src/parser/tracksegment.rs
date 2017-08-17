@@ -8,6 +8,9 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
+use geo::{ToGeo, Geometry};
+use geo::LineString;
+
 use parser::waypoint;
 
 /// TrackSegment represents a list of track points.
@@ -16,12 +19,26 @@ use parser::waypoint;
 /// connected in order. To represent a single GPS track where GPS reception
 /// was lost, or the GPS receiver was turned off, start a new Track Segment
 /// for each continuous span of track data.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct TrackSegment {
     /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
     /// for a single point in a track.
     pub points: Vec<waypoint::Waypoint>,
     /* extensions */
+}
+
+impl TrackSegment {
+    /// Gives the linestring of the segment's points, the sequence of points that
+    /// comprises the track segment.
+    pub fn linestring(&self) -> LineString<f64> {
+        self.points.iter().map(|wpt| wpt.point()).collect()
+    }
+}
+
+impl ToGeo<f64> for TrackSegment {
+    fn to_geo(&self) -> Geometry<f64> {
+        Geometry::LineString(self.linestring())
+    }
 }
 
 
@@ -80,6 +97,9 @@ mod tests {
         let segment = segment.unwrap();
 
         assert_eq!(segment.points.len(), 3);
+
+        // TODO. Calculates the length of the entire segment.
+        // let linestring = segment.linestring();
     }
 
     #[test]

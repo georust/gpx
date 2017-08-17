@@ -8,9 +8,11 @@ use std::io::Read;
 use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
-use geo::Point;
 use chrono::DateTime;
 use chrono::prelude::Utc;
+
+use geo::Point;
+use geo::{ToGeo, Geometry};
 
 use parser::string;
 use parser::link;
@@ -18,7 +20,7 @@ use parser::time;
 
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Waypoint {
     point: Option<Point<f64>>,
 
@@ -72,9 +74,15 @@ pub struct Waypoint {
 }
 
 impl Waypoint {
-    /// Yields the geographical point of the waypoint.
+    /// Gives the geographical point of the waypoint.
     pub fn point(&self) -> Point<f64> {
         self.point.unwrap()
+    }
+}
+
+impl ToGeo<f64> for Waypoint {
+    fn to_geo(&self) -> Geometry<f64> {
+        Geometry::Point(self.point())
     }
 }
 
@@ -134,6 +142,8 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
             }
 
             XmlEvent::EndElement { .. } => {
+                // TODO ensure!(waypoint.point.is_some(), "waypoint must always have point");
+
                 return Ok(waypoint);
             }
 
@@ -185,11 +195,12 @@ mod tests {
 
     #[test]
     fn consume_empty() {
-        let waypoint = consume!("<wpt lat=\"2.345\" lon=\"1.234\"></wpt>");
+        let waypoint = consume!("<trkpt lat=\"2.345\" lon=\"1.234\"></trkpt>");
 
         assert!(waypoint.is_ok());
         let waypoint = waypoint.unwrap();
 
+        assert_eq!(waypoint.point(), Point::new(1.234, 2.345));
         assert_eq!(waypoint.point().lng(), 1.234);
         assert_eq!(waypoint.point().lat(), 2.345);
     }

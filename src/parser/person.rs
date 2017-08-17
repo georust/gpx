@@ -13,7 +13,7 @@ use parser::link;
 use parser::string;
 
 /// Person represents a person or organization.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Person {
     /// Name of person or organization.
     pub name: Option<String>,

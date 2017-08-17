@@ -19,7 +19,7 @@ use parser::time;
 ///
 /// Providing rich, meaningful information about your GPX files allows others to
 /// search for and use your GPS data.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Metadata {
     /// The name of the GPX file.
     pub name: Option<String>,

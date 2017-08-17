@@ -12,7 +12,7 @@ use parser::metadata;
 use parser::track;
 
 /// Gpx is the root element in the XML file.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Gpx {
     pub version: String,
 

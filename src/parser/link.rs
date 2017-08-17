@@ -14,7 +14,7 @@ use parser::string;
 ///
 /// An external resource could be a web page, digital photo,
 /// video clip, etc., with additional information.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Link {
     /// URL of hyperlink.
     pub href: String,
