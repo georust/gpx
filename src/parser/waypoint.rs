@@ -31,9 +31,6 @@ pub struct Waypoint {
     /// allowed for millisecond timing in tracklogs.
     pub time: Option<DateTime<Utc>>,
 
-    // <magvar> degreesType </magvar> [0..1] ?
-    // <geoidheight> xsd:decimal </geoidheight> [0..1] ?
-
     /// The GPS name of the waypoint. This field will be transferred to and
     /// from the GPS. GPX does not place restrictions on the length of this
     /// field or the characters contained in it. It is up to the receiving
@@ -62,6 +59,8 @@ pub struct Waypoint {
     /// Type (classification) of the waypoint.
     pub _type: Option<String>,
 
+    // <magvar> degreesType </magvar> [0..1] ?
+    // <geoidheight> xsd:decimal </geoidheight> [0..1] ?
     // <fix> fixType </fix> [0..1] ?
     // <sat> xsd:nonNegativeInteger </sat> [0..1] ?
     // <hdop> xsd:decimal </hdop> [0..1] ?

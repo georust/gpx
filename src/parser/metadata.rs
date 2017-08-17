@@ -2,8 +2,6 @@
 
 extern crate xml;
 
-/*use geo::Bbox;*/
-
 use errors::*;
 use std::iter::Peekable;
 use std::io::Read;
@@ -17,30 +15,32 @@ use parser::link;
 use parser::string;
 use parser::time;
 
-/// Metadata formats for a `metadataType`.
+/// Metadata is information about the GPX file, author, and copyright restrictions.
 ///
-/// ```xml
-/// <...>
-///   <name> xsd:string </name> [0..1] ?
-///   <desc> xsd:string </desc> [0..1] ?
-///   <author> personType </author> [0..1] ?
-///   <copyright> copyrightType </copyright> [0..1] ?
-///   <link> linkType </link> [0..*] ?
-///   <time> xsd:dateTime </time> [0..1] ?
-///   <keywords> xsd:string </keywords> [0..1] ?
-///   <bounds> boundsType </bounds> [0..1] ?
-///   <extensions> extensionsType </extensions> [0..1] ?
-/// </...>
-/// ```
+/// Providing rich, meaningful information about your GPX files allows others to
+/// search for and use your GPS data.
 #[derive(Default)]
 pub struct Metadata {
+    /// The name of the GPX file.
     pub name: Option<String>,
+
+    /// A description of the contents of the GPX file.
     pub description: Option<String>,
+
+    /// The person or organization who created the GPX file.
     pub author: Option<person::Person>,
-    /*copyright: GpxCopyrightType,*/
+
+    /// URLs associated with the location described in the file.
     pub links: Vec<link::Link>,
+
+    /// The creation date of the file.
     pub time: Option<DateTime<Utc>>,
+
+    /// Keywords associated with the file. Search engines or databases can use
+    /// this information to classify the data.
     pub keywords: Option<String>,
+
+    /*copyright: GpxCopyrightType,*/
     /*pub bounds: Option<Bbox<f64>>,*/
     /*extensions: GpxExtensionsType,*/
 }

@@ -8,18 +8,14 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
-/// Email represents an `emailType`.
-///
-/// > An email address. Broken into two parts (id and domain) to help prevent
-/// email harvesting.
-///
-/// ```xml
-/// <...
-///   id="xsd:string [1] ?"
-///   domain="xsd:string [1] ?"/>
+/// Email represents an email address. Broken into two parts (id and domain)
+/// to help prevent email harvesting.
 #[derive(Default)]
 pub struct Email {
+    /// The id half of email address.
     pub id: String,
+
+    /// The domain half of email address.
     pub domain: String,
 }
 

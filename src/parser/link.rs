@@ -1,13 +1,5 @@
 //! link handles parsing of GPX-spec links.
 
-// ```xml
-// <...
-//   href="xsd:anyURI [1] ?">
-//   <text> xsd:string </text> [0..1] ?
-//   <type> xsd:string </type> [0..1] ?
-// </...>
-// ```
-
 extern crate xml;
 
 use errors::*;
@@ -18,23 +10,19 @@ use xml::reader::XmlEvent;
 
 use parser::string;
 
-/// Link represents a `linkType`.
+/// Link represents a link to an external resource.
 ///
-/// > A link to an external resource (Web page, digital photo, video clip, etc
-/// with additional information.
-///
-/// ```xml
-/// <...
-///   href="xsd:anyURI [1] ?">
-///   <text> xsd:string </text> [0..1] ?
-///   <type> xsd:string </type> [0..1] ?
-/// </...>
-/// ```
+/// An external resource could be a web page, digital photo,
+/// video clip, etc., with additional information.
 #[derive(Default)]
 pub struct Link {
+    /// URL of hyperlink.
     pub href: String,
+
+    /// Text of hyperlink.
     pub text: Option<String>,
-    /// "type" is a Rust keyword.
+
+    /// Mime type of content (image/jpeg)
     pub _type: Option<String>,
 }
 

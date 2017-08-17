@@ -11,25 +11,15 @@ use xml::reader::XmlEvent;
 use parser::metadata;
 use parser::track;
 
-/// Gpx represents a `gpxType`.
-///
-/// > GPX is the root element in the XML file.
-///
-/// ```xml
-/// <gpx
-///   version="1.1 [1] ?"
-///   creator="xsd:string [1] ?">
-///   <metadata> metadataType </metadata> [0..1] ?
-///   <wpt> wptType </wpt> [0..*] ?
-///   <rte> rteType </rte> [0..*] ?
-///   <trk> trkType </trk> [0..*] ?
-///   <extensions> extensionsType </extensions> [0..1] ?
-/// </gpx>
-/// ```
+/// Gpx is the root element in the XML file.
 #[derive(Default)]
 pub struct Gpx {
     pub version: String,
+
+    /// Metadata about the file.
     pub metadata: Option<metadata::Metadata>,
+
+    /// A list of tracks.
     pub tracks: Vec<track::Track>,
 }
 

@@ -12,20 +12,16 @@ use parser::email;
 use parser::link;
 use parser::string;
 
-/// Person formats for a `personType`.
-///
-/// > A person or organization.
-///
-/// ```xml
-/// <...>
-///   <name> xsd:string </name> [0..1] ?
-///   <email> emailType </email> [0..1] ?
-///   <link> linkType </link> [0..1] ?
-/// </...>
+/// Person represents a person or organization.
 #[derive(Default)]
 pub struct Person {
+    /// Name of person or organization.
     pub name: Option<String>,
+
+    /// Email address.
     pub email: Option<email::Email>,
+
+    /// Link to Web site or other external information about person.
     pub link: Option<link::Link>,
 }
 

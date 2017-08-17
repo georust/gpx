@@ -12,34 +12,36 @@ use parser::string;
 use parser::link;
 use parser::tracksegment;
 
-/// Track represents a `trkType`.
-///
-/// > An ordered list of points describing a path.
-///
-/// ```xml
-/// <...>
-///   <name> xsd:string </name> [0..1] ?
-///   <cmt> xsd:string </cmt> [0..1] ?
-///   <desc> xsd:string </desc> [0..1] ?
-///   <src> xsd:string </src> [0..1] ?
-///   <link> linkType </link> [0..*] ?
-///   <number> xsd:nonNegativeInteger </number> [0..1] ?
-///   <type> xsd:string </type> [0..1] ?
-///   <extensions> extensionsType </extensions> [0..1] ?
-///   <trkseg> trksegType </trkseg> [0..*] ?
-/// </...>
-/// ```
+/// Track represents an ordered list of points describing a path.
 #[derive(Default)]
 pub struct Track {
+    /// GPS name of track.
     pub name: Option<String>,
+
+    /// GPS comment for track.
     pub cmt: Option<String>,
+
+    /// User description of track.
     pub desc: Option<String>,
+
+    /// Source of data. Included to give user some idea of reliability
+    /// and accuracy of data.
     pub src: Option<String>,
+
+    /// Links to external information about the track.
     pub links: Vec<link::Link>,
-    /* pub number: u8,*/
+
+    /// Type (classification) of track.
     pub _type: Option<String>,
-    /* extesions */
+
+    /// A Track Segment holds a list of Track Points which are logically
+    /// connected in order. To represent a single GPS track where GPS reception
+    /// was lost, or the GPS receiver was turned off, start a new Track Segment
+    /// for each continuous span of track data.
     pub segments: Vec<tracksegment::TrackSegment>,
+
+    /* pub number: u8,*/
+    /* extensions */
     /* trkSeg */
 }
 

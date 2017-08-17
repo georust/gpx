@@ -1,9 +1,5 @@
 //! string handles parsing of GPX-spec strings.
 
-// ```xml
-// <tag>.. content ..</tag>
-// ```
-
 extern crate xml;
 
 use errors::*;
