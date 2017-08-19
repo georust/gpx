@@ -42,27 +42,64 @@ impl ToGeo<f64> for TrackSegment {
 }
 
 
+enum TrackSegmentEvent {
+    StartTrkSeg,
+    StartTrkPt,
+    EndTrkSeg,
+    Ignore,
+}
+
+
 /// consume consumes a GPX track segment from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment> {
     let mut segment: TrackSegment = Default::default();
 
-    while let Some(event) = reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, .. } => {
-                match name.local_name.as_ref() {
-                    "trkseg" => {}
-                    "trkpt" => segment.points.push(waypoint::consume(reader)?),
-                    _ => {
-                        return Err("bad child element".into());
+    loop {
+        // Peep into the reader and see what type of event is next. Based on
+        // that information, we'll either forward the event to a downstream
+        // module or take the information for ourselves.
+        let event: Option<TrackSegmentEvent> = {
+            if let Some(next) = reader.peek() {
+                match next {
+                    &Ok(XmlEvent::StartElement { ref name, .. }) => {
+                        match name.local_name.as_ref() {
+                            "trkseg" => Some(TrackSegmentEvent::StartTrkSeg),
+                            "trkpt" => Some(TrackSegmentEvent::StartTrkPt),
+                            _ => None,
+                        }
                     }
-                }
-            }
 
-            XmlEvent::EndElement { .. } => {
+                    &Ok(XmlEvent::EndElement { .. }) => {
+                        Some(TrackSegmentEvent::EndTrkSeg)
+                    }
+
+                    _ => Some(TrackSegmentEvent::Ignore),
+                }
+            } else {
+                break
+            }
+        };
+
+        if event.is_none() {
+            return Err("error while parsing track segment".into());
+        }
+
+        match event.unwrap() {
+            TrackSegmentEvent::StartTrkSeg => {
+                reader.next();
+            },
+
+            TrackSegmentEvent::StartTrkPt => {
+                segment.points.push(waypoint::consume(reader)?);
+            },
+
+            TrackSegmentEvent::EndTrkSeg => {
                 return Ok(segment);
             }
 
-            _ => {}
+            TrackSegmentEvent::Ignore => {
+                reader.next();
+            }
         }
     }
 
@@ -73,6 +110,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
 mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
+    use geo::length::Length;
 
     use super::consume;
 
@@ -84,11 +122,11 @@ mod tests {
                 <trkpt lon=\"-77.0365\" lat=\"38.8977\">
                     <name>The White House</name>
                 </trkpt>
-                <trkpt lon=\"-77.0465\" lat=\"38.8877\">
-                    <name>The White House</name>
+                <trkpt lon=\"-71.063611\" lat=\"42.358056\">
+                    <name>Boston, Massachusetts</name>
                 </trkpt>
-                <trkpt lon=\"-77.0565\" lat=\"38.8777\">
-                    <name>The White House</name>
+                <trkpt lon=\"-69.7832\" lat=\"44.31055\">
+                    <name>Augusta, Maine</name>
                 </trkpt>
             </trkseg>"
         );
@@ -98,8 +136,8 @@ mod tests {
 
         assert_eq!(segment.points.len(), 3);
 
-        // TODO. Calculates the length of the entire segment.
-        // let linestring = segment.linestring();
+        let linestring = segment.linestring();
+        assert_approx_eq!(linestring.length(), 9.2377437);
     }
 
     #[test]

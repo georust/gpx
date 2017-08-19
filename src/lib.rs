@@ -36,6 +36,11 @@
 #[macro_use]
 extern crate error_chain;
 
+// TODO, this might be a bug, try and remove this unused imports tag.
+#[allow(unused_imports)]
+#[macro_use]
+extern crate assert_approx_eq;
+
 extern crate xml;
 extern crate chrono;
 extern crate geo;
