@@ -8,13 +8,11 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
-use Email;
-
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
 /// tag.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Email> {
-    let mut email: Email = Default::default();
+pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
+    let mut email: Option<String> = None;
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -28,7 +26,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Email> {
                             .nth(0)
                             .ok_or("no id attribute on email tag".to_owned())?;
 
-                        email.id = id.clone().value;
+                        let id = id.clone().value;
 
                         let domain = attributes
                             .iter()
@@ -36,7 +34,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Email> {
                             .nth(0)
                             .ok_or("no domain attribute on email tag".to_owned())?;
 
-                        email.domain = domain.clone().value;
+                        let domain = domain.clone().value;
+
+                        email = Some(format!("{id}@{domain}", id = id, domain = domain));
                     }
                     _ => {
                         return Err("cannot have child element in email tag".into());
@@ -45,7 +45,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Email> {
             }
 
             XmlEvent::EndElement { .. } => {
-                return Ok(email);
+                return Ok(email.unwrap());
             }
 
             _ => {}
@@ -70,8 +70,7 @@ mod tests {
 
         let email = email.unwrap();
 
-        assert_eq!(email.id, "me");
-        assert_eq!(email.domain, "example.com");
+        assert_eq!(email, "me@example.com");
     }
 
     #[test]
@@ -82,8 +81,7 @@ mod tests {
 
         let email = email.unwrap();
 
-        assert_eq!(email.id, "me");
-        assert_eq!(email.domain, "example.com");
+        assert_eq!(email, "me@example.com");
     }
 
     #[test]

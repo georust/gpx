@@ -14,30 +14,67 @@ use parser::string;
 
 use Person;
 
+enum ParseEvent {
+    StartName,
+    StartEmail,
+    StartLink,
+    EndPerson,
+    Ignore,
+}
+
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
     let mut person: Person = Default::default();
 
-    while let Some(event) = reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, .. } => {
-                match name.local_name.as_ref() {
-                    "name" => person.name = Some(string::consume(reader)?),
-                    "email" => person.email = Some(email::consume(reader)?),
-                    "link" => person.link = Some(link::consume(reader)?),
-                    "person" => {}
-                    _ => {
-                        return Err(
-                            "cannot have child element besides name, email, and link".into(),
-                        );
+    loop {
+        // Peep into the reader and see what type of event is next. Based on
+        // that information, we'll either forward the event to a downstream
+        // module or take the information for ourselves.
+        let event: Result<ParseEvent> = {
+            if let Some(next) = reader.peek() {
+                match next {
+                    &Ok(XmlEvent::StartElement { ref name, .. }) => {
+                        match name.local_name.as_ref() {
+                            "name" => Ok(ParseEvent::StartName),
+                            "email" => Ok(ParseEvent::StartEmail),
+                            "link" => Ok(ParseEvent::StartLink),
+                            "person" => Ok(ParseEvent::Ignore),
+                            _ => Err("unknown child element".into()),
+                        }
                     }
+
+                    &Ok(XmlEvent::EndElement { .. }) => Ok(ParseEvent::EndPerson),
+
+                    _ => Ok(ParseEvent::Ignore),
                 }
+            } else {
+                break;
+            }
+        };
+
+        match event.chain_err(|| {
+            Error::from("error while parsing person event")
+        })? {
+            ParseEvent::Ignore => {
+                reader.next();
             }
 
-            XmlEvent::EndElement { .. } => {
+            ParseEvent::StartName => {
+                person.name = Some(string::consume(reader)?);
+            }
+
+            ParseEvent::StartEmail => {
+                person.email = Some(email::consume(reader)?);
+            }
+
+            ParseEvent::StartLink => {
+                person.link = Some(link::consume(reader)?);
+            }
+
+            ParseEvent::EndPerson => {
+                reader.next();
+
                 return Ok(person);
             }
-
-            _ => {}
         }
     }
 

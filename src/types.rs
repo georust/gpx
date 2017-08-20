@@ -57,14 +57,14 @@ pub struct Track {
     pub name: Option<String>,
 
     /// GPS comment for track.
-    pub cmt: Option<String>,
+    pub comment: Option<String>,
 
     /// User description of track.
-    pub desc: Option<String>,
+    pub description: Option<String>,
 
     /// Source of data. Included to give user some idea of reliability
     /// and accuracy of data.
-    pub src: Option<String>,
+    pub source: Option<String>,
 
     /// Links to external information about the track.
     pub links: Vec<Link>,
@@ -150,15 +150,15 @@ pub struct Waypoint {
     pub name: Option<String>,
 
     /// GPS waypoint comment. Sent to GPS as comment.
-    pub cmt: Option<String>,
+    pub comment: Option<String>,
 
     /// A text description of the element. Holds additional information about
     /// the element intended for the user, not the GPS.
-    pub desc: Option<String>,
+    pub description: Option<String>,
 
     /// Source of data. Included to give user some idea of reliability and
     /// accuracy of data. "Garmin eTrex", "USGS quad Boston North", e.g.
-    pub src: Option<String>,
+    pub source: Option<String>,
 
     /// Links to additional information about the waypoint.
     pub links: Vec<Link>,
@@ -166,7 +166,7 @@ pub struct Waypoint {
     /// Text of GPS symbol name. For interchange with other programs, use the
     /// exact spelling of the symbol as displayed on the GPS. If the GPS
     /// abbreviates words, spell them out.
-    pub sym: Option<String>,
+    pub symbol: Option<String>,
 
     /// Type (classification) of the waypoint.
     pub _type: Option<String>,
@@ -204,22 +204,10 @@ pub struct Person {
     pub name: Option<String>,
 
     /// Email address.
-    pub email: Option<Email>,
+    pub email: Option<String>,
 
     /// Link to Web site or other external information about person.
     pub link: Option<Link>,
-}
-
-
-/// Email represents an email address. Broken into two parts (id and domain)
-/// to help prevent email harvesting.
-#[derive(Default, Debug)]
-pub struct Email {
-    /// The id half of email address.
-    pub id: String,
-
-    /// The domain half of email address.
-    pub domain: String,
 }
 
 

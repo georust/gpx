@@ -58,11 +58,11 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                     }
                     "time" => waypoint.time = Some(time::consume(reader)?),
                     "name" => waypoint.name = Some(string::consume(reader)?),
-                    "cmt" => waypoint.cmt = Some(string::consume(reader)?),
-                    "desc" => waypoint.desc = Some(string::consume(reader)?),
-                    "src" => waypoint.src = Some(string::consume(reader)?),
+                    "cmt" => waypoint.comment = Some(string::consume(reader)?),
+                    "desc" => waypoint.description = Some(string::consume(reader)?),
+                    "src" => waypoint.source = Some(string::consume(reader)?),
                     "link" => waypoint.links.push(link::consume(reader)?),
-                    "sym" => waypoint.sym = Some(string::consume(reader)?),
+                    "sym" => waypoint.symbol = Some(string::consume(reader)?),
                     "type" => waypoint._type = Some(string::consume(reader)?),
                     _ => {
                         return Err("bad child element".into());
@@ -113,11 +113,11 @@ mod tests {
         assert_eq!(waypoint.point(), Point::new(-77.0365, 38.8977));
         assert_eq!(waypoint.name.unwrap(), "The White House");
         assert_eq!(
-            waypoint.cmt.unwrap(),
+            waypoint.comment.unwrap(),
             "This is a comment about the white house."
         );
-        assert_eq!(waypoint.desc.unwrap(), "The white house is very nice!");
-        assert_eq!(waypoint.src.unwrap(), "Garmin eTrex");
+        assert_eq!(waypoint.description.unwrap(), "The white house is very nice!");
+        assert_eq!(waypoint.source.unwrap(), "Garmin eTrex");
         assert_eq!(waypoint._type.unwrap(), "waypoint classification");
         assert_eq!(waypoint.elevation.unwrap(), 4608.12);
     }

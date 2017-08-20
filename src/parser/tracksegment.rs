@@ -60,6 +60,8 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
             }
 
             TrackSegmentEvent::EndTrkSeg => {
+                reader.next();
+
                 return Ok(segment);
             }
 

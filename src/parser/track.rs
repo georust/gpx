@@ -24,9 +24,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Track> {
                 match name.local_name.as_ref() {
                     "trk" => {}
                     "name" => track.name = Some(string::consume(reader)?),
-                    "cmt" => track.cmt = Some(string::consume(reader)?),
-                    "desc" => track.desc = Some(string::consume(reader)?),
-                    "src" => track.src = Some(string::consume(reader)?),
+                    "cmt" => track.comment = Some(string::consume(reader)?),
+                    "desc" => track.description = Some(string::consume(reader)?),
+                    "src" => track.source = Some(string::consume(reader)?),
                     "type" => track._type = Some(string::consume(reader)?),
                     "trkseg" => track.segments.push(tracksegment::consume(reader)?),
                     _ => {
@@ -72,9 +72,9 @@ mod tests {
         let track = track.unwrap();
 
         assert_eq!(track.name.unwrap(), "track name");
-        assert_eq!(track.cmt.unwrap(), "track comment");
-        assert_eq!(track.desc.unwrap(), "track description");
-        assert_eq!(track.src.unwrap(), "track source");
+        assert_eq!(track.comment.unwrap(), "track comment");
+        assert_eq!(track.description.unwrap(), "track description");
+        assert_eq!(track.source.unwrap(), "track source");
         assert_eq!(track._type.unwrap(), "track type");
     }
 
