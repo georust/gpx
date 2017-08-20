@@ -12,18 +12,7 @@ use parser::email;
 use parser::link;
 use parser::string;
 
-/// Person represents a person or organization.
-#[derive(Default, Debug)]
-pub struct Person {
-    /// Name of person or organization.
-    pub name: Option<String>,
-
-    /// Email address.
-    pub email: Option<email::Email>,
-
-    /// Link to Web site or other external information about person.
-    pub link: Option<link::Link>,
-}
+use Person;
 
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
     let mut person: Person = Default::default();

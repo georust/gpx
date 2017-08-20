@@ -8,20 +8,10 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
-use parser::metadata;
 use parser::track;
+use parser::metadata;
 
-/// Gpx is the root element in the XML file.
-#[derive(Default, Debug)]
-pub struct Gpx {
-    pub version: String,
-
-    /// Metadata about the file.
-    pub metadata: Option<metadata::Metadata>,
-
-    /// A list of tracks.
-    pub tracks: Vec<track::Track>,
-}
+use Gpx;
 
 /// consume consumes an entire GPX element.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Gpx> {

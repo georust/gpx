@@ -7,43 +7,13 @@ use std::iter::Peekable;
 use std::io::Read;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
-use chrono::DateTime;
-use chrono::prelude::Utc;
 
-use parser::person;
 use parser::link;
 use parser::string;
+use parser::person;
 use parser::time;
 
-/// Metadata is information about the GPX file, author, and copyright restrictions.
-///
-/// Providing rich, meaningful information about your GPX files allows others to
-/// search for and use your GPS data.
-#[derive(Default, Debug)]
-pub struct Metadata {
-    /// The name of the GPX file.
-    pub name: Option<String>,
-
-    /// A description of the contents of the GPX file.
-    pub description: Option<String>,
-
-    /// The person or organization who created the GPX file.
-    pub author: Option<person::Person>,
-
-    /// URLs associated with the location described in the file.
-    pub links: Vec<link::Link>,
-
-    /// The creation date of the file.
-    pub time: Option<DateTime<Utc>>,
-
-    /// Keywords associated with the file. Search engines or databases can use
-    /// this information to classify the data.
-    pub keywords: Option<String>,
-
-    /*copyright: GpxCopyrightType,*/
-    /*pub bounds: Option<Bbox<f64>>,*/
-    /*extensions: GpxExtensionsType,*/
-}
+use Metadata;
 
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
     let mut metadata: Metadata = Default::default();

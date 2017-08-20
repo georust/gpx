@@ -8,16 +8,7 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
-/// Email represents an email address. Broken into two parts (id and domain)
-/// to help prevent email harvesting.
-#[derive(Default, Debug)]
-pub struct Email {
-    /// The id half of email address.
-    pub id: String,
-
-    /// The domain half of email address.
-    pub domain: String,
-}
+use Email;
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email

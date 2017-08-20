@@ -8,59 +8,10 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 
-use geo::{ToGeo, Geometry};
-use geo::MultiLineString;
-
-use parser::string;
-use parser::link;
 use parser::tracksegment;
+use parser::string;
 
-/// Track represents an ordered list of points describing a path.
-#[derive(Default, Debug)]
-pub struct Track {
-    /// GPS name of track.
-    pub name: Option<String>,
-
-    /// GPS comment for track.
-    pub cmt: Option<String>,
-
-    /// User description of track.
-    pub desc: Option<String>,
-
-    /// Source of data. Included to give user some idea of reliability
-    /// and accuracy of data.
-    pub src: Option<String>,
-
-    /// Links to external information about the track.
-    pub links: Vec<link::Link>,
-
-    /// Type (classification) of track.
-    pub _type: Option<String>,
-
-    /// A Track Segment holds a list of Track Points which are logically
-    /// connected in order. To represent a single GPS track where GPS reception
-    /// was lost, or the GPS receiver was turned off, start a new Track Segment
-    /// for each continuous span of track data.
-    pub segments: Vec<tracksegment::TrackSegment>,
-
-    /* pub number: u8,*/
-    /* extensions */
-    /* trkSeg */
-}
-
-impl Track {
-    /// Gives the multi-linestring that this track represents, which is multiple
-    /// linestrings.
-    pub fn multilinestring(&self) -> MultiLineString<f64> {
-        self.segments.iter().map(|seg| seg.linestring()).collect()
-    }
-}
-
-impl ToGeo<f64> for Track {
-    fn to_geo(&self) -> Geometry<f64> {
-        Geometry::MultiLineString(self.multilinestring())
-    }
-}
+use Track;
 
 
 /// consume consumes a GPX track from the `reader` until it ends.

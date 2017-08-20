@@ -8,84 +8,13 @@ use std::io::Read;
 use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
-use chrono::DateTime;
-use chrono::prelude::Utc;
-
 use geo::Point;
-use geo::{ToGeo, Geometry};
 
 use parser::string;
 use parser::link;
 use parser::time;
 
-/// Waypoint represents a waypoint, point of interest, or named feature on a
-/// map.
-#[derive(Default, Debug)]
-pub struct Waypoint {
-    point: Option<Point<f64>>,
-
-    /// Elevation (in meters) of the point.
-    pub elevation: Option<f64>,
-
-    /// Creation/modification timestamp for element. Date and time in are in
-    /// Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
-    /// specification for date/time representation. Fractional seconds are
-    /// allowed for millisecond timing in tracklogs.
-    pub time: Option<DateTime<Utc>>,
-
-    /// The GPS name of the waypoint. This field will be transferred to and
-    /// from the GPS. GPX does not place restrictions on the length of this
-    /// field or the characters contained in it. It is up to the receiving
-    /// application to validate the field before sending it to the GPS.
-    pub name: Option<String>,
-
-    /// GPS waypoint comment. Sent to GPS as comment.
-    pub cmt: Option<String>,
-
-    /// A text description of the element. Holds additional information about
-    /// the element intended for the user, not the GPS.
-    pub desc: Option<String>,
-
-    /// Source of data. Included to give user some idea of reliability and
-    /// accuracy of data. "Garmin eTrex", "USGS quad Boston North", e.g.
-    pub src: Option<String>,
-
-    /// Links to additional information about the waypoint.
-    pub links: Vec<link::Link>,
-
-    /// Text of GPS symbol name. For interchange with other programs, use the
-    /// exact spelling of the symbol as displayed on the GPS. If the GPS
-    /// abbreviates words, spell them out.
-    pub sym: Option<String>,
-
-    /// Type (classification) of the waypoint.
-    pub _type: Option<String>,
-
-    // <magvar> degreesType </magvar> [0..1] ?
-    // <geoidheight> xsd:decimal </geoidheight> [0..1] ?
-    // <fix> fixType </fix> [0..1] ?
-    // <sat> xsd:nonNegativeInteger </sat> [0..1] ?
-    // <hdop> xsd:decimal </hdop> [0..1] ?
-    // <vdop> xsd:decimal </vdop> [0..1] ?
-    // <pdop> xsd:decimal </pdop> [0..1] ?
-    // <ageofdgpsdata> xsd:decimal </ageofdgpsdata> [0..1] ?
-    // <dgpsid> dgpsStationType </dgpsid> [0..1] ?
-    // <extensions> extensionsType </extensions> [0..1] ?
-}
-
-impl Waypoint {
-    /// Gives the geographical point of the waypoint.
-    pub fn point(&self) -> Point<f64> {
-        self.point.unwrap()
-    }
-}
-
-impl ToGeo<f64> for Waypoint {
-    fn to_geo(&self) -> Geometry<f64> {
-        Geometry::Point(self.point())
-    }
-}
-
+use Waypoint;
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {

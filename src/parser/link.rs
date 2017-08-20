@@ -10,21 +10,7 @@ use xml::reader::XmlEvent;
 
 use parser::string;
 
-/// Link represents a link to an external resource.
-///
-/// An external resource could be a web page, digital photo,
-/// video clip, etc., with additional information.
-#[derive(Default, Debug)]
-pub struct Link {
-    /// URL of hyperlink.
-    pub href: String,
-
-    /// Text of hyperlink.
-    pub text: Option<String>,
-
-    /// Mime type of content (image/jpeg)
-    pub _type: Option<String>,
-}
+use Link;
 
 
 /// consume consumes a GPX link from the `reader` until it ends.

@@ -8,9 +8,7 @@
 //! use std::fs::File;
 //!
 //! use gpx::reader;
-//! use gpx::parser::gpx::Gpx;
-//! use gpx::parser::track::Track;
-//! use gpx::parser::waypoint::Waypoint;
+//! use gpx::{Gpx, Track, Waypoint};
 //!
 //! // This XML file actually exists — try it for yourself!
 //! let file = File::open("tests/fixtures/wikipedia_example.xml").unwrap();
@@ -44,6 +42,10 @@ extern crate assert_approx_eq;
 extern crate xml;
 extern crate chrono;
 extern crate geo;
+
+pub use types::*;
+
+mod types;
 
 pub mod reader;
 pub mod errors;
