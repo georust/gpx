@@ -58,33 +58,29 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
         // Peep into the reader and see what type of event is next. Based on
         // that information, we'll either forward the event to a downstream
         // module or take the information for ourselves.
-        let event: Option<TrackSegmentEvent> = {
+        let event: Result<TrackSegmentEvent> = {
             if let Some(next) = reader.peek() {
                 match next {
                     &Ok(XmlEvent::StartElement { ref name, .. }) => {
                         match name.local_name.as_ref() {
-                            "trkseg" => Some(TrackSegmentEvent::StartTrkSeg),
-                            "trkpt" => Some(TrackSegmentEvent::StartTrkPt),
-                            _ => None,
+                            "trkseg" => Ok(TrackSegmentEvent::StartTrkSeg),
+                            "trkpt" => Ok(TrackSegmentEvent::StartTrkPt),
+                            _ => Err("unknown child element".into()),
                         }
                     }
 
                     &Ok(XmlEvent::EndElement { .. }) => {
-                        Some(TrackSegmentEvent::EndTrkSeg)
+                        Ok(TrackSegmentEvent::EndTrkSeg)
                     }
 
-                    _ => Some(TrackSegmentEvent::Ignore),
+                    _ => Ok(TrackSegmentEvent::Ignore),
                 }
             } else {
                 break
             }
         };
 
-        if event.is_none() {
-            return Err("error while parsing track segment".into());
-        }
-
-        match event.unwrap() {
+        match event.chain_err(|| Error::from("error while parsing track segment event"))? {
             TrackSegmentEvent::StartTrkSeg => {
                 reader.next();
             },
