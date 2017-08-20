@@ -1,9 +1,22 @@
+// This is a pretty complete functional test of the library.
+// Feel free to read through these tests and their accompanying
+// .gpx files to see how usage might be.
+
+#[macro_use]
+extern crate assert_approx_eq;
+
 extern crate gpx;
+extern crate chrono;
+extern crate geo;
 
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
     use std::fs::File;
+    use chrono::prelude::*;
+    use geo::length::Length;
+    use geo::{Geometry, ToGeo, Point};
+    use geo::algorithm::haversine_distance::HaversineDistance;
 
     use gpx::reader;
 
@@ -21,25 +34,104 @@ mod tests {
     #[test]
     fn gpx_reader_read_test_wikipedia() {
         // Should not give an error, and should have all the correct data.
-        let file = File::open("tests/fixtures/wikipedia_example.xml").unwrap();
+        let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
         let reader = BufReader::new(file);
 
         let result = reader::read(reader);
         assert!(result.is_ok());
 
-        let mut result = result.unwrap();
+        let result = result.unwrap();
 
+        // Check the metadata, of course; here it has a time.
+        let metadata = result.metadata.unwrap();
+        assert_eq!(
+            metadata.time.unwrap(),
+            Utc.ymd(2009, 10, 17).and_hms(22, 58, 43)
+        );
+
+        // There should just be one track, "example gpx document".
         assert_eq!(result.tracks.len(), 1);
+        let track = &result.tracks[0];
 
-        let mut track = result.tracks.pop().unwrap();
-        assert_eq!(track.name.unwrap(), "Example GPX Document");
+        assert_eq!(track.name, Some(String::from("Example GPX Document")));
 
+        // Each point has its own information; test elevation.
         assert_eq!(track.segments.len(), 1);
-        let mut points = track.segments.pop().unwrap().points;
+        let points = &track.segments[0].points;
 
         assert_eq!(points.len(), 3);
-        assert_eq!(points.pop().unwrap().elevation.unwrap(), 6.87);
-        assert_eq!(points.pop().unwrap().elevation.unwrap(), 4.94);
-        assert_eq!(points.pop().unwrap().elevation.unwrap(), 4.46);
+        assert_eq!(points[0].elevation, Some(4.46));
+        assert_eq!(points[1].elevation, Some(4.94));
+        assert_eq!(points[2].elevation, Some(6.87));
+    }
+
+    #[test]
+    fn gpx_reader_read_test_garmin_activity() {
+        let file = File::open("tests/fixtures/garmin-activity.gpx").unwrap();
+        let reader = BufReader::new(file);
+
+        let result = reader::read(reader);
+        assert!(result.is_ok());
+        let res = result.unwrap();
+
+        // Check the info on the metadata.
+        let metadata = res.metadata.unwrap();
+        assert_eq!(
+            metadata.time.unwrap(),
+            Utc.ymd(2017, 7, 29).and_hms_micro(14, 46, 35, 000_000)
+        );
+
+        assert_eq!(metadata.links.len(), 1);
+        let link = &metadata.links[0];
+        assert_eq!(link.text, Some(String::from("Garmin Connect")));
+        // TODO assert_eq!(link.href, "connect.garmin.com");
+
+        // Check the main track.
+        assert_eq!(res.tracks.len(), 1);
+        let track = &res.tracks[0];
+
+        assert_eq!(track.name, Some(String::from("casual stroll")));
+        assert_eq!(track._type, Some(String::from("running")));
+
+        // Check some Geo operations on the track.
+        let mls = track.multilinestring();
+        assert_approx_eq!(mls.length(), 0.12704048);
+
+        // Get the first track segment.
+        assert_eq!(track.segments.len(), 1);
+        let segment = &track.segments[0];
+
+        // Test for every single point in the file.
+        for point in segment.points.iter() {
+            // Elevation is between 90 and 220.
+            let elevation = point.elevation.unwrap();
+            assert!(elevation > 90. && elevation < 220.);
+
+            // All the points should be close (5000 units, its closer than you think).
+            let reference_point = Point::new(-121.97, 37.24);
+            let distance = reference_point.haversine_distance(&point.point());
+            assert!(distance < 5000.);
+
+            // Time is between a day before and after.
+            let time = point.time.unwrap();
+            assert!(time > Utc.ymd(2017, 7, 28).and_hms_micro(0, 0, 0, 000_000));
+            assert!(time < Utc.ymd(2017, 7, 30).and_hms_micro(0, 0, 0, 000_000));
+
+            // Should coerce to Point.
+            let geo: Geometry<f64> = point.to_geo();
+            match geo {
+                Geometry::Point(_) => {}, // ok
+                _ => panic!("point.to_geo() gave bad geometry"),
+            }
+
+            // It's missing almost all fields, actually.
+            assert!(point.name.is_none());
+            assert!(point.comment.is_none());
+            assert!(point.description.is_none());
+            assert!(point.source.is_none());
+            assert!(point.symbol.is_none());
+            assert!(point._type.is_none());
+            assert_eq!(point.links.len(), 0);
+        }
     }
 }

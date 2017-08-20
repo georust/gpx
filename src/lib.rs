@@ -11,7 +11,7 @@
 //! use gpx::{Gpx, Track, Waypoint};
 //!
 //! // This XML file actually exists — try it for yourself!
-//! let file = File::open("tests/fixtures/wikipedia_example.xml").unwrap();
+//! let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
 //! let reader = BufReader::new(file);
 //!
 //! // reader::read takes any io::Read and gives an Option<Gpx>.
