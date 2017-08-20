@@ -51,9 +51,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
             }
         };
 
-        match event.chain_err(|| {
-            Error::from("error while parsing person event")
-        })? {
+        match event.chain_err(
+            || Error::from("error while parsing person event"),
+        )? {
             ParseEvent::Ignore => {
                 reader.next();
             }

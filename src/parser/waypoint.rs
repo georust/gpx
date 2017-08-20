@@ -9,17 +9,29 @@ use std::iter::Peekable;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 use geo::Point;
+use chrono::prelude::*;
 
 use parser::string;
 use parser::link;
 use parser::time;
 use parser::extensions;
 
+use Link;
 use Waypoint;
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
-    let mut waypoint: Waypoint = Default::default();
+    // Here we hold all members of a waypoint, just outside of the struct.
+    let mut point: Option<Point<f64>> = None;
+    let mut elevation: Option<f64> = None;
+    let mut time: Option<DateTime<Utc>> = None;
+    let mut wptname: Option<String> = None;
+    let mut comment: Option<String> = None;
+    let mut description: Option<String> = None;
+    let mut source: Option<String> = None;
+    let mut links: Vec<Link> = vec![];
+    let mut symbol: Option<String> = None;
+    let mut _type: Option<String> = None;
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -49,22 +61,22 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                             || "error while casting longitude to f64",
                         )?;
 
-                        waypoint.point = Some(Point::new(longitude, latitude));
+                        point = Some(Point::new(longitude, latitude));
                     }
                     "ele" => {
                         // Cast the elevation to an f64, from a string.
-                        waypoint.elevation = Some(string::consume(reader)?.parse().chain_err(
+                        elevation = Some(string::consume(reader)?.parse().chain_err(
                             || "error while casting elevation to f64",
                         )?)
                     }
-                    "time" => waypoint.time = Some(time::consume(reader)?),
-                    "name" => waypoint.name = Some(string::consume(reader)?),
-                    "cmt" => waypoint.comment = Some(string::consume(reader)?),
-                    "desc" => waypoint.description = Some(string::consume(reader)?),
-                    "src" => waypoint.source = Some(string::consume(reader)?),
-                    "link" => waypoint.links.push(link::consume(reader)?),
-                    "sym" => waypoint.symbol = Some(string::consume(reader)?),
-                    "type" => waypoint._type = Some(string::consume(reader)?),
+                    "time" => time = Some(time::consume(reader)?),
+                    "name" => wptname = Some(string::consume(reader)?),
+                    "cmt" => comment = Some(string::consume(reader)?),
+                    "desc" => description = Some(string::consume(reader)?),
+                    "src" => source = Some(string::consume(reader)?),
+                    "link" => links.push(link::consume(reader)?),
+                    "sym" => symbol = Some(string::consume(reader)?),
+                    "type" => _type = Some(string::consume(reader)?),
                     "extensions" => extensions::consume(reader)?,
                     _ => {
                         return Err("bad child element".into());
@@ -73,9 +85,21 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
             }
 
             XmlEvent::EndElement { .. } => {
-                // TODO ensure!(waypoint.point.is_some(), "waypoint must always have point");
+                ensure!(point.is_some(), "waypoint must always have point");
 
-                return Ok(waypoint);
+                let mut wpt = Waypoint::new(point.unwrap());
+
+                wpt.elevation = elevation;
+                wpt.time = time;
+                wpt.name = wptname;
+                wpt.comment = comment;
+                wpt.description = description;
+                wpt.source = source;
+                wpt.links = links;
+                wpt.symbol = symbol;
+                wpt._type = _type;
+
+                return Ok(wpt);
             }
 
             _ => {}
@@ -118,7 +142,10 @@ mod tests {
             waypoint.comment.unwrap(),
             "This is a comment about the white house."
         );
-        assert_eq!(waypoint.description.unwrap(), "The white house is very nice!");
+        assert_eq!(
+            waypoint.description.unwrap(),
+            "The white house is very nice!"
+        );
         assert_eq!(waypoint.source.unwrap(), "Garmin eTrex");
         assert_eq!(waypoint._type.unwrap(), "waypoint classification");
         assert_eq!(waypoint.elevation.unwrap(), 4608.12);

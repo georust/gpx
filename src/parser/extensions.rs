@@ -47,7 +47,13 @@ mod tests {
 
     #[test]
     fn consume_arbitrary_extensions() {
-        let result = consume!("<extensions>hello world<a><b cond=\"no\"><c>derp</c></b></a><tag>yadda yadda we dont care</tag></extensions>");
+        let result = consume!(
+            "<extensions>
+                hello world
+                <a><b cond=\"no\"><c>derp</c></b></a>
+                <tag>yadda yadda we dont care</tag>
+            </extensions>"
+        );
 
         assert!(result.is_ok());
     }

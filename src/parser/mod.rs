@@ -1,6 +1,7 @@
 //! Handles parsing GPX format.
 
 // Just a shared macro for testing 'consume'.
+#[cfg(test)]
 #[macro_export]
 macro_rules! consume {
     ( $xml:expr ) => {{

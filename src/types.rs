@@ -89,6 +89,19 @@ impl Track {
     pub fn multilinestring(&self) -> MultiLineString<f64> {
         self.segments.iter().map(|seg| seg.linestring()).collect()
     }
+
+    /// Creates a new Track with default values.
+    ///
+    /// ```
+    /// use gpx::{Track, TrackSegment};
+    ///
+    /// let mut track: Track = Track::new();
+    ///
+    /// let segment = TrackSegment::new();
+    /// track.segments.push(segment);
+    pub fn new() -> Track {
+        Default::default()
+    }
 }
 
 impl ToGeo<f64> for Track {
@@ -118,6 +131,25 @@ impl TrackSegment {
     pub fn linestring(&self) -> LineString<f64> {
         self.points.iter().map(|wpt| wpt.point()).collect()
     }
+
+    /// Creates a new TrackSegment with default values.
+    ///
+    /// ```
+    /// extern crate gpx;
+    /// extern crate geo;
+    ///
+    /// use gpx::{TrackSegment, Waypoint};
+    /// use geo::Point;
+    ///
+    /// fn main() {
+    ///     let mut trkseg: TrackSegment = TrackSegment::new();
+    ///
+    ///     let point = Waypoint::new(Point::new(-121.97, 37.24));
+    ///     trkseg.points.push(point);
+    /// }
+    pub fn new() -> TrackSegment {
+        Default::default()
+    }
 }
 
 impl ToGeo<f64> for TrackSegment {
@@ -129,10 +161,10 @@ impl ToGeo<f64> for TrackSegment {
 
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct Waypoint {
-    // TODO: make private.
-    pub point: Option<Point<f64>>,
+    /// The geographical point.
+    point: Point<f64>,
 
     /// Elevation (in meters) of the point.
     pub elevation: Option<f64>,
@@ -185,8 +217,56 @@ pub struct Waypoint {
 
 impl Waypoint {
     /// Gives the geographical point of the waypoint.
+    ///
+    /// ```
+    /// extern crate geo;
+    /// extern crate gpx;
+    ///
+    /// use gpx::Waypoint;
+    /// use geo::Point;
+    ///
+    /// fn main() {
+    ///     // Kind of useless, but it shows the point.
+    ///     let wpt = Waypoint::new(Point::new(-121.97, 37.24));
+    ///     let point = wpt.point();
+    ///
+    ///     println!("waypoint latitude: {}, longitude: {}", point.lat(), point.lng());
+    /// }
+    /// ```
     pub fn point(&self) -> Point<f64> {
-        self.point.unwrap()
+        self.point
+    }
+
+    /// Creates a new Waypoint from a given geographical point.
+    ///
+    /// ```
+    /// extern crate geo;
+    /// extern crate gpx;
+    ///
+    /// use gpx::Waypoint;
+    /// use geo::Point;
+    ///
+    /// fn main() {
+    ///     let point = Point::new(-121.97, 37.24);
+    ///
+    ///     let mut wpt = Waypoint::new(point);
+    ///     wpt.elevation = Some(553.21);
+    /// }
+    /// ```
+    pub fn new(point: Point<f64>) -> Waypoint {
+        // Unfortunately we don't have an easy way to write this.
+        Waypoint {
+            point: point,
+            elevation: None,
+            time: None,
+            name: None,
+            comment: None,
+            description: None,
+            source: None,
+            links: vec![],
+            symbol: None,
+            _type: None,
+        }
     }
 }
 

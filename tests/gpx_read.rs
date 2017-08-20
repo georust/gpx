@@ -120,7 +120,7 @@ mod tests {
             // Should coerce to Point.
             let geo: Geometry<f64> = point.to_geo();
             match geo {
-                Geometry::Point(_) => {}, // ok
+                Geometry::Point(_) => {} // ok
                 _ => panic!("point.to_geo() gave bad geometry"),
             }
 

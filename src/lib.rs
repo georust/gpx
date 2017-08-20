@@ -8,34 +8,33 @@
 //! use std::fs::File;
 //!
 //! use gpx::reader;
-//! use gpx::{Gpx, Track, Waypoint};
+//! use gpx::{Gpx, Track, TrackSegment};
 //!
 //! // This XML file actually exists — try it for yourself!
 //! let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
 //! let reader = BufReader::new(file);
 //!
-//! // reader::read takes any io::Read and gives an Option<Gpx>.
-//! let mut gpx: Gpx = reader::read(reader).unwrap();
+//! // reader::read takes any io::Read and gives a Result<Gpx, Error>.
+//! let gpx: Gpx = reader::read(reader).unwrap();
 //!
 //! // Each GPX file has multiple "tracks", this takes the first one.
-//! let mut track: Track = gpx.tracks.pop().unwrap();
-//! assert_eq!(track.name.unwrap(), "Example GPX Document");
+//! let track: &Track = &gpx.tracks[0];
+//! assert_eq!(track.name, Some(String::from("Example GPX Document")));
 //!
 //! // Each track will have different segments full of waypoints, where a
 //! // waypoint contains info like latitude, longitude, and elevation.
-//! let mut points: Vec<Waypoint> = track.segments.pop().unwrap().points;
+//! let segment: &TrackSegment = &track.segments[0];
 //!
 //! // This is an example of retrieving the elevation (in meters) at certain points.
-//! assert_eq!(points.pop().unwrap().elevation.unwrap(), 6.87);
-//! assert_eq!(points.pop().unwrap().elevation.unwrap(), 4.94);
-//! assert_eq!(points.pop().unwrap().elevation.unwrap(), 4.46);
+//! assert_eq!(segment.points[0].elevation, Some(4.46));
+//! assert_eq!(segment.points[1].elevation, Some(4.94));
+//! assert_eq!(segment.points[2].elevation, Some(6.87));
 //! ```
 
 #[macro_use]
 extern crate error_chain;
 
-// TODO, this might be a bug, try and remove this unused imports tag.
-#[allow(unused_imports)]
+#[cfg(test)]
 #[macro_use]
 extern crate assert_approx_eq;
 
