@@ -10,6 +10,7 @@ macro_rules! consume {
 }
 
 pub mod email;
+pub mod extensions;
 pub mod gpx;
 pub mod link;
 pub mod metadata;
