@@ -13,7 +13,7 @@ extern crate gpx;
 use std::io::BufReader;
 use std::fs::File;
 
-use gpx::reader;
+use gpx::read;
 use gpx::{Gpx, Track, Waypoint};
 
 fn main() {
@@ -21,8 +21,8 @@ fn main() {
     let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
     let reader = BufReader::new(file);
 
-    // reader::read takes any io::Read and gives a Result<Gpx, Error>.
-    let gpx: Gpx = reader::read(reader).unwrap();
+    // read takes any io::Read and gives a Result<Gpx, Error>.
+    let gpx: Gpx = read(reader).unwrap();
 
     // Each GPX file has multiple "tracks", this takes the first one.
     let track: &Track = &gpx.tracks[0];

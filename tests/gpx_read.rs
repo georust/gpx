@@ -18,7 +18,7 @@ mod tests {
     use geo::{Geometry, ToGeo, Point};
     use geo::algorithm::haversine_distance::HaversineDistance;
 
-    use gpx::reader;
+    use gpx::read;
 
     #[test]
     fn gpx_reader_read_test_badxml() {
@@ -26,7 +26,7 @@ mod tests {
         let file = File::open("tests/fixtures/badcharacter.xml").unwrap();
         let reader = BufReader::new(file);
 
-        let result = reader::read(reader);
+        let result = read(reader);
 
         assert!(result.is_err());
     }
@@ -37,7 +37,7 @@ mod tests {
         let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
         let reader = BufReader::new(file);
 
-        let result = reader::read(reader);
+        let result = read(reader);
         assert!(result.is_ok());
 
         let result = result.unwrap();
@@ -70,7 +70,7 @@ mod tests {
         let file = File::open("tests/fixtures/garmin-activity.gpx").unwrap();
         let reader = BufReader::new(file);
 
-        let result = reader::read(reader);
+        let result = read(reader);
         assert!(result.is_ok());
         let res = result.unwrap();
 

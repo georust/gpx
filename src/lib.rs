@@ -7,15 +7,15 @@
 //! use std::io::BufReader;
 //! use std::fs::File;
 //!
-//! use gpx::reader;
+//! use gpx::read;
 //! use gpx::{Gpx, Track, TrackSegment};
 //!
 //! // This XML file actually exists — try it for yourself!
 //! let file = File::open("tests/fixtures/wikipedia_example.gpx").unwrap();
 //! let reader = BufReader::new(file);
 //!
-//! // reader::read takes any io::Read and gives a Result<Gpx, Error>.
-//! let gpx: Gpx = reader::read(reader).unwrap();
+//! // read takes any io::Read and gives a Result<Gpx, Error>.
+//! let gpx: Gpx = read(reader).unwrap();
 //!
 //! // Each GPX file has multiple "tracks", this takes the first one.
 //! let track: &Track = &gpx.tracks[0];
@@ -42,11 +42,13 @@ extern crate xml;
 extern crate chrono;
 extern crate geo;
 
+// Export our type structs in the root, along with the read function.
 pub use types::*;
+pub use reader::read;
 
 mod types;
+mod parser;
+mod reader;
 
-pub mod reader;
+// Errors should be namespaced away.
 pub mod errors;
-
-pub mod parser;

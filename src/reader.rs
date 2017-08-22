@@ -17,14 +17,14 @@ use Gpx;
 ///
 /// ```
 /// use std::io::BufReader;
+/// use gpx::read;
 /// use gpx::Gpx;
-/// use gpx::reader;
 /// use gpx::errors::*;
 ///
 /// // You can give it anything that implements `std::io::Read`.
 /// let data = BufReader::new("<gpx></gpx>".as_bytes());
 ///
-/// let res: Result<Gpx> = reader::read(data);
+/// let res: Result<Gpx> = read(data);
 ///
 /// match res {
 ///     Ok(gpx) => {
