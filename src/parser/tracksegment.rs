@@ -35,7 +35,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
                         match name.local_name.as_ref() {
                             "trkseg" => Ok(TrackSegmentEvent::StartTrkSeg),
                             "trkpt" => Ok(TrackSegmentEvent::StartTrkPt),
-                            _ => Err("unknown child element".into()),
+                            _ => Err(Error::from(ErrorKind::InvalidChildElement("tracksegment"))),
                         }
                     }
 

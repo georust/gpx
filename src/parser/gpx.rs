@@ -24,9 +24,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Gpx> {
                     "metadata" => gpx.metadata = Some(metadata::consume(reader)?),
                     "trk" => gpx.tracks.push(track::consume(reader)?),
                     "gpx" => {}
-                    _ => {
-                        return Err("cannot have child element in gpx tag".into());
-                    }
+                    _ => Err(Error::from(ErrorKind::InvalidChildElement("gpx")))?,
                 }
             }
 

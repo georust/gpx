@@ -24,7 +24,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
                             .iter()
                             .filter(|attr| attr.name.local_name == "id")
                             .nth(0)
-                            .ok_or("no id attribute on email tag".to_owned())?;
+                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
 
                         let id = id.clone().value;
 
@@ -32,15 +32,13 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
                             .iter()
                             .filter(|attr| attr.name.local_name == "domain")
                             .nth(0)
-                            .ok_or("no domain attribute on email tag".to_owned())?;
+                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("domain")))?;
 
                         let domain = domain.clone().value;
 
                         email = Some(format!("{id}@{domain}", id = id, domain = domain));
                     }
-                    _ => {
-                        return Err("cannot have child element in email tag".into());
-                    }
+                    _ => Err(Error::from(ErrorKind::InvalidChildElement("email")))?,
                 }
             }
 
@@ -52,7 +50,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
         }
     }
 
-    return Err("no end tag for email".into());
+    unreachable!("should return by now");
 }
 
 #[cfg(test)]
@@ -86,15 +84,32 @@ mod tests {
 
     #[test]
     fn consume_err_no_id() {
-        let email = consume!("<email domain='example.com'/>");
+        let err = consume!("<email domain='example.com'/>").unwrap_err();
 
-        assert!(email.is_err());
+        assert_eq!(err.description(), "invalid element, lacks required attribute");
+        assert_eq!(err.to_string(), "invalid element, lacks required attribute id");
     }
 
     #[test]
     fn consume_err_no_domain() {
-        let email = consume!("<email id=\"gpx\" />");
+        let err = consume!("<email id=\"gpx\" />").unwrap_err();
 
-        assert!(email.is_err());
+        assert_eq!(err.description(), "invalid element, lacks required attribute");
+        assert_eq!(err.to_string(), "invalid element, lacks required attribute domain");
+    }
+
+    #[test]
+    fn consume_err_invalid_child_element() {
+        let err = consume!("<email id=\"id\" domain=\"domain\"><child /></email>").unwrap_err();
+
+        assert_eq!(err.description(), "invalid child element");
+        assert_eq!(err.to_string(), "invalid child element in email");
+    }
+
+    #[test]
+    fn consume_err_no_ending_tag() {
+        let err = consume!("<email id=\"id\" domain=\"domain\">").unwrap_err();
+
+        assert_eq!(err.description(), "error while parsing XML");
     }
 }

@@ -29,9 +29,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
                     "time" => metadata.time = Some(time::consume(reader)?),
                     "link" => metadata.links.push(link::consume(reader)?),
                     "metadata" => {}
-                    _ => {
-                        return Err("bad child element for metadata".into());
-                    }
+                    _ => Err(Error::from(ErrorKind::InvalidChildElement("metadata")))?,
                 }
             }
 

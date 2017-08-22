@@ -78,9 +78,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                     "sym" => symbol = Some(string::consume(reader)?),
                     "type" => _type = Some(string::consume(reader)?),
                     "extensions" => extensions::consume(reader)?,
-                    _ => {
-                        return Err("bad child element".into());
-                    }
+                    _ => Err(Error::from(ErrorKind::InvalidChildElement("waypoint")))?,
                 }
             }
 

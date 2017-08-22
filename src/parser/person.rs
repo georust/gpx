@@ -38,7 +38,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
                             "email" => Ok(ParseEvent::StartEmail),
                             "link" => Ok(ParseEvent::StartLink),
                             "person" => Ok(ParseEvent::Ignore),
-                            _ => Err("unknown child element".into()),
+                            _ => Err(Error::from(ErrorKind::InvalidChildElement("person"))),
                         }
                     }
 
@@ -78,7 +78,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
         }
     }
 
-    return Err("no end tag for person".into());
+    unreachable!("should return by now");
 }
 
 #[cfg(test)]

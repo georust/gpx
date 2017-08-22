@@ -36,9 +36,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Link> {
 
                         link.href = attr.value;
                     }
-                    _ => {
-                        return Err("cannot have child element besides text and type".into());
-                    }
+                    _ => Err(Error::from(ErrorKind::InvalidChildElement("link")))?,
                 }
             }
 
