@@ -3,8 +3,11 @@
 name = "gpx"
 description = "Rust read/write support for GPS Exchange Format (GPX)"
 license = "MIT"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@rwell.org>"]
+readme = "README.md"
+documentation = "https://docs.rs/gpx"
+repository = "https://github.com/georust/rust-gpx"
 
 [dependencies]
 geo = "0.4.13"
