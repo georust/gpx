@@ -1,8 +1,5 @@
 //! waypoint handles parsing of GPX-spec waypoints.
 
-extern crate xml;
-extern crate geo;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

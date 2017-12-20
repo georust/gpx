@@ -1,7 +1,5 @@
 //! link handles parsing of GPX-spec links.
 
-extern crate xml;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

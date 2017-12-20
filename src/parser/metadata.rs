@@ -1,7 +1,5 @@
 //! metadata handles parsing of GPX-spec metadata.
 
-extern crate xml;
-
 use errors::*;
 use std::iter::Peekable;
 use std::io::Read;

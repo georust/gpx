@@ -1,7 +1,5 @@
 //! tracksegment handles parsing of GPX-spec track segments.
 
-extern crate xml;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

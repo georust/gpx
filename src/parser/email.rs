@@ -1,7 +1,5 @@
 //! email handles parsing of GPX-spec emails.
 
-extern crate xml;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

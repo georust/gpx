@@ -1,7 +1,5 @@
 //! Reads an activity from GPX format.
 
-extern crate xml;
-
 use std::io::Read;
 
 use errors::*;

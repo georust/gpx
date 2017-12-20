@@ -10,5 +10,5 @@ authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@
 geo = "0.4.13"
 xml-rs = "0.6"
 chrono = "0.4"
-error-chain = "0.10.0"
+error-chain = "0.11.0"
 assert_approx_eq = "1.0.0"

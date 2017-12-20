@@ -1,7 +1,5 @@
 //! gpx handles parsing of GPX elements.
 
-extern crate xml;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

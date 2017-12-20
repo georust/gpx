@@ -2,9 +2,6 @@
 
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 
-extern crate xml;
-extern crate chrono;
-
 use errors::*;
 use std::iter::Peekable;
 use std::io::Read;

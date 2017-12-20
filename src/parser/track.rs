@@ -1,7 +1,5 @@
 //! track handles parsing of GPX-spec tracks.
 
-extern crate xml;
-
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;

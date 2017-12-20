@@ -1,7 +1,5 @@
 //! person handles parsing of GPX-spec persons.
 
-extern crate xml;
-
 use errors::*;
 use std::iter::Peekable;
 use std::io::Read;

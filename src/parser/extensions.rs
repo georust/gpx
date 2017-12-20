@@ -2,8 +2,6 @@
 
 // TODO: extensions are not implemented
 
-extern crate xml;
-
 use errors::*;
 use std::iter::Peekable;
 use std::io::Read;
