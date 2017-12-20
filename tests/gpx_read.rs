@@ -49,6 +49,11 @@ mod tests {
             Utc.ymd(2009, 10, 17).and_hms(22, 58, 43)
         );
 
+        assert_eq!(metadata.links.len(), 1);
+        let link = &metadata.links[0];
+        assert_eq!(link.href, "http://www.garmin.com");
+        assert_eq!(link.text, Some(String::from("Garmin International")));
+
         // There should just be one track, "example gpx document".
         assert_eq!(result.tracks.len(), 1);
         let track = &result.tracks[0];
@@ -84,7 +89,7 @@ mod tests {
         assert_eq!(metadata.links.len(), 1);
         let link = &metadata.links[0];
         assert_eq!(link.text, Some(String::from("Garmin Connect")));
-        // TODO assert_eq!(link.href, "connect.garmin.com");
+        assert_eq!(link.href, String::from("connect.garmin.com"));
 
         // Check the main track.
         assert_eq!(res.tracks.len(), 1);

@@ -15,29 +15,85 @@ use parser::time;
 
 use Metadata;
 
+enum ParseEvent {
+    StartName,
+    StartDescription,
+    StartAuthor,
+    StartKeywords,
+    StartTime,
+    StartLink,
+    Ignore,
+    EndMetadata,
+}
+
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
     let mut metadata: Metadata = Default::default();
 
-    while let Some(event) = reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, .. } => {
-                match name.local_name.as_ref() {
-                    "name" => metadata.name = Some(string::consume(reader)?),
-                    "description" => metadata.description = Some(string::consume(reader)?),
-                    "author" => metadata.author = Some(person::consume(reader)?),
-                    "keywords" => metadata.keywords = Some(string::consume(reader)?),
-                    "time" => metadata.time = Some(time::consume(reader)?),
-                    "link" => metadata.links.push(link::consume(reader)?),
-                    "metadata" => {}
-                    _ => Err(Error::from(ErrorKind::InvalidChildElement("metadata")))?,
+    loop {
+        // Peep into the reader and see what type of event is next. Based on
+        // that information, we'll either forward the event to a downstream
+        // module or take the information for ourselves.
+        let event: Result<ParseEvent> = {
+            if let Some(next) = reader.peek() {
+                match next {
+                    &Ok(XmlEvent::StartElement { ref name, .. }) => {
+                        match name.local_name.as_ref() {
+                            "metadata" => Ok(ParseEvent::Ignore),
+                            "name" => Ok(ParseEvent::StartName),
+                            "description" => Ok(ParseEvent::StartDescription),
+                            "author" => Ok(ParseEvent::StartAuthor),
+                            "keywords" => Ok(ParseEvent::StartKeywords),
+                            "time" => Ok(ParseEvent::StartTime),
+                            "link" => Ok(ParseEvent::StartLink),
+                            _ => Err(Error::from(ErrorKind::InvalidChildElement("metadata")))?,
+                        }
+                    }
+
+                    &Ok(XmlEvent::EndElement { .. }) => Ok(ParseEvent::EndMetadata),
+
+                    _ => Ok(ParseEvent::Ignore),
                 }
+            } else {
+                break;
+            }
+        };
+
+        match event.chain_err(
+            || Error::from("error while parsing gpx event"),
+        )? {
+            ParseEvent::Ignore => {
+                reader.next();
             }
 
-            XmlEvent::EndElement { .. } => {
+            ParseEvent::StartName => {
+                metadata.name = Some(string::consume(reader)?);
+            }
+
+            ParseEvent::StartDescription => {
+                metadata.description = Some(string::consume(reader)?);
+            }
+
+            ParseEvent::StartAuthor => {
+                metadata.author = Some(person::consume(reader)?);
+            }
+
+            ParseEvent::StartKeywords => {
+                metadata.keywords = Some(string::consume(reader)?);
+            }
+
+            ParseEvent::StartTime => {
+                metadata.time = Some(time::consume(reader)?);
+            }
+
+            ParseEvent::StartLink => {
+                metadata.links.push(link::consume(reader)?);
+            }
+
+            ParseEvent::EndMetadata => {
+                reader.next();
+
                 return Ok(metadata);
             }
-
-            _ => {}
         }
     }
 
@@ -102,8 +158,8 @@ mod tests {
         let author = result.author.unwrap();
 
         assert_eq!(author.name.unwrap(), "John Doe");
-        assert!(author.email.is_some());
-        assert!(author.link.is_some());
+        assert_eq!(author.email.unwrap(), "john.doe@example.com");
+        assert_eq!(author.link.unwrap().href, "example.com");
 
         assert!(result.keywords.is_some());
         assert_eq!(result.keywords.unwrap(), "some keywords here");
