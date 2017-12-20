@@ -20,11 +20,12 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
                 match name.local_name.as_ref() {
                     "email" => {
                         // get required id and domain attributes
-                        let id = attributes
-                            .iter()
-                            .filter(|attr| attr.name.local_name == "id")
-                            .nth(0)
-                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
+                        let id =
+                            attributes
+                                .iter()
+                                .filter(|attr| attr.name.local_name == "id")
+                                .nth(0)
+                                .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
 
                         let id = id.clone().value;
 
@@ -32,7 +33,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
                             .iter()
                             .filter(|attr| attr.name.local_name == "domain")
                             .nth(0)
-                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("domain")))?;
+                            .ok_or(Error::from(
+                                ErrorKind::InvalidElementLacksAttribute("domain"),
+                            ))?;
 
                         let domain = domain.clone().value;
 
@@ -86,16 +89,28 @@ mod tests {
     fn consume_err_no_id() {
         let err = consume!("<email domain='example.com'/>").unwrap_err();
 
-        assert_eq!(err.description(), "invalid element, lacks required attribute");
-        assert_eq!(err.to_string(), "invalid element, lacks required attribute id");
+        assert_eq!(
+            err.description(),
+            "invalid element, lacks required attribute"
+        );
+        assert_eq!(
+            err.to_string(),
+            "invalid element, lacks required attribute id"
+        );
     }
 
     #[test]
     fn consume_err_no_domain() {
         let err = consume!("<email id=\"gpx\" />").unwrap_err();
 
-        assert_eq!(err.description(), "invalid element, lacks required attribute");
-        assert_eq!(err.to_string(), "invalid element, lacks required attribute domain");
+        assert_eq!(
+            err.description(),
+            "invalid element, lacks required attribute"
+        );
+        assert_eq!(
+            err.to_string(),
+            "invalid element, lacks required attribute domain"
+        );
     }
 
     #[test]
