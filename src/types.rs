@@ -14,6 +14,9 @@ pub struct Gpx {
     /// Metadata about the file.
     pub metadata: Option<Metadata>,
 
+    /// A list of waypoints.
+    pub waypoints: Vec<Waypoint>,
+
     /// A list of tracks.
     pub tracks: Vec<Track>,
 }
