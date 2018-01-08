@@ -139,4 +139,53 @@ mod tests {
             assert_eq!(point.links.len(), 0);
         }
     }
+
+    #[test]
+    fn gpx_reader_read_test_with_accuracy() {
+        let file = File::open("tests/fixtures/with_accuracy.gpx").unwrap();
+        let reader = BufReader::new(file);
+
+        let result = read(reader);
+        assert!(result.is_ok());
+        let res = result.unwrap();
+
+        // Check the info on the metadata.
+        let metadata = res.metadata.unwrap();
+        assert_eq!(
+            metadata.name.unwrap(),
+            "20170412_CARDIO.gpx"
+        );
+
+        assert_eq!(metadata.links.len(), 0);
+
+        // Check the main track.
+        assert_eq!(res.tracks.len(), 1);
+        let track = &res.tracks[0];
+
+        assert_eq!(track.name, Some(String::from("Cycling")));
+
+        // Get the first track segment.
+        assert_eq!(track.segments.len(), 1);
+        let segment = &track.segments[0];
+
+        // Get the first point
+        assert_eq!(segment.points.len(), 2);
+        let points = &segment.points;
+
+        assert_eq!(points[0].fix, Some("dgps".to_string()));
+        assert_eq!(points[0].sat.unwrap(), 4);
+        assert_eq!(points[0].hdop.unwrap(), 5.);
+        assert_eq!(points[0].vdop.unwrap(), 6.2);
+        assert_eq!(points[0].pdop.unwrap(), 728.);
+        assert_eq!(points[0].age.unwrap(), 1.);
+        assert_eq!(points[0].dgpsid.unwrap(), 3);
+
+        assert_eq!(points[1].fix, Some("3d".to_string()));
+        assert_eq!(points[1].sat.unwrap(), 5);
+        assert_eq!(points[1].hdop.unwrap(), 3.6);
+        assert_eq!(points[1].vdop.unwrap(), 5.);
+        assert_eq!(points[1].pdop.unwrap(), 619.1);
+        assert_eq!(points[1].age.unwrap(), 2.01);
+        assert_eq!(points[1].dgpsid.unwrap(), 4);
+    }
 }

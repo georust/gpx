@@ -208,13 +208,31 @@ pub struct Waypoint {
 
     // <magvar> degreesType </magvar> [0..1] ?
     // <geoidheight> xsd:decimal </geoidheight> [0..1] ?
-    // <fix> fixType </fix> [0..1] ?
-    // <sat> xsd:nonNegativeInteger </sat> [0..1] ?
-    // <hdop> xsd:decimal </hdop> [0..1] ?
-    // <vdop> xsd:decimal </vdop> [0..1] ?
-    // <pdop> xsd:decimal </pdop> [0..1] ?
-    // <ageofdgpsdata> xsd:decimal </ageofdgpsdata> [0..1] ?
-    // <dgpsid> dgpsStationType </dgpsid> [0..1] ?
+
+    /// Type of GPS fix. `none` means GPS had no fix. To signify "the fix info
+    /// is unknown", leave out `fix` entirely. Value comes from the list
+    /// `{'none'|'2d'|'3d'|'dgps'|'pps'}`, where `pps` means that the military
+    /// signal was used.
+    pub fix: Option<String>,
+
+    /// Number of satellites used to calculate the GPX fix.
+    pub sat: Option<u64>,
+
+    /// Horizontal dilution of precision.
+    pub hdop: Option<f64>,
+
+    /// Vertical dilution of precision.
+    pub vdop: Option<f64>,
+
+    /// Positional dilution of precision.
+    pub pdop: Option<f64>,
+
+    /// Number of seconds since last DGPS update, from the <ageofgpsdata> element.
+    pub age: Option<f64>,
+
+    // ID of DGPS station used in differential correction, in the range [0, 1023].
+    pub dgpsid: Option<u16>,
+
     // <extensions> extensionsType </extensions> [0..1] ?
 }
 
@@ -269,6 +287,13 @@ impl Waypoint {
             links: vec![],
             symbol: None,
             _type: None,
+            fix: None,
+            sat: None,
+            hdop: None,
+            vdop: None,
+            pdop: None,
+            age: None,
+            dgpsid: None
         }
     }
 }

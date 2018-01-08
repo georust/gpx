@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="BuildGPX_2017.05"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+     xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <metadata>
+        <name>20170412_CARDIO.gpx</name>
+    </metadata>
+    <trk>
+        <name>Cycling</name>
+        <trkseg>
+            <trkpt lat="51.120586" lon="3.779642">
+                <ele>50.3</ele>
+                <time>2017-04-12T17:00:36.000Z</time>
+                <fix>dgps</fix>
+                <sat>4</sat>
+                <hdop>5</hdop>
+                <vdop>6.2</vdop>
+                <pdop>728</pdop>
+                <ageofgpsdata>1</ageofgpsdata>
+                <dgpsid>3</dgpsid>
+            </trkpt>
+            <trkpt lat="51.120654" lon="3.772442">
+                <ele>0.0</ele>
+                <time>2017-04-12T17:00:37.000Z</time>
+                <fix>3d</fix>
+                <sat>5</sat>
+                <hdop>3.6</hdop>
+                <vdop>5</vdop>
+                <pdop>619.1</pdop>
+                <ageofgpsdata>2.01</ageofgpsdata>
+                <dgpsid>4</dgpsid>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>
