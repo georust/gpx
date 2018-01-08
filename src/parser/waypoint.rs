@@ -11,10 +11,12 @@ use chrono::prelude::*;
 use parser::string;
 use parser::link;
 use parser::time;
+use parser::fix;
 use parser::extensions;
 
 use Link;
 use Waypoint;
+use Fix;
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
@@ -29,6 +31,13 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
     let mut links: Vec<Link> = vec![];
     let mut symbol: Option<String> = None;
     let mut _type: Option<String> = None;
+    let mut fix: Option<Fix> = None;
+    let mut sat: Option<u64> = None;  // Number of satellites used for GPX fix (nonNegativeInteger)
+    let mut hdop: Option<f64> = None; // Horizontal dilution of precision (decimal)
+    let mut vdop: Option<f64> = None; // Vertical dilution of precision (decimal)
+    let mut pdop: Option<f64> = None; // Position dilution of precision (decimal)
+    let mut age_of_gps_data: Option<f64> = None; // Seconds since last DGPS update (decimal)
+    let mut dgpsid: Option<u16> = None; // Id of the DGPS station (integer 0-1023)
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -74,6 +83,41 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                     "link" => links.push(link::consume(reader)?),
                     "sym" => symbol = Some(string::consume(reader)?),
                     "type" => _type = Some(string::consume(reader)?),
+
+                    // Optional accuracy information
+                    "fix" => fix = Some(fix::consume(reader)?),
+                    "sat" => {
+                        sat = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting number of satellites (sat) to u64"
+                        )?)
+                    },
+                    "hdop" => {
+                        hdop = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting horizontal dilution of precision (hdop) to f64"
+                        )?)
+                    },
+                    "vdop" => {
+                        vdop = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting vertical dilution of precision (vdop) to f64"
+                        )?)
+                    }
+                    "pdop" => {
+                        pdop = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting position dilution of precision (pdop) to f64"
+                        )?)
+                    },
+                    "ageofgpsdata" => {
+                        age_of_gps_data = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting age of GPS data to f64"
+                        )?)
+                    },
+                    "dgpsid" => {
+                        dgpsid = Some(string::consume(reader)?.parse().chain_err(
+                            || "error while casting DGPS station ID to u16"
+                        )?)
+                    }
+
+                    // Finally the GPX 1.1 extensions
                     "extensions" => extensions::consume(reader)?,
                     _ => Err(Error::from(ErrorKind::InvalidChildElement("waypoint")))?,
                 }
@@ -93,6 +137,13 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                 wpt.links = links;
                 wpt.symbol = symbol;
                 wpt._type = _type;
+                wpt.fix = fix;
+                wpt.sat = sat;
+                wpt.hdop = hdop;
+                wpt.vdop = vdop;
+                wpt.pdop = pdop;
+                wpt.age = age_of_gps_data;
+                wpt.dgpsid = dgpsid;
 
                 return Ok(wpt);
             }
@@ -110,6 +161,7 @@ mod tests {
     use xml::reader::EventReader;
     use geo::Point;
 
+    use Fix;
     use super::consume;
 
     #[test]
@@ -123,6 +175,9 @@ mod tests {
                 <src>Garmin eTrex</src>
                 <type>waypoint classification</type>
                 <ele>4608.12</ele>
+                <fix>dgps</fix>
+                <sat>4</sat>
+                <hdop>6.058</hdop>
             </wpt>
             "
         );
@@ -144,6 +199,9 @@ mod tests {
         assert_eq!(waypoint.source.unwrap(), "Garmin eTrex");
         assert_eq!(waypoint._type.unwrap(), "waypoint classification");
         assert_eq!(waypoint.elevation.unwrap(), 4608.12);
+        assert_eq!(waypoint.fix.unwrap(), Fix::DGPS);
+        assert_eq!(waypoint.sat.unwrap(), 4);
+        assert_eq!(waypoint.hdop.unwrap(), 6.058);
     }
 
     #[test]
