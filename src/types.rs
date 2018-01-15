@@ -213,7 +213,7 @@ pub struct Waypoint {
     /// is unknown", leave out `fix` entirely. Value comes from the list
     /// `{'none'|'2d'|'3d'|'dgps'|'pps'}`, where `pps` means that the military
     /// signal was used.
-    pub fix: Option<String>,
+    pub fix: Option<Fix>,
 
     /// Number of satellites used to calculate the GPX fix.
     pub sat: Option<u64>,
@@ -333,4 +333,21 @@ pub struct Link {
 
     /// Mime type of content (image/jpeg)
     pub _type: Option<String>,
+}
+
+/// Type of the GPS fix.
+#[derive(Debug, PartialEq)]
+pub enum Fix {
+    // The GPS had no fix. To signify "the fix info is unknown", leave out the Fix entirely.
+    None,
+    // 2D fix gives only longitude and latitude. It needs a minimum of 3 satellites.
+    TwoDimensional,
+    // 3D fix gives longitude, latitude and altitude. It needs a minimum of 4 satellites.
+    ThreeDimensional,
+    // Differential Global Positioning System
+    DGPS,
+    // Military signal
+    PPS,
+    // Other values that are not in the specification
+    Other(String)
 }

@@ -11,10 +11,12 @@ use chrono::prelude::*;
 use parser::string;
 use parser::link;
 use parser::time;
+use parser::fix;
 use parser::extensions;
 
 use Link;
 use Waypoint;
+use Fix;
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
@@ -29,7 +31,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
     let mut links: Vec<Link> = vec![];
     let mut symbol: Option<String> = None;
     let mut _type: Option<String> = None;
-    let mut fix: Option<String> = None;
+    let mut fix: Option<Fix> = None;
     let mut sat: Option<u64> = None;  // Number of satellites used for GPX fix (nonNegativeInteger)
     let mut hdop: Option<f64> = None; // Horizontal dilution of precision (decimal)
     let mut vdop: Option<f64> = None; // Vertical dilution of precision (decimal)
@@ -83,7 +85,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                     "type" => _type = Some(string::consume(reader)?),
 
                     // Optional accuracy information
-                    "fix" => fix = Some(string::consume(reader)?),
+                    "fix" => fix = Some(fix::consume(reader)?),
                     "sat" => {
                         sat = Some(string::consume(reader)?.parse().chain_err(
                             || "error while casting number of satellites (sat) to u64"
@@ -159,6 +161,7 @@ mod tests {
     use xml::reader::EventReader;
     use geo::Point;
 
+    use Fix;
     use super::consume;
 
     #[test]
@@ -196,7 +199,7 @@ mod tests {
         assert_eq!(waypoint.source.unwrap(), "Garmin eTrex");
         assert_eq!(waypoint._type.unwrap(), "waypoint classification");
         assert_eq!(waypoint.elevation.unwrap(), 4608.12);
-        assert_eq!(waypoint.fix.unwrap(), "dgps");
+        assert_eq!(waypoint.fix.unwrap(), Fix::DGPS);
         assert_eq!(waypoint.sat.unwrap(), 4);
         assert_eq!(waypoint.hdop.unwrap(), 6.058);
     }

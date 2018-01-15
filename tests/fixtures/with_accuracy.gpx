@@ -31,6 +31,10 @@
                 <ageofgpsdata>2.01</ageofgpsdata>
                 <dgpsid>4</dgpsid>
             </trkpt>
+            <trkpt lat="51.130122" lon="3.773967">
+                <time>2017-04-12T17:00:38.000Z</time>
+                <fix>something_not_in_the_spec</fix>
+            </trkpt>
         </trkseg>
     </trk>
 </gpx>

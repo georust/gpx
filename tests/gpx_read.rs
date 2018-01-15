@@ -19,6 +19,7 @@ mod tests {
     use geo::algorithm::haversine_distance::HaversineDistance;
 
     use gpx::read;
+    use gpx::Fix;
 
     #[test]
     fn gpx_reader_read_test_badxml() {
@@ -169,10 +170,10 @@ mod tests {
         let segment = &track.segments[0];
 
         // Get the first point
-        assert_eq!(segment.points.len(), 2);
+        assert_eq!(segment.points.len(), 3);
         let points = &segment.points;
 
-        assert_eq!(points[0].fix, Some("dgps".to_string()));
+        assert_eq!(points[0].fix, Some(Fix::DGPS));
         assert_eq!(points[0].sat.unwrap(), 4);
         assert_eq!(points[0].hdop.unwrap(), 5.);
         assert_eq!(points[0].vdop.unwrap(), 6.2);
@@ -180,12 +181,14 @@ mod tests {
         assert_eq!(points[0].age.unwrap(), 1.);
         assert_eq!(points[0].dgpsid.unwrap(), 3);
 
-        assert_eq!(points[1].fix, Some("3d".to_string()));
+        assert_eq!(points[1].fix, Some(Fix::ThreeDimensional));
         assert_eq!(points[1].sat.unwrap(), 5);
         assert_eq!(points[1].hdop.unwrap(), 3.6);
         assert_eq!(points[1].vdop.unwrap(), 5.);
         assert_eq!(points[1].pdop.unwrap(), 619.1);
         assert_eq!(points[1].age.unwrap(), 2.01);
         assert_eq!(points[1].dgpsid.unwrap(), 4);
+
+        assert_eq!(points[2].fix, Some(Fix::Other("something_not_in_the_spec".to_string())));
     }
 }
