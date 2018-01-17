@@ -7,7 +7,7 @@ use chrono::DateTime;
 use chrono::prelude::Utc;
 
 /// Gpx is the root element in the XML file.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Gpx {
     pub version: String,
 
@@ -26,7 +26,7 @@ pub struct Gpx {
 ///
 /// Providing rich, meaningful information about your GPX files allows others to
 /// search for and use your GPS data.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Metadata {
     /// The name of the GPX file.
     pub name: Option<String>,
@@ -54,7 +54,7 @@ pub struct Metadata {
 
 
 /// Track represents an ordered list of points describing a path.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Track {
     /// GPS name of track.
     pub name: Option<String>,
@@ -120,7 +120,7 @@ impl ToGeo<f64> for Track {
 /// connected in order. To represent a single GPS track where GPS reception
 /// was lost, or the GPS receiver was turned off, start a new Track Segment
 /// for each continuous span of track data.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct TrackSegment {
     /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
     /// for a single point in a track.
@@ -164,7 +164,7 @@ impl ToGeo<f64> for TrackSegment {
 
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Waypoint {
     /// The geographical point.
     point: Point<f64>,
@@ -306,7 +306,7 @@ impl ToGeo<f64> for Waypoint {
 
 
 /// Person represents a person or organization.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Person {
     /// Name of person or organization.
     pub name: Option<String>,
@@ -323,7 +323,7 @@ pub struct Person {
 ///
 /// An external resource could be a web page, digital photo,
 /// video clip, etc., with additional information.
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Link {
     /// URL of hyperlink.
     pub href: String,
@@ -336,7 +336,7 @@ pub struct Link {
 }
 
 /// Type of the GPS fix.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Fix {
     /// The GPS had no fix. To signify "the fix info is unknown", leave out the Fix entirely.
     None,
