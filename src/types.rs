@@ -6,10 +6,24 @@ use geo::{Bbox, LineString, MultiLineString, Point};
 use chrono::DateTime;
 use chrono::prelude::Utc;
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum GpxVersion {
+    Unknown,
+    Gpx10,
+    Gpx11,
+}
+
+impl Default for GpxVersion {
+    fn default() -> GpxVersion {
+        GpxVersion::Unknown
+    }
+}
+
 /// Gpx is the root element in the XML file.
 #[derive(Clone, Default, Debug)]
 pub struct Gpx {
-    pub version: String,
+    /// Version of the Gpx file.
+    pub version: GpxVersion,
 
     /// Metadata about the file.
     pub metadata: Option<Metadata>,
