@@ -10,6 +10,7 @@ use parser::link;
 use parser::string;
 use parser::person;
 use parser::time;
+use parser::bounds;
 
 use Metadata;
 
@@ -20,6 +21,7 @@ enum ParseEvent {
     StartKeywords,
     StartTime,
     StartLink,
+    StartBounds,
     Ignore,
     EndMetadata,
 }
@@ -43,6 +45,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
                             "keywords" => Ok(ParseEvent::StartKeywords),
                             "time" => Ok(ParseEvent::StartTime),
                             "link" => Ok(ParseEvent::StartLink),
+                            "bounds" => Ok(ParseEvent::StartBounds),
                             child => Err(Error::from(ErrorKind::InvalidChildElement(
                                 String::from(child),
                                 "metadata",
@@ -86,6 +89,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
 
             ParseEvent::StartLink => {
                 metadata.links.push(link::consume(reader)?);
+            }
+
+            ParseEvent::StartBounds => {
+                metadata.bounds = Some(bounds::consume(reader)?);
             }
 
             ParseEvent::EndMetadata => {

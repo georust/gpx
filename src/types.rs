@@ -1,7 +1,7 @@
 //! generic types for GPX
 
 use geo::{Geometry, ToGeo};
-use geo::{LineString, MultiLineString, Point};
+use geo::{Bbox, LineString, MultiLineString, Point};
 
 use chrono::DateTime;
 use chrono::prelude::Utc;
@@ -46,7 +46,8 @@ pub struct Metadata {
     /// this information to classify the data.
     pub keywords: Option<String>,
     /*copyright: GpxCopyrightType,*/
-    /*pub bounds: Option<Bbox<f64>>,*/
+    /// Bounds for the tracks in the GPX.
+    pub bounds: Option<Bbox<f64>>,
     /*extensions: GpxExtensionsType,*/
 }
 
