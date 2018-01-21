@@ -11,25 +11,22 @@ use parser::string;
 
 use Track;
 
-
 /// consume consumes a GPX track from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Track> {
     let mut track: Track = Default::default();
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, .. } => {
-                match name.local_name.as_ref() {
-                    "trk" => {}
-                    "name" => track.name = Some(string::consume(reader)?),
-                    "cmt" => track.comment = Some(string::consume(reader)?),
-                    "desc" => track.description = Some(string::consume(reader)?),
-                    "src" => track.source = Some(string::consume(reader)?),
-                    "type" => track._type = Some(string::consume(reader)?),
-                    "trkseg" => track.segments.push(tracksegment::consume(reader)?),
-                    _ => Err(Error::from(ErrorKind::InvalidChildElement("track")))?,
-                }
-            }
+            XmlEvent::StartElement { name, .. } => match name.local_name.as_ref() {
+                "trk" => {}
+                "name" => track.name = Some(string::consume(reader)?),
+                "cmt" => track.comment = Some(string::consume(reader)?),
+                "desc" => track.description = Some(string::consume(reader)?),
+                "src" => track.source = Some(string::consume(reader)?),
+                "type" => track._type = Some(string::consume(reader)?),
+                "trkseg" => track.segments.push(tracksegment::consume(reader)?),
+                _ => Err(Error::from(ErrorKind::InvalidChildElement("track")))?,
+            },
 
             XmlEvent::EndElement { .. } => {
                 return Ok(track);

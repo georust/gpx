@@ -56,9 +56,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
             }
         };
 
-        match event.chain_err(
-            || Error::from("error while parsing gpx event"),
-        )? {
+        match event.chain_err(|| Error::from("error while parsing gpx event"))? {
             ParseEvent::Ignore => {
                 reader.next();
             }

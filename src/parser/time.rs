@@ -16,9 +16,8 @@ use parser::string;
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<DateTime<Utc>> {
     let time = string::consume(reader)?;
 
-    let time = DateTime::parse_from_rfc3339(&time).chain_err(
-        || "error while parsing time as RFC3339",
-    )?;
+    let time =
+        DateTime::parse_from_rfc3339(&time).chain_err(|| "error while parsing time as RFC3339")?;
 
     return Ok(DateTime::from_utc(time.naive_utc(), Utc));
 }

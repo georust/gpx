@@ -17,7 +17,6 @@ enum TrackSegmentEvent {
     Ignore,
 }
 
-
 /// consume consumes a GPX track segment from the `reader` until it ends.
 pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment> {
     let mut segment: TrackSegment = Default::default();
@@ -46,9 +45,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
             }
         };
 
-        match event.chain_err(|| {
-            Error::from("error while parsing track segment event")
-        })? {
+        match event.chain_err(|| Error::from("error while parsing track segment event"))? {
             TrackSegmentEvent::StartTrkSeg => {
                 reader.next();
             }
