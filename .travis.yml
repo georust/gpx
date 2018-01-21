@@ -10,10 +10,11 @@ rust:
 
 before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
-  - which rustfmt || cargo install rustfmt
+  - rustup install nightly
+  - cargo +nightly install --force rustfmt-nightly
 
 script:
-  - cargo fmt -- --write-mode=diff
+  - cargo +nightly fmt -- --write-mode=diff
   - cargo build --verbose
   - cargo test --verbose
 

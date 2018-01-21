@@ -38,9 +38,9 @@ extern crate error_chain;
 #[macro_use]
 extern crate assert_approx_eq;
 
-extern crate xml;
 extern crate chrono;
 extern crate geo;
+extern crate xml;
 
 // Export our type structs in the root, along with the read function.
 pub use types::*;

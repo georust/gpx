@@ -18,7 +18,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Fix> {
         "3d" => Fix::ThreeDimensional,
         "dgps" => Fix::DGPS,
         "pps" => Fix::PPS,
-        _ => Fix::Other(fix_string)
+        _ => Fix::Other(fix_string),
     };
 
     return Ok(fix);

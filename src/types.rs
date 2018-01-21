@@ -1,7 +1,7 @@
 //! generic types for GPX
 
-use geo::{ToGeo, Geometry};
-use geo::{Point, LineString, MultiLineString};
+use geo::{Geometry, ToGeo};
+use geo::{LineString, MultiLineString, Point};
 
 use chrono::DateTime;
 use chrono::prelude::Utc;
@@ -20,7 +20,6 @@ pub struct Gpx {
     /// A list of tracks.
     pub tracks: Vec<Track>,
 }
-
 
 /// Metadata is information about the GPX file, author, and copyright restrictions.
 ///
@@ -46,12 +45,10 @@ pub struct Metadata {
     /// Keywords associated with the file. Search engines or databases can use
     /// this information to classify the data.
     pub keywords: Option<String>,
-
     /*copyright: GpxCopyrightType,*/
     /*pub bounds: Option<Bbox<f64>>,*/
     /*extensions: GpxExtensionsType,*/
 }
-
 
 /// Track represents an ordered list of points describing a path.
 #[derive(Clone, Default, Debug)]
@@ -80,7 +77,6 @@ pub struct Track {
     /// was lost, or the GPS receiver was turned off, start a new Track Segment
     /// for each continuous span of track data.
     pub segments: Vec<TrackSegment>,
-
     /* pub number: u8,*/
     /* extensions */
     /* trkSeg */
@@ -112,7 +108,6 @@ impl ToGeo<f64> for Track {
         Geometry::MultiLineString(self.multilinestring())
     }
 }
-
 
 /// TrackSegment represents a list of track points.
 ///
@@ -161,7 +156,6 @@ impl ToGeo<f64> for TrackSegment {
     }
 }
 
-
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
 #[derive(Clone, Debug)]
@@ -208,7 +202,6 @@ pub struct Waypoint {
 
     // <magvar> degreesType </magvar> [0..1] ?
     // <geoidheight> xsd:decimal </geoidheight> [0..1] ?
-
     /// Type of GPS fix. `none` means GPS had no fix. To signify "the fix info
     /// is unknown", leave out `fix` entirely. Value comes from the list
     /// `{'none'|'2d'|'3d'|'dgps'|'pps'}`, where `pps` means that the military
@@ -232,7 +225,6 @@ pub struct Waypoint {
 
     /// ID of DGPS station used in differential correction, in the range [0, 1023].
     pub dgpsid: Option<u16>,
-
     // <extensions> extensionsType </extensions> [0..1] ?
 }
 
@@ -293,7 +285,7 @@ impl Waypoint {
             vdop: None,
             pdop: None,
             age: None,
-            dgpsid: None
+            dgpsid: None,
         }
     }
 }
@@ -303,7 +295,6 @@ impl ToGeo<f64> for Waypoint {
         Geometry::Point(self.point())
     }
 }
-
 
 /// Person represents a person or organization.
 #[derive(Clone, Default, Debug)]
@@ -317,7 +308,6 @@ pub struct Person {
     /// Link to Web site or other external information about person.
     pub link: Option<Link>,
 }
-
 
 /// Link represents a link to an external resource.
 ///
@@ -349,5 +339,5 @@ pub enum Fix {
     /// Military signal.
     PPS,
     /// Other values that are not in the specification.
-    Other(String)
+    Other(String),
 }

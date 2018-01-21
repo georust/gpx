@@ -14,16 +14,17 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, attributes, .. } => {
+            XmlEvent::StartElement {
+                name, attributes, ..
+            } => {
                 match name.local_name.as_ref() {
                     "email" => {
                         // get required id and domain attributes
-                        let id =
-                            attributes
-                                .iter()
-                                .filter(|attr| attr.name.local_name == "id")
-                                .nth(0)
-                                .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
+                        let id = attributes
+                            .iter()
+                            .filter(|attr| attr.name.local_name == "id")
+                            .nth(0)
+                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
 
                         let id = id.clone().value;
 
@@ -31,9 +32,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
                             .iter()
                             .filter(|attr| attr.name.local_name == "domain")
                             .nth(0)
-                            .ok_or(Error::from(
-                                ErrorKind::InvalidElementLacksAttribute("domain"),
-                            ))?;
+                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute(
+                                "domain",
+                            )))?;
 
                         let domain = domain.clone().value;
 

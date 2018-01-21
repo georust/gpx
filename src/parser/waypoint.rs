@@ -32,7 +32,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
     let mut symbol: Option<String> = None;
     let mut _type: Option<String> = None;
     let mut fix: Option<Fix> = None;
-    let mut sat: Option<u64> = None;  // Number of satellites used for GPX fix (nonNegativeInteger)
+    let mut sat: Option<u64> = None; // Number of satellites used for GPX fix (nonNegativeInteger)
     let mut hdop: Option<f64> = None; // Horizontal dilution of precision (decimal)
     let mut vdop: Option<f64> = None; // Vertical dilution of precision (decimal)
     let mut pdop: Option<f64> = None; // Position dilution of precision (decimal)
@@ -41,39 +41,43 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, attributes, .. } => {
+            XmlEvent::StartElement {
+                name, attributes, ..
+            } => {
                 match name.local_name.as_ref() {
                     "wpt" | "trkpt" => {
                         // get required latitude and longitude
-                        let latitude =
-                            attributes
-                                .iter()
-                                .filter(|attr| attr.name.local_name == "lat")
-                                .nth(0)
-                                .ok_or("no latitude attribute on waypoint tag".to_owned())?;
+                        let latitude = attributes
+                            .iter()
+                            .filter(|attr| attr.name.local_name == "lat")
+                            .nth(0)
+                            .ok_or("no latitude attribute on waypoint tag".to_owned())?;
 
-                        let latitude: f64 = latitude.clone().value.parse().chain_err(
-                            || "error while casting latitude to f64",
-                        )?;
+                        let latitude: f64 = latitude
+                            .clone()
+                            .value
+                            .parse()
+                            .chain_err(|| "error while casting latitude to f64")?;
 
-                        let longitude =
-                            attributes
-                                .iter()
-                                .filter(|attr| attr.name.local_name == "lon")
-                                .nth(0)
-                                .ok_or("no longitude attribute on waypoint tag".to_owned())?;
+                        let longitude = attributes
+                            .iter()
+                            .filter(|attr| attr.name.local_name == "lon")
+                            .nth(0)
+                            .ok_or("no longitude attribute on waypoint tag".to_owned())?;
 
-                        let longitude: f64 = longitude.clone().value.parse().chain_err(
-                            || "error while casting longitude to f64",
-                        )?;
+                        let longitude: f64 = longitude
+                            .clone()
+                            .value
+                            .parse()
+                            .chain_err(|| "error while casting longitude to f64")?;
 
                         point = Some(Point::new(longitude, latitude));
                     }
                     "ele" => {
                         // Cast the elevation to an f64, from a string.
-                        elevation = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting elevation to f64",
-                        )?)
+                        elevation = Some(string::consume(reader)?
+                            .parse()
+                            .chain_err(|| "error while casting elevation to f64")?)
                     }
                     "time" => time = Some(time::consume(reader)?),
                     "name" => wptname = Some(string::consume(reader)?),
@@ -87,34 +91,34 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
                     // Optional accuracy information
                     "fix" => fix = Some(fix::consume(reader)?),
                     "sat" => {
-                        sat = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting number of satellites (sat) to u64"
-                        )?)
-                    },
+                        sat = Some(string::consume(reader)?
+                            .parse()
+                            .chain_err(|| "error while casting number of satellites (sat) to u64")?)
+                    }
                     "hdop" => {
-                        hdop = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting horizontal dilution of precision (hdop) to f64"
-                        )?)
-                    },
+                        hdop = Some(string::consume(reader)?.parse().chain_err(|| {
+                            "error while casting horizontal dilution of precision (hdop) to f64"
+                        })?)
+                    }
                     "vdop" => {
-                        vdop = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting vertical dilution of precision (vdop) to f64"
-                        )?)
+                        vdop = Some(string::consume(reader)?.parse().chain_err(|| {
+                            "error while casting vertical dilution of precision (vdop) to f64"
+                        })?)
                     }
                     "pdop" => {
-                        pdop = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting position dilution of precision (pdop) to f64"
-                        )?)
-                    },
+                        pdop = Some(string::consume(reader)?.parse().chain_err(|| {
+                            "error while casting position dilution of precision (pdop) to f64"
+                        })?)
+                    }
                     "ageofgpsdata" => {
-                        age_of_gps_data = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting age of GPS data to f64"
-                        )?)
-                    },
+                        age_of_gps_data = Some(string::consume(reader)?
+                            .parse()
+                            .chain_err(|| "error while casting age of GPS data to f64")?)
+                    }
                     "dgpsid" => {
-                        dgpsid = Some(string::consume(reader)?.parse().chain_err(
-                            || "error while casting DGPS station ID to u16"
-                        )?)
+                        dgpsid = Some(string::consume(reader)?
+                            .parse()
+                            .chain_err(|| "error while casting DGPS station ID to u16")?)
                     }
 
                     // Finally the GPX 1.1 extensions

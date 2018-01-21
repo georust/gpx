@@ -5,9 +5,9 @@
 #[macro_use]
 extern crate assert_approx_eq;
 
-extern crate gpx;
 extern crate chrono;
 extern crate geo;
+extern crate gpx;
 
 #[cfg(test)]
 mod tests {
@@ -15,7 +15,7 @@ mod tests {
     use std::fs::File;
     use chrono::prelude::*;
     use geo::length::Length;
-    use geo::{Geometry, ToGeo, Point};
+    use geo::{Geometry, Point, ToGeo};
     use geo::algorithm::haversine_distance::HaversineDistance;
 
     use gpx::read;
@@ -152,10 +152,7 @@ mod tests {
 
         // Check the info on the metadata.
         let metadata = res.metadata.unwrap();
-        assert_eq!(
-            metadata.name.unwrap(),
-            "20170412_CARDIO.gpx"
-        );
+        assert_eq!(metadata.name.unwrap(), "20170412_CARDIO.gpx");
 
         assert_eq!(metadata.links.len(), 0);
 
@@ -189,6 +186,9 @@ mod tests {
         assert_eq!(points[1].age.unwrap(), 2.01);
         assert_eq!(points[1].dgpsid.unwrap(), 4);
 
-        assert_eq!(points[2].fix, Some(Fix::Other("something_not_in_the_spec".to_string())));
+        assert_eq!(
+            points[2].fix,
+            Some(Fix::Other("something_not_in_the_spec".to_string()))
+        );
     }
 }

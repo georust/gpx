@@ -10,7 +10,6 @@ use parser::string;
 
 use Link;
 
-
 /// consume consumes a GPX link from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX link
 /// tag.
@@ -19,7 +18,9 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Link> {
 
     while let Some(event) = reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, attributes, .. } => {
+            XmlEvent::StartElement {
+                name, attributes, ..
+            } => {
                 match name.local_name.as_ref() {
                     "text" => link.text = Some(string::consume(reader)?),
                     "type" => link._type = Some(string::consume(reader)?),
