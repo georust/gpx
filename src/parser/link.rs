@@ -2,28 +2,27 @@
 
 use errors::*;
 use std::io::Read;
-use std::iter::Peekable;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 
 use parser::string;
+use parser::Context;
 
 use Link;
 
 /// consume consumes a GPX link from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX link
 /// tag.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Link> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
     let mut link: Link = Default::default();
 
-    while let Some(event) = reader.next() {
+    while let Some(event) = context.reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement {
                 name, attributes, ..
             } => {
                 match name.local_name.as_ref() {
-                    "text" => link.text = Some(string::consume(reader)?),
-                    "type" => link._type = Some(string::consume(reader)?),
+                    "text" => link.text = Some(string::consume(context)?),
+                    "type" => link._type = Some(string::consume(context)?),
                     "link" => {
                         // retrieve mandatory href attribute
                         let attr = attributes
@@ -58,12 +57,17 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
+    use parser::Context;
+
+    use GpxVersion;
     use super::consume;
 
     #[test]
     fn consume_simple_link() {
-        let link =
-            consume!("<link href='http://example.com'><text>hello</text><type>world</type></link>");
+        let link = consume!(
+            "<link href='http://example.com'><text>hello</text><type>world</type></link>",
+            GpxVersion::Gpx11
+        );
 
         assert!(link.is_ok());
 
@@ -80,7 +84,10 @@ mod tests {
 
     #[test]
     fn consume_barebones() {
-        let link = consume!("<link href='http://topografix.com'></link>");
+        let link = consume!(
+            "<link href='http://topografix.com'></link>",
+            GpxVersion::Gpx11
+        );
 
         assert!(link.is_ok());
 
@@ -94,7 +101,7 @@ mod tests {
 
     #[test]
     fn consume_no_href() {
-        let link = consume!("<link></link>");
+        let link = consume!("<link></link>", GpxVersion::Gpx11);
 
         assert!(link.is_err());
     }

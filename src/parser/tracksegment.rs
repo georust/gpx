@@ -2,11 +2,10 @@
 
 use errors::*;
 use std::io::Read;
-use std::iter::Peekable;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 
 use parser::waypoint;
+use parser::Context;
 
 use TrackSegment;
 
@@ -18,7 +17,7 @@ enum TrackSegmentEvent {
 }
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
     let mut segment: TrackSegment = Default::default();
 
     loop {
@@ -26,7 +25,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
         // that information, we'll either forward the event to a downstream
         // module or take the information for ourselves.
         let event: Result<TrackSegmentEvent> = {
-            if let Some(next) = reader.peek() {
+            if let Some(next) = context.reader.peek() {
                 match next {
                     &Ok(XmlEvent::StartElement { ref name, .. }) => {
                         match name.local_name.as_ref() {
@@ -50,21 +49,21 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<TrackSegment
 
         match event.chain_err(|| Error::from("error while parsing track segment event"))? {
             TrackSegmentEvent::StartTrkSeg => {
-                reader.next();
+                context.reader.next();
             }
 
             TrackSegmentEvent::StartTrkPt => {
-                segment.points.push(waypoint::consume(reader)?);
+                segment.points.push(waypoint::consume(context)?);
             }
 
             TrackSegmentEvent::EndTrkSeg => {
-                reader.next();
+                context.reader.next();
 
                 return Ok(segment);
             }
 
             TrackSegmentEvent::Ignore => {
-                reader.next();
+                context.reader.next();
             }
         }
     }
@@ -78,6 +77,8 @@ mod tests {
     use xml::reader::EventReader;
     use geo::length::Length;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
@@ -94,7 +95,8 @@ mod tests {
                 <trkpt lon=\"-69.7832\" lat=\"44.31055\">
                     <name>Augusta, Maine</name>
                 </trkpt>
-            </trkseg>"
+            </trkseg>",
+            GpxVersion::Gpx11
         );
 
         assert!(segment.is_ok());
@@ -108,7 +110,7 @@ mod tests {
 
     #[test]
     fn consume_empty() {
-        let segment = consume!("<trkseg></trkseg>");
+        let segment = consume!("<trkseg></trkseg>", GpxVersion::Gpx11);
 
         assert!(segment.is_ok());
         let segment = segment.unwrap();
