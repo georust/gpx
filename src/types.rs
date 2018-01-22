@@ -6,7 +6,7 @@ use geo::{Bbox, LineString, MultiLineString, Point};
 use chrono::DateTime;
 use chrono::prelude::Utc;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GpxVersion {
     Unknown,
     Gpx10,
@@ -181,6 +181,9 @@ pub struct Waypoint {
     /// Elevation (in meters) of the point.
     pub elevation: Option<f64>,
 
+    /// Speed (in meters per second) (only in GPX 1.0)
+    pub speed: Option<f64>,
+
     /// Creation/modification timestamp for element. Date and time in are in
     /// Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
     /// specification for date/time representation. Fractional seconds are
@@ -286,6 +289,7 @@ impl Waypoint {
         Waypoint {
             point: point,
             elevation: None,
+            speed: None,
             time: None,
             name: None,
             comment: None,

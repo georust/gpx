@@ -3,16 +3,16 @@
 // TODO: extensions are not implemented
 
 use errors::*;
-use std::iter::Peekable;
 use std::io::Read;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 
+use parser::Context;
+
 /// consume consumes a single string as tag content.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<()> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
     let mut started = false;
 
-    for event in reader {
+    for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement { name, .. } => {
                 // flip started depending on conditions
@@ -41,6 +41,8 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
@@ -50,7 +52,8 @@ mod tests {
                 hello world
                 <a><b cond=\"no\"><c>derp</c></b></a>
                 <tag>yadda yadda we dont care</tag>
-            </extensions>"
+            </extensions>",
+            GpxVersion::Gpx11
         );
 
         assert!(result.is_ok());

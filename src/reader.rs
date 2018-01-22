@@ -5,8 +5,9 @@ use std::io::Read;
 use errors::*;
 use xml::reader::EventReader;
 
-use parser::gpx;
+use parser::{gpx, Context};
 use Gpx;
+use GpxVersion;
 
 /// Reads an activity in GPX format.
 ///
@@ -36,7 +37,8 @@ use Gpx;
 /// ```
 pub fn read<R: Read>(reader: R) -> Result<Gpx> {
     let parser = EventReader::new(reader);
-    let mut events = parser.into_iter().peekable();
+    let events = parser.into_iter().peekable();
+    let mut context = Context::new(events, GpxVersion::Unknown);
 
-    return gpx::consume(&mut events);
+    return gpx::consume(&mut context);
 }

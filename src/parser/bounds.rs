@@ -1,13 +1,13 @@
 use errors::*;
 
-use std::iter::Peekable;
 use std::io::Read;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 use geo::Bbox;
 
+use parser::Context;
+
 /// consume consumes an element as a nothing.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Bbox<f64>> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
     let mut element: Option<String> = None;
     let mut bounds: Bbox<f64> = Bbox {
         xmin: 0.,
@@ -15,7 +15,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Bbox<f64>> {
         ymin: 0.,
         ymax: 0.,
     };
-    for event in reader {
+    for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement {
                 name, attributes, ..
@@ -86,6 +86,8 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
@@ -93,7 +95,8 @@ mod tests {
         let bounds = consume!(
             "
 <bounds minlat=\"45.487064362\" minlon=\"-74.031837463\" maxlat=\"45.701225281\" maxlon=\"-73.586273193\"/>
-            "
+            ",
+            GpxVersion::Gpx11
         );
 
         assert!(bounds.is_ok());
@@ -107,7 +110,10 @@ mod tests {
 
     #[test]
     fn consume_bad_bounds() {
-        let bounds = consume!("<bounds minlat=\"32.4\" minlon=\"notanumber\"></wpt>");
+        let bounds = consume!(
+            "<bounds minlat=\"32.4\" minlon=\"notanumber\"></wpt>",
+            GpxVersion::Gpx11
+        );
 
         assert!(bounds.is_err());
     }

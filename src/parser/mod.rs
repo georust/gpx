@@ -4,9 +4,11 @@
 #[cfg(test)]
 #[macro_export]
 macro_rules! consume {
-    ( $xml:expr ) => {{
+    ( $xml:expr, $version:expr ) => {{
         let reader = BufReader::new($xml.as_bytes());
-        consume(&mut EventReader::new(reader).into_iter().peekable())
+        let events = EventReader::new(reader).into_iter().peekable();
+        let mut context = Context::new(events, $version);
+        consume(&mut context)
     }};
 }
 
@@ -23,3 +25,23 @@ pub mod time;
 pub mod track;
 pub mod tracksegment;
 pub mod waypoint;
+
+use std::io::Read;
+use std::iter::Peekable;
+use xml::reader::Events;
+use types::GpxVersion;
+
+pub struct Context<R: Read> {
+    reader: Peekable<Events<R>>,
+    version: GpxVersion,
+}
+
+impl<R: Read> Context<R> {
+    pub fn new(reader: Peekable<Events<R>>, version: GpxVersion) -> Context<R> {
+        Context { reader, version }
+    }
+
+    pub fn reader(&mut self) -> &mut Peekable<Events<R>> {
+        &mut self.reader
+    }
+}

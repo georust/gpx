@@ -1,14 +1,13 @@
 //! person handles parsing of GPX-spec persons.
 
 use errors::*;
-use std::iter::Peekable;
 use std::io::Read;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 
 use parser::email;
 use parser::link;
 use parser::string;
+use parser::Context;
 
 use Person;
 
@@ -20,7 +19,7 @@ enum ParseEvent {
     Ignore,
 }
 
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Person> {
     let mut person: Person = Default::default();
 
     loop {
@@ -28,7 +27,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
         // that information, we'll either forward the event to a downstream
         // module or take the information for ourselves.
         let event: Result<ParseEvent> = {
-            if let Some(next) = reader.peek() {
+            if let Some(next) = context.reader.peek() {
                 match next {
                     &Ok(XmlEvent::StartElement { ref name, .. }) => {
                         match name.local_name.as_ref() {
@@ -55,23 +54,23 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
 
         match event.chain_err(|| Error::from("error while parsing person event"))? {
             ParseEvent::Ignore => {
-                reader.next();
+                context.reader.next();
             }
 
             ParseEvent::StartName => {
-                person.name = Some(string::consume(reader)?);
+                person.name = Some(string::consume(context)?);
             }
 
             ParseEvent::StartEmail => {
-                person.email = Some(email::consume(reader)?);
+                person.email = Some(email::consume(context)?);
             }
 
             ParseEvent::StartLink => {
-                person.link = Some(link::consume(reader)?);
+                person.link = Some(link::consume(context)?);
             }
 
             ParseEvent::EndPerson => {
-                reader.next();
+                context.reader.next();
 
                 return Ok(person);
             }
@@ -86,6 +85,8 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
@@ -100,7 +101,8 @@ mod tests {
                         <type>some type</type>
                     </link>
                 </person>
-                "
+                ",
+            GpxVersion::Gpx11
         );
 
         assert!(result.is_ok());

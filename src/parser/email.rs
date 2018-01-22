@@ -2,17 +2,17 @@
 
 use errors::*;
 use std::io::Read;
-use std::iter::Peekable;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
+
+use parser::Context;
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
 /// tag.
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
     let mut email: Option<String> = None;
 
-    while let Some(event) = reader.next() {
+    while let Some(event) = context.reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement {
                 name, attributes, ..
@@ -63,11 +63,16 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
     fn consume_simple_email() {
-        let email = consume!("<email id=\"me\" domain=\"example.com\" />");
+        let email = consume!(
+            "<email id=\"me\" domain=\"example.com\" />",
+            GpxVersion::Gpx11
+        );
 
         assert!(email.is_ok());
 
@@ -78,7 +83,10 @@ mod tests {
 
     #[test]
     fn consume_attrs_reversed() {
-        let email = consume!("<email domain=\"example.com\" id=\"me\" />");
+        let email = consume!(
+            "<email domain=\"example.com\" id=\"me\" />",
+            GpxVersion::Gpx11
+        );
 
         assert!(email.is_ok());
 
@@ -89,7 +97,7 @@ mod tests {
 
     #[test]
     fn consume_err_no_id() {
-        let err = consume!("<email domain='example.com'/>").unwrap_err();
+        let err = consume!("<email domain='example.com'/>", GpxVersion::Gpx11).unwrap_err();
 
         assert_eq!(
             err.description(),
@@ -103,7 +111,7 @@ mod tests {
 
     #[test]
     fn consume_err_no_domain() {
-        let err = consume!("<email id=\"gpx\" />").unwrap_err();
+        let err = consume!("<email id=\"gpx\" />", GpxVersion::Gpx11).unwrap_err();
 
         assert_eq!(
             err.description(),
@@ -117,7 +125,10 @@ mod tests {
 
     #[test]
     fn consume_err_invalid_child_element() {
-        let err = consume!("<email id=\"id\" domain=\"domain\"><child /></email>").unwrap_err();
+        let err = consume!(
+            "<email id=\"id\" domain=\"domain\"><child /></email>",
+            GpxVersion::Gpx11
+        ).unwrap_err();
 
         assert_eq!(err.description(), "invalid child element");
         assert_eq!(err.to_string(), "invalid child element 'child' in email");
@@ -125,7 +136,7 @@ mod tests {
 
     #[test]
     fn consume_err_no_ending_tag() {
-        let err = consume!("<email id=\"id\" domain=\"domain\">").unwrap_err();
+        let err = consume!("<email id=\"id\" domain=\"domain\">", GpxVersion::Gpx11).unwrap_err();
 
         assert_eq!(err.description(), "error while parsing XML");
     }

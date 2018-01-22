@@ -1,9 +1,7 @@
 //! metadata handles parsing of GPX-spec metadata.
 
 use errors::*;
-use std::iter::Peekable;
 use std::io::Read;
-use xml::reader::Events;
 use xml::reader::XmlEvent;
 
 use parser::link;
@@ -11,6 +9,7 @@ use parser::string;
 use parser::person;
 use parser::time;
 use parser::bounds;
+use parser::Context;
 
 use Metadata;
 
@@ -26,7 +25,7 @@ enum ParseEvent {
     EndMetadata,
 }
 
-pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
     let mut metadata: Metadata = Default::default();
 
     loop {
@@ -34,7 +33,7 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
         // that information, we'll either forward the event to a downstream
         // module or take the information for ourselves.
         let event: Result<ParseEvent> = {
-            if let Some(next) = reader.peek() {
+            if let Some(next) = context.reader.peek() {
                 match next {
                     &Ok(XmlEvent::StartElement { ref name, .. }) => {
                         match name.local_name.as_ref() {
@@ -64,39 +63,39 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
 
         match event.chain_err(|| Error::from("error while parsing gpx event"))? {
             ParseEvent::Ignore => {
-                reader.next();
+                context.reader.next();
             }
 
             ParseEvent::StartName => {
-                metadata.name = Some(string::consume(reader)?);
+                metadata.name = Some(string::consume(context)?);
             }
 
             ParseEvent::StartDescription => {
-                metadata.description = Some(string::consume(reader)?);
+                metadata.description = Some(string::consume(context)?);
             }
 
             ParseEvent::StartAuthor => {
-                metadata.author = Some(person::consume(reader)?);
+                metadata.author = Some(person::consume(context)?);
             }
 
             ParseEvent::StartKeywords => {
-                metadata.keywords = Some(string::consume(reader)?);
+                metadata.keywords = Some(string::consume(context)?);
             }
 
             ParseEvent::StartTime => {
-                metadata.time = Some(time::consume(reader)?);
+                metadata.time = Some(time::consume(context)?);
             }
 
             ParseEvent::StartLink => {
-                metadata.links.push(link::consume(reader)?);
+                metadata.links.push(link::consume(context)?);
             }
 
             ParseEvent::StartBounds => {
-                metadata.bounds = Some(bounds::consume(reader)?);
+                metadata.bounds = Some(bounds::consume(context)?);
             }
 
             ParseEvent::EndMetadata => {
-                reader.next();
+                context.reader.next();
 
                 return Ok(metadata);
             }
@@ -112,11 +111,13 @@ mod tests {
     use xml::reader::EventReader;
     use chrono::prelude::*;
 
+    use GpxVersion;
+    use parser::Context;
     use super::consume;
 
     #[test]
     fn consume_empty() {
-        let result = consume!("<metadata></metadata>");
+        let result = consume!("<metadata></metadata>", GpxVersion::Gpx11);
 
         assert!(result.is_ok());
 
@@ -147,7 +148,8 @@ mod tests {
                 <keywords>some keywords here</keywords>
                 <time>2017-08-16T04:03:33.735Z</time>
             </metadata>
-            "
+            ",
+            GpxVersion::Gpx11
         );
 
         assert!(result.is_ok());
