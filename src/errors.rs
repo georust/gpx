@@ -5,9 +5,9 @@ error_chain!{
     errors {
         /// InvalidChildElement signifies when an element has a child that isn't
         /// valid per the GPX spec.
-        InvalidChildElement(parent: &'static str) {
+        InvalidChildElement(child: String, parent: &'static str) {
             description("invalid child element")
-            display("invalid child element in {}", String::from(*parent))
+            display("invalid child element '{}' in {}", child, String::from(*parent))
         }
 
         /// InvalidElementLacksAttribute signifies when an element is missing a

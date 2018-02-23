@@ -40,7 +40,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<String> {
 
                         email = Some(format!("{id}@{domain}", id = id, domain = domain));
                     }
-                    _ => Err(Error::from(ErrorKind::InvalidChildElement("email")))?,
+                    child => Err(Error::from(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "email",
+                    )))?,
                 }
             }
 
@@ -117,7 +120,7 @@ mod tests {
         let err = consume!("<email id=\"id\" domain=\"domain\"><child /></email>").unwrap_err();
 
         assert_eq!(err.description(), "invalid child element");
-        assert_eq!(err.to_string(), "invalid child element in email");
+        assert_eq!(err.to_string(), "invalid child element 'child' in email");
     }
 
     #[test]
