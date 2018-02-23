@@ -25,7 +25,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Track> {
                 "src" => track.source = Some(string::consume(reader)?),
                 "type" => track._type = Some(string::consume(reader)?),
                 "trkseg" => track.segments.push(tracksegment::consume(reader)?),
-                _ => Err(Error::from(ErrorKind::InvalidChildElement("track")))?,
+                child => Err(Error::from(ErrorKind::InvalidChildElement(
+                    String::from(child),
+                    "track",
+                )))?,
             },
 
             XmlEvent::EndElement { .. } => {

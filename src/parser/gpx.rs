@@ -37,7 +37,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Gpx> {
                             "trk" => Ok(ParseEvent::StartTrack),
                             "wpt" => Ok(ParseEvent::StartWaypoint),
                             "gpx" => Ok(ParseEvent::Ignore),
-                            _ => Err(Error::from(ErrorKind::InvalidChildElement("gpx")))?,
+                            child => Err(Error::from(ErrorKind::InvalidChildElement(
+                                String::from(child),
+                                "gpx",
+                            )))?,
                         }
                     }
 

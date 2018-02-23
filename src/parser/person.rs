@@ -37,7 +37,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Person> {
                             "link" => Ok(ParseEvent::StartLink),
                             "person" => Ok(ParseEvent::Ignore),
                             "author" => Ok(ParseEvent::Ignore),
-                            _ => Err(Error::from(ErrorKind::InvalidChildElement("person"))),
+                            child => Err(Error::from(ErrorKind::InvalidChildElement(
+                                String::from(child),
+                                "person",
+                            ))),
                         }
                     }
 

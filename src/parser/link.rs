@@ -35,7 +35,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Link> {
 
                         link.href = attr.value;
                     }
-                    _ => Err(Error::from(ErrorKind::InvalidChildElement("link")))?,
+                    child => Err(Error::from(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "link",
+                    )))?,
                 }
             }
 

@@ -123,7 +123,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Waypoint> {
 
                     // Finally the GPX 1.1 extensions
                     "extensions" => extensions::consume(reader)?,
-                    _ => Err(Error::from(ErrorKind::InvalidChildElement("waypoint")))?,
+                    child => Err(Error::from(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "waypoint",
+                    )))?,
                 }
             }
 

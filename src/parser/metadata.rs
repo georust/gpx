@@ -43,7 +43,10 @@ pub fn consume<R: Read>(reader: &mut Peekable<Events<R>>) -> Result<Metadata> {
                             "keywords" => Ok(ParseEvent::StartKeywords),
                             "time" => Ok(ParseEvent::StartTime),
                             "link" => Ok(ParseEvent::StartLink),
-                            _ => Err(Error::from(ErrorKind::InvalidChildElement("metadata")))?,
+                            child => Err(Error::from(ErrorKind::InvalidChildElement(
+                                String::from(child),
+                                "metadata",
+                            )))?,
                         }
                     }
 
