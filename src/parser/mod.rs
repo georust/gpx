@@ -4,7 +4,7 @@
 #[cfg(test)]
 #[macro_export]
 macro_rules! consume {
-    ( $xml:expr, $version:expr ) => {{
+    ($xml: expr, $version: expr) => {{
         let reader = BufReader::new($xml.as_bytes());
         let events = EventReader::new(reader).into_iter().peekable();
         let mut context = Context::new(events, $version);
