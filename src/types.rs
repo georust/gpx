@@ -243,7 +243,10 @@ pub struct Waypoint {
 
     /// ID of DGPS station used in differential correction, in the range [0, 1023].
     pub dgpsid: Option<u16>,
-    // <extensions> extensionsType </extensions> [0..1] ?
+
+    /// XML-String containing the value of the extensions tag. Usually needs
+    /// to be parsed by the user, according to the specific extension format.
+    pub extension_xml: Option<String>,
 }
 
 impl Waypoint {
@@ -305,6 +308,7 @@ impl Waypoint {
             pdop: None,
             age: None,
             dgpsid: None,
+            extension_xml: None,
         }
     }
 }

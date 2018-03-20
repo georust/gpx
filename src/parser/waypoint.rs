@@ -40,6 +40,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Waypoint> {
     let mut pdop: Option<f64> = None; // Position dilution of precision (decimal)
     let mut age_of_gps_data: Option<f64> = None; // Seconds since last DGPS update (decimal)
     let mut dgpsid: Option<u16> = None; // Id of the DGPS station (integer 0-1023)
+    let mut extension_xml: Option<String> = None; //xml-string, to be parsed by user
 
     while let Some(event) = context.reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -130,7 +131,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Waypoint> {
                     }
 
                     // Finally the GPX 1.1 extensions
-                    "extensions" => extensions::consume(context)?,
+                    "extensions" => extension_xml = Some(extensions::consume(context)?),
                     child => Err(Error::from(ErrorKind::InvalidChildElement(
                         String::from(child),
                         "waypoint",
@@ -160,6 +161,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Waypoint> {
                 wpt.speed = speed;
                 wpt.age = age_of_gps_data;
                 wpt.dgpsid = dgpsid;
+                wpt.extension_xml = extension_xml;
 
                 return Ok(wpt);
             }
