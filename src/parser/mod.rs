@@ -57,7 +57,6 @@ pub fn verify_starting_tag<R: Read>(
     //we ignore and skip all xmlevents except StartElement, Characters and EndElement
     loop {
         let next = context.reader.next();
-        println!("{:?}", next);
         match next {
             Some(Ok(XmlEvent::StartElement {
                 name, attributes, ..
