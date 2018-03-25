@@ -53,7 +53,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
             }
 
             TrackSegmentEvent::StartTrkPt => {
-                segment.points.push(waypoint::consume(context)?);
+                segment.points.push(waypoint::consume(context, "trkpt")?);
             }
 
             TrackSegmentEvent::EndTrkSeg => {

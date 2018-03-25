@@ -10,6 +10,12 @@ macro_rules! consume {
         let mut context = Context::new(events, $version);
         consume(&mut context)
     }};
+    ($xml: expr, $version: expr, $tagname: expr) => {{
+        let reader = BufReader::new($xml.as_bytes());
+        let events = EventReader::new(reader).into_iter().peekable();
+        let mut context = Context::new(events, $version);
+        consume(&mut context, $tagname)
+    }};
 }
 
 pub mod bounds;

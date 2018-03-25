@@ -72,7 +72,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                     gpx.tracks.push(track::consume(context)?);
                 }
                 "wpt" => {
-                    gpx.waypoints.push(waypoint::consume(context)?);
+                    gpx.waypoints.push(waypoint::consume(context, "wpt")?);
                 }
                 "time" if context.version == GpxVersion::Gpx10 => {
                     time = Some(time::consume(context)?);
