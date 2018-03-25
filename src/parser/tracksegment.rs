@@ -6,69 +6,49 @@ use xml::reader::XmlEvent;
 
 use parser::waypoint;
 use parser::Context;
+use parser::verify_starting_tag;
 
 use TrackSegment;
-
-enum TrackSegmentEvent {
-    StartTrkSeg,
-    StartTrkPt,
-    EndTrkSeg,
-    Ignore,
-}
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
     let mut segment: TrackSegment = Default::default();
+    verify_starting_tag(context, "trkseg")?;
 
     loop {
-        // Peep into the reader and see what type of event is next. Based on
-        // that information, we'll either forward the event to a downstream
-        // module or take the information for ourselves.
-        let event: Result<TrackSegmentEvent> = {
+        let next_event = {
             if let Some(next) = context.reader.peek() {
-                match next {
-                    &Ok(XmlEvent::StartElement { ref name, .. }) => {
-                        match name.local_name.as_ref() {
-                            "trkseg" => Ok(TrackSegmentEvent::StartTrkSeg),
-                            "trkpt" => Ok(TrackSegmentEvent::StartTrkPt),
-                            child => Err(Error::from(ErrorKind::InvalidChildElement(
-                                String::from(child),
-                                "tracksegment",
-                            ))),
-                        }
-                    }
-
-                    &Ok(XmlEvent::EndElement { .. }) => Ok(TrackSegmentEvent::EndTrkSeg),
-
-                    _ => Ok(TrackSegmentEvent::Ignore),
-                }
+                next.clone()
             } else {
                 break;
             }
         };
 
-        match event.chain_err(|| Error::from("error while parsing track segment event"))? {
-            TrackSegmentEvent::StartTrkSeg => {
-                context.reader.next();
-            }
-
-            TrackSegmentEvent::StartTrkPt => {
-                segment.points.push(waypoint::consume(context, "trkpt")?);
-            }
-
-            TrackSegmentEvent::EndTrkSeg => {
-                context.reader.next();
-
+        match next_event.chain_err(|| Error::from("error while parsing tracksegment event"))? {
+            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
+                "trkpt" => segment.points.push(waypoint::consume(context, "trkpt")?),
+                child => {
+                    bail!(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "tracksegment"
+                    ));
+                }
+            },
+            XmlEvent::EndElement { ref name } => {
+                ensure!(
+                    name.local_name == "trkseg",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "trksegment")
+                );
+                context.reader.next(); //consume the end tag
                 return Ok(segment);
             }
-
-            TrackSegmentEvent::Ignore => {
-                context.reader.next();
+            _ => {
+                context.reader.next(); //consume and ignore this event
             }
         }
     }
 
-    return Err("no end tag for track segment".into());
+    bail!(ErrorKind::MissingClosingTag("tracksegment"));
 }
 
 #[cfg(test)]
