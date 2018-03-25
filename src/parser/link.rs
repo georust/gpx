@@ -6,6 +6,7 @@ use xml::reader::XmlEvent;
 
 use parser::string;
 use parser::Context;
+use parser::verify_starting_tag;
 
 use Link;
 
@@ -14,42 +15,48 @@ use Link;
 /// tag.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
     let mut link: Link = Default::default();
+    let attributes = verify_starting_tag(context, "link")?;
+    let attr = attributes
+        .into_iter()
+        .filter(|attr| attr.name.local_name == "href")
+        .nth(0);
 
-    while let Some(event) = context.reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement {
-                name, attributes, ..
-            } => {
-                match name.local_name.as_ref() {
-                    "text" => link.text = Some(string::consume(context)?),
-                    "type" => link._type = Some(string::consume(context)?),
-                    "link" => {
-                        // retrieve mandatory href attribute
-                        let attr = attributes
-                            .into_iter()
-                            .filter(|attr| attr.name.local_name == "href")
-                            .nth(0);
+    let attr = attr.ok_or(ErrorKind::InvalidElementLacksAttribute("href", "link"))?;
 
-                        let attr = attr.ok_or("no href attribute on link tag".to_owned())?;
+    link.href = attr.value;
 
-                        link.href = attr.value;
-                    }
-                    child => Err(Error::from(ErrorKind::InvalidChildElement(
-                        String::from(child),
-                        "link",
-                    )))?,
-                }
+    loop {
+        let next_event = {
+            if let Some(next) = context.reader.peek() {
+                next.clone()
+            } else {
+                break;
             }
+        };
 
-            XmlEvent::EndElement { .. } => {
+        match next_event.chain_err(|| Error::from("error while parsing link event"))? {
+            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
+                "text" => link.text = Some(string::consume(context)?),
+                "type" => link._type = Some(string::consume(context)?),
+                child => {
+                    bail!(ErrorKind::InvalidChildElement(String::from(child), "link"));
+                }
+            },
+            XmlEvent::EndElement { ref name } => {
+                ensure!(
+                    name.local_name == "link",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "link")
+                );
+                context.reader.next();
                 return Ok(link);
             }
-
-            _ => {}
+            _ => {
+                context.reader.next(); //consume and ignore this event
+            }
         }
     }
 
-    return Err("no end tag for link".into());
+    bail!(ErrorKind::MissingClosingTag("link"));
 }
 
 #[cfg(test)]
