@@ -90,6 +90,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                             } else {
                                 Err(Error::from(ErrorKind::InvalidElementLacksAttribute(
                                     "version",
+                                    "gpx",
                                 )))
                             }
                         }

@@ -24,7 +24,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
                             .iter()
                             .filter(|attr| attr.name.local_name == "id")
                             .nth(0)
-                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
+                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute(
+                                "id",
+                                "email",
+                            )))?;
 
                         let id = id.clone().value;
 
@@ -34,6 +37,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
                             .nth(0)
                             .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute(
                                 "domain",
+                                "email",
                             )))?;
 
                         let domain = domain.clone().value;
@@ -105,7 +109,7 @@ mod tests {
         );
         assert_eq!(
             err.to_string(),
-            "invalid element, lacks required attribute id"
+            "invalid element, email lacks required attribute id"
         );
     }
 
@@ -119,7 +123,7 @@ mod tests {
         );
         assert_eq!(
             err.to_string(),
-            "invalid element, lacks required attribute domain"
+            "invalid element, email lacks required attribute domain"
         );
     }
 

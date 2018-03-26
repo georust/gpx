@@ -25,9 +25,9 @@ error_chain!{
 
         /// InvalidElementLacksAttribute signifies when an element is missing a
         /// required attribute.
-        InvalidElementLacksAttribute(attr: &'static str) {
+        InvalidElementLacksAttribute(attr: &'static str, parent: &'static str) {
             description("invalid element, lacks required attribute")
-            display("invalid element, lacks required attribute {}", attr)
+            display("invalid element, {} lacks required attribute {}", parent, attr)
         }
     }
 }
