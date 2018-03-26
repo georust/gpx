@@ -7,38 +7,63 @@ use xml::reader::XmlEvent;
 use parser::tracksegment;
 use parser::string;
 use parser::Context;
+use parser::verify_starting_tag;
 
 use Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
     let mut track: Track = Default::default();
+    verify_starting_tag(context, "trk")?;
 
-    while let Some(event) = context.reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement { name, .. } => match name.local_name.as_ref() {
-                "trk" => {}
-                "name" => track.name = Some(string::consume(context)?),
-                "cmt" => track.comment = Some(string::consume(context)?),
-                "desc" => track.description = Some(string::consume(context)?),
-                "src" => track.source = Some(string::consume(context)?),
-                "type" => track._type = Some(string::consume(context)?),
-                "trkseg" => track.segments.push(tracksegment::consume(context)?),
-                child => Err(Error::from(ErrorKind::InvalidChildElement(
-                    String::from(child),
-                    "track",
-                )))?,
+    loop {
+        let next_event = {
+            if let Some(next) = context.reader.peek() {
+                next.clone()
+            } else {
+                break;
+            }
+        };
+
+        match next_event.chain_err(|| Error::from("error while parsing track event"))? {
+            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
+                "name" => {
+                    track.name = Some(string::consume(context)?);
+                }
+                "cmt" => {
+                    track.comment = Some(string::consume(context)?);
+                }
+                "desc" => {
+                    track.description = Some(string::consume(context)?);
+                }
+                "src" => {
+                    track.source = Some(string::consume(context)?);
+                }
+                "type" => {
+                    track._type = Some(string::consume(context)?);
+                }
+                "trkseg" => {
+                    track.segments.push(tracksegment::consume(context)?);
+                }
+                child => {
+                    bail!(ErrorKind::InvalidChildElement(String::from(child), "track"));
+                }
             },
-
-            XmlEvent::EndElement { .. } => {
+            XmlEvent::EndElement { ref name } => {
+                ensure!(
+                    name.local_name == "trk",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "track")
+                );
+                context.reader.next(); //consume the end tag
                 return Ok(track);
             }
-
-            _ => {}
+            _ => {
+                context.reader.next(); //consume and ignore this event
+            }
         }
     }
 
-    return Err("no end tag for track".into());
+    bail!(ErrorKind::MissingClosingTag("track"));
 }
 
 #[cfg(test)]
@@ -79,7 +104,6 @@ mod tests {
     #[test]
     fn consume_empty() {
         let track = consume!("<trk></trk>", GpxVersion::Gpx11);
-
         assert!(track.is_ok());
     }
 }
