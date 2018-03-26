@@ -30,16 +30,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
         match next_event.chain_err(|| Error::from("error while parsing metadata event"))? {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => {
-                    metadata.name = Some(string::consume(context)?);
+                    metadata.name = Some(string::consume(context, "name")?);
                 }
                 "description" => {
-                    metadata.description = Some(string::consume(context)?);
+                    metadata.description = Some(string::consume(context, "description")?);
                 }
                 "author" => {
                     metadata.author = Some(person::consume(context, "author")?);
                 }
                 "keywords" => {
-                    metadata.keywords = Some(string::consume(context)?);
+                    metadata.keywords = Some(string::consume(context, "keywords")?);
                 }
                 "time" => {
                     metadata.time = Some(time::consume(context)?);

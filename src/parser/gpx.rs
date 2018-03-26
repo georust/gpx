@@ -81,25 +81,25 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                     bounds = Some(bounds::consume(context)?);
                 }
                 "author" if context.version == GpxVersion::Gpx10 => {
-                    author = Some(string::consume(context)?);
+                    author = Some(string::consume(context, "author")?);
                 }
                 "email" if context.version == GpxVersion::Gpx10 => {
-                    email = Some(string::consume(context)?);
+                    email = Some(string::consume(context, "email")?);
                 }
                 "url" if context.version == GpxVersion::Gpx10 => {
-                    url = Some(string::consume(context)?);
+                    url = Some(string::consume(context, "url")?);
                 }
                 "urlname" if context.version == GpxVersion::Gpx10 => {
-                    urlname = Some(string::consume(context)?);
+                    urlname = Some(string::consume(context, "urlname")?);
                 }
                 "name" if context.version == GpxVersion::Gpx10 => {
-                    gpx_name = Some(string::consume(context)?);
+                    gpx_name = Some(string::consume(context, "name")?);
                 }
                 "description" if context.version == GpxVersion::Gpx10 => {
-                    description = Some(string::consume(context)?);
+                    description = Some(string::consume(context, "description")?);
                 }
                 "keywords" if context.version == GpxVersion::Gpx10 => {
-                    keywords = Some(string::consume(context)?);
+                    keywords = Some(string::consume(context, "keywords")?);
                 }
                 child => {
                     bail!(ErrorKind::InvalidChildElement(String::from(child), "gpx"));

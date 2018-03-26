@@ -67,54 +67,54 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "ele" => {
                     // Cast the elevation to an f64, from a string.
-                    waypoint.elevation = Some(string::consume(context)?
+                    waypoint.elevation = Some(string::consume(context, "ele")?
                         .parse()
                         .chain_err(|| "error while casting elevation to f64")?)
                 }
                 "speed" if context.version == GpxVersion::Gpx10 => {
                     // Speed is from GPX 1.0
-                    waypoint.speed = Some(string::consume(context)?
+                    waypoint.speed = Some(string::consume(context, "speed")?
                         .parse()
                         .chain_err(|| "error while casting speed to f64")?);
                 }
                 "time" => waypoint.time = Some(time::consume(context)?),
-                "name" => waypoint.name = Some(string::consume(context)?),
-                "cmt" => waypoint.comment = Some(string::consume(context)?),
-                "desc" => waypoint.description = Some(string::consume(context)?),
-                "src" => waypoint.source = Some(string::consume(context)?),
+                "name" => waypoint.name = Some(string::consume(context, "name")?),
+                "cmt" => waypoint.comment = Some(string::consume(context, "cmt")?),
+                "desc" => waypoint.description = Some(string::consume(context, "desc")?),
+                "src" => waypoint.source = Some(string::consume(context, "src")?),
                 "link" => waypoint.links.push(link::consume(context)?),
-                "sym" => waypoint.symbol = Some(string::consume(context)?),
-                "type" => waypoint._type = Some(string::consume(context)?),
+                "sym" => waypoint.symbol = Some(string::consume(context, "sym")?),
+                "type" => waypoint._type = Some(string::consume(context, "type")?),
 
                 // Optional accuracy information
                 "fix" => waypoint.fix = Some(fix::consume(context)?),
                 "sat" => {
-                    waypoint.sat = Some(string::consume(context)?
+                    waypoint.sat = Some(string::consume(context, "sat")?
                         .parse()
                         .chain_err(|| "error while casting number of satellites (sat) to u64")?)
                 }
                 "hdop" => {
-                    waypoint.hdop = Some(string::consume(context)?.parse().chain_err(|| {
-                        "error while casting horizontal dilution of precision (hdop) to f64"
-                    })?)
+                    waypoint.hdop = Some(string::consume(context, "hdop")?.parse().chain_err(
+                        || "error while casting horizontal dilution of precision (hdop) to f64",
+                    )?)
                 }
                 "vdop" => {
-                    waypoint.vdop = Some(string::consume(context)?.parse().chain_err(|| {
-                        "error while casting vertical dilution of precision (vdop) to f64"
-                    })?)
+                    waypoint.vdop = Some(string::consume(context, "vdop")?.parse().chain_err(
+                        || "error while casting vertical dilution of precision (vdop) to f64",
+                    )?)
                 }
                 "pdop" => {
-                    waypoint.pdop = Some(string::consume(context)?.parse().chain_err(|| {
-                        "error while casting position dilution of precision (pdop) to f64"
-                    })?)
+                    waypoint.pdop = Some(string::consume(context, "pdop")?.parse().chain_err(
+                        || "error while casting position dilution of precision (pdop) to f64",
+                    )?)
                 }
                 "ageofgpsdata" => {
-                    waypoint.age = Some(string::consume(context)?
+                    waypoint.age = Some(string::consume(context, "ageofgpsdata")?
                         .parse()
                         .chain_err(|| "error while casting age of GPS data to f64")?)
                 }
                 "dgpsid" => {
-                    waypoint.dgpsid = Some(string::consume(context)?
+                    waypoint.dgpsid = Some(string::consume(context, "dgpsid")?
                         .parse()
                         .chain_err(|| "error while casting DGPS station ID to u16")?)
                 }

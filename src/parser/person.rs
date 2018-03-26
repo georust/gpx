@@ -27,7 +27,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
         match next_event.chain_err(|| Error::from("error while parsing person event"))? {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
-                "name" => person.name = Some(string::consume(context)?),
+                "name" => person.name = Some(string::consume(context, "name")?),
                 "email" => person.email = Some(email::consume(context)?),
                 "link" => person.link = Some(link::consume(context)?),
                 child => {
