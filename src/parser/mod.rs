@@ -5,16 +5,18 @@
 #[macro_export]
 macro_rules! consume {
     ($xml: expr, $version: expr) => {{
-        let reader = BufReader::new($xml.as_bytes());
-        let events = EventReader::new(reader).into_iter().peekable();
-        let mut context = Context::new(events, $version);
-        consume(&mut context)
+        use parser::create_context;
+        consume(&mut create_context(
+            BufReader::new($xml.as_bytes()),
+            $version,
+        ))
     }};
     ($xml: expr, $version: expr, $tagname: expr) => {{
-        let reader = BufReader::new($xml.as_bytes());
-        let events = EventReader::new(reader).into_iter().peekable();
-        let mut context = Context::new(events, $version);
-        consume(&mut context, $tagname)
+        use parser::create_context;
+        consume(
+            &mut create_context(BufReader::new($xml.as_bytes()), $version),
+            $tagname,
+        )
     }};
 }
 
@@ -35,6 +37,8 @@ pub mod waypoint;
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;
+use xml::EventReader;
+use xml::ParserConfig;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 use xml::attribute::OwnedAttribute;
@@ -83,4 +87,15 @@ pub fn verify_starting_tag<R: Read>(
             None => bail!("did not find expected opening tag for {}", local_name),
         }
     }
+}
+
+pub(crate) fn create_context<R: Read>(reader: R, version: GpxVersion) -> Context<R> {
+    let parser_config = ParserConfig {
+        whitespace_to_characters: true, //convert Whitespace event to Characters
+        cdata_to_characters: true,      //convert CData event to Characters
+        ..ParserConfig::new()
+    };
+    let parser = EventReader::new_with_config(reader, parser_config);
+    let events = parser.into_iter().peekable();
+    Context::new(events, version)
 }

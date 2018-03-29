@@ -24,10 +24,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use GpxVersion;
-    use parser::Context;
     use super::consume;
 
     #[test]

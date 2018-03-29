@@ -77,11 +77,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
     use chrono::prelude::*;
 
     use GpxVersion;
-    use parser::Context;
     use super::consume;
 
     #[test]

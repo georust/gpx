@@ -27,13 +27,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
 
     use GpxVersion;
     use Fix;
-    use parser::Context;
 
     #[test]
     fn consume_fix() {

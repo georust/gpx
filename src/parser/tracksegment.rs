@@ -54,11 +54,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
     use geo::length::Length;
 
     use GpxVersion;
-    use parser::Context;
     use super::consume;
 
     #[test]

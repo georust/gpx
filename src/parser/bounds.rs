@@ -82,10 +82,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use GpxVersion;
-    use parser::Context;
     use super::consume;
 
     #[test]
