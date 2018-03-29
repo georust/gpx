@@ -190,7 +190,6 @@ mod tests {
             GpxVersion::Unknown
         );
 
-        println!("########################### {:?}", gpx);
         assert!(gpx.is_ok());
         let gpx = gpx.unwrap();
 
