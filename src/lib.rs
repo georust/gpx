@@ -43,12 +43,12 @@ extern crate geo;
 extern crate xml;
 
 // Export our type structs in the root, along with the read function.
-pub use types::*;
 pub use reader::read;
+pub use types::*;
 
-mod types;
 mod parser;
 mod reader;
+mod types;
 
 // Errors should be namespaced away.
 pub mod errors;

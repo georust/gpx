@@ -4,11 +4,11 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use parser::link;
-use parser::string;
-use parser::person;
-use parser::time;
 use parser::bounds;
+use parser::link;
+use parser::person;
+use parser::string;
+use parser::time;
 use parser::Context;
 
 use Metadata;
@@ -107,13 +107,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
 
 #[cfg(test)]
 mod tests {
+    use chrono::prelude::*;
     use std::io::BufReader;
     use xml::reader::EventReader;
-    use chrono::prelude::*;
 
-    use GpxVersion;
-    use parser::Context;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_empty() {

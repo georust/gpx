@@ -31,9 +31,9 @@ mod tests {
 
     use super::consume;
 
-    use GpxVersion;
-    use Fix;
     use parser::Context;
+    use Fix;
+    use GpxVersion;
 
     #[test]
     fn consume_fix() {
