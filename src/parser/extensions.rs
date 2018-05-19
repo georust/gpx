@@ -41,9 +41,9 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
-    use GpxVersion;
-    use parser::Context;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_arbitrary_extensions() {

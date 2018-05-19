@@ -1,10 +1,10 @@
 //! generic types for GPX
 
-use geo::{Geometry, ToGeo};
 use geo::{Bbox, LineString, MultiLineString, Point};
+use geo::{Geometry, ToGeo};
 
-use chrono::DateTime;
 use chrono::prelude::Utc;
+use chrono::DateTime;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GpxVersion {

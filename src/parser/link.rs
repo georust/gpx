@@ -59,8 +59,8 @@ mod tests {
 
     use parser::Context;
 
-    use GpxVersion;
     use super::consume;
+    use GpxVersion;
 
     #[test]
     fn consume_simple_link() {

@@ -1,8 +1,8 @@
 use errors::*;
 
+use geo::Bbox;
 use std::io::Read;
 use xml::reader::XmlEvent;
-use geo::Bbox;
 
 use parser::Context;
 
@@ -86,9 +86,9 @@ mod tests {
     use std::io::BufReader;
     use xml::reader::EventReader;
 
-    use GpxVersion;
-    use parser::Context;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_bounds() {
