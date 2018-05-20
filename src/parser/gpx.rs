@@ -1,16 +1,16 @@
 //! gpx handles parsing of GPX elements.
 
+use chrono::{DateTime, Utc};
 use errors::*;
+use geo::Bbox;
 use std::io::Read;
 use xml::reader::XmlEvent;
-use geo::Bbox;
-use chrono::{DateTime, Utc};
 
 use parser::bounds;
-use parser::time;
-use parser::string;
-use parser::track;
 use parser::metadata;
+use parser::string;
+use parser::time;
+use parser::track;
 use parser::waypoint;
 use parser::Context;
 use parser::verify_starting_tag;
@@ -18,8 +18,8 @@ use parser::verify_starting_tag;
 use Gpx;
 use GpxVersion;
 use Link;
-use Person;
 use Metadata;
+use Person;
 
 /// Convert the version string to the version enum
 fn version_string_to_version(version_str: &str) -> Result<GpxVersion> {
@@ -144,11 +144,14 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
 
 #[cfg(test)]
 mod tests {
+    use geo::Point;
     use std::io::BufReader;
     use geo::Point;
 
     use GpxVersion;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_gpx() {

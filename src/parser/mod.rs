@@ -43,6 +43,7 @@ use xml::reader::Events;
 use xml::reader::XmlEvent;
 use xml::attribute::OwnedAttribute;
 use types::GpxVersion;
+use xml::reader::Events;
 
 pub struct Context<R: Read> {
     reader: Peekable<Events<R>>,

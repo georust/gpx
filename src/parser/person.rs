@@ -60,6 +60,7 @@ mod tests {
 
     use GpxVersion;
     use super::consume;
+    use parser::Context;
 
     #[test]
     fn consume_whole_person() {

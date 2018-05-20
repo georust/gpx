@@ -53,11 +53,14 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 
 #[cfg(test)]
 mod tests {
+    use geo::length::Length;
     use std::io::BufReader;
     use geo::length::Length;
 
     use GpxVersion;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_full_trkseg() {

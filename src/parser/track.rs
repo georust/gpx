@@ -4,8 +4,8 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use parser::tracksegment;
 use parser::string;
+use parser::tracksegment;
 use parser::Context;
 use parser::verify_starting_tag;
 
@@ -70,8 +70,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
 mod tests {
     use std::io::BufReader;
 
-    use GpxVersion;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_full_track() {

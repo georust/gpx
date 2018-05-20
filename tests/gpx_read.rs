@@ -11,12 +11,12 @@ extern crate gpx;
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-    use std::fs::File;
     use chrono::prelude::*;
+    use geo::algorithm::haversine_distance::HaversineDistance;
     use geo::length::Length;
     use geo::{Geometry, Point, ToGeo};
-    use geo::algorithm::haversine_distance::HaversineDistance;
+    use std::fs::File;
+    use std::io::BufReader;
 
     use gpx::read;
     use gpx::Fix;

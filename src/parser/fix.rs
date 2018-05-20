@@ -29,9 +29,9 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-
-    use GpxVersion;
+ 
     use Fix;
+    use GpxVersion;
 
     #[test]
     fn consume_fix() {

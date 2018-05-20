@@ -1,12 +1,11 @@
 //! time handles parsing of xsd:dateTime.
 
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-
 use errors::*;
 use std::io::Read;
 
-use chrono::DateTime;
 use chrono::prelude::Utc;
+use chrono::DateTime;
 
 use parser::string;
 use parser::Context;
@@ -25,8 +24,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
 mod tests {
     use std::io::BufReader;
 
-    use GpxVersion;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_time() {

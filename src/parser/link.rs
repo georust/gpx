@@ -63,8 +63,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
 mod tests {
     use std::io::BufReader;
 
-    use GpxVersion;
     use super::consume;
+    use GpxVersion;
 
     #[test]
     fn consume_simple_link() {

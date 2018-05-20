@@ -1,8 +1,8 @@
 use errors::*;
 
+use geo::Bbox;
 use std::io::Read;
 use xml::reader::XmlEvent;
-use geo::Bbox;
 
 use parser::Context;
 use parser::verify_starting_tag;
@@ -83,8 +83,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
 mod tests {
     use std::io::BufReader;
 
-    use GpxVersion;
     use super::consume;
+    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_bounds() {
