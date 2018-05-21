@@ -4,9 +4,9 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
+use parser::verify_starting_tag;
 use parser::waypoint;
 use parser::Context;
-use parser::verify_starting_tag;
 
 use TrackSegment;
 
@@ -55,11 +55,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 mod tests {
     use geo::length::Length;
     use std::io::BufReader;
-    use geo::length::Length;
 
-    use GpxVersion;
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

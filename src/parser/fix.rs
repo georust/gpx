@@ -29,7 +29,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
- 
+
     use Fix;
     use GpxVersion;
 

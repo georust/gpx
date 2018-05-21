@@ -1,19 +1,17 @@
 //! waypoint handles parsing of GPX-spec waypoints.
 
-use chrono::prelude::*;
 use errors::*;
-use geo::Point;
 use std::io::Read;
 use xml::reader::XmlEvent;
-use geo::Point;
 
+use geo::Point;
 use parser::extensions;
 use parser::fix;
 use parser::link;
 use parser::string;
 use parser::time;
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 use Waypoint;
 
@@ -29,8 +27,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         .filter(|attr| attr.name.local_name == "lat")
         .nth(0)
         .ok_or(ErrorKind::InvalidElementLacksAttribute(
-            "latitude",
-            "waypoint",
+            "latitude", "waypoint",
         ))?;
 
     let latitude: f64 = latitude
@@ -151,12 +148,8 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 mod tests {
     use geo::Point;
     use std::io::BufReader;
-    use geo::Point;
 
-    use GpxVersion;
-    use Fix;
     use super::consume;
-    use parser::Context;
     use Fix;
     use GpxVersion;
 

@@ -9,8 +9,8 @@ use parser::link;
 use parser::person;
 use parser::string;
 use parser::time;
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 use Metadata;
 
@@ -78,11 +78,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
 mod tests {
     use chrono::prelude::*;
     use std::io::BufReader;
-    use chrono::prelude::*;
 
-    use GpxVersion;
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

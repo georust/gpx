@@ -4,14 +4,14 @@
 #[cfg(test)]
 #[macro_export]
 macro_rules! consume {
-    ($xml: expr, $version: expr) => {{
+    ($xml:expr, $version:expr) => {{
         use parser::create_context;
         consume(&mut create_context(
             BufReader::new($xml.as_bytes()),
             $version,
         ))
     }};
-    ($xml: expr, $version: expr, $tagname: expr) => {{
+    ($xml:expr, $version:expr, $tagname:expr) => {{
         use parser::create_context;
         consume(
             &mut create_context(BufReader::new($xml.as_bytes()), $version),
@@ -37,13 +37,12 @@ pub mod waypoint;
 use errors::*;
 use std::io::Read;
 use std::iter::Peekable;
-use xml::EventReader;
-use xml::ParserConfig;
+use types::GpxVersion;
+use xml::attribute::OwnedAttribute;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
-use xml::attribute::OwnedAttribute;
-use types::GpxVersion;
-use xml::reader::Events;
+use xml::EventReader;
+use xml::ParserConfig;
 
 pub struct Context<R: Read> {
     reader: Peekable<Events<R>>,

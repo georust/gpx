@@ -4,8 +4,8 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
@@ -56,7 +56,6 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

@@ -6,8 +6,8 @@ use xml::reader::XmlEvent;
 
 use parser::string;
 use parser::tracksegment;
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 use Track;
 
@@ -71,7 +71,6 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

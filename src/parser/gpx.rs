@@ -11,9 +11,9 @@ use parser::metadata;
 use parser::string;
 use parser::time;
 use parser::track;
+use parser::verify_starting_tag;
 use parser::waypoint;
 use parser::Context;
-use parser::verify_starting_tag;
 
 use Gpx;
 use GpxVersion;
@@ -146,11 +146,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
 mod tests {
     use geo::Point;
     use std::io::BufReader;
-    use geo::Point;
 
-    use GpxVersion;
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

@@ -5,8 +5,8 @@ use std::io::Read;
 use xml::reader::XmlEvent;
 
 use parser::string;
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 use Link;
 

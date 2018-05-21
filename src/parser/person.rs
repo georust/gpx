@@ -7,8 +7,8 @@ use xml::reader::XmlEvent;
 use parser::email;
 use parser::link;
 use parser::string;
-use parser::Context;
 use parser::verify_starting_tag;
+use parser::Context;
 
 use Person;
 
@@ -58,9 +58,8 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 mod tests {
     use std::io::BufReader;
 
-    use GpxVersion;
     use super::consume;
-    use parser::Context;
+    use GpxVersion;
 
     #[test]
     fn consume_whole_person() {

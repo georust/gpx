@@ -25,7 +25,6 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]
