@@ -11,6 +11,7 @@ use parser::metadata;
 use parser::string;
 use parser::time;
 use parser::track;
+use parser::verify_starting_tag;
 use parser::waypoint;
 use parser::Context;
 
@@ -19,23 +20,6 @@ use GpxVersion;
 use Link;
 use Metadata;
 use Person;
-
-enum ParseEvent {
-    StartAuthor,      // GPX 1.0
-    StartBounds,      // GPX 1.0
-    StartDescription, // GPX 1.0
-    StartEmail,       // GPX 1.0
-    StartKeywords,    // GPX 1.0
-    StartMetadata,
-    StartName, // GPX 1.0
-    StartTime, // GPX 1.0
-    StartTrack,
-    StartUrl,     // GPX 1.0
-    StartUrlname, // GPX 1.0
-    StartWaypoint,
-    Ignore,
-    EndGpx,
-}
 
 /// Convert the version string to the version enum
 fn version_string_to_version(version_str: &str) -> Result<GpxVersion> {
@@ -56,136 +40,79 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     let mut email: Option<String> = None;
     let mut time: Option<DateTime<Utc>> = None;
     let mut bounds: Option<Bbox<f64>> = None;
-    let mut name: Option<String> = None;
+    let mut gpx_name: Option<String> = None;
     let mut description: Option<String> = None;
     let mut keywords: Option<String> = None;
 
+    // First we consume the gpx tag and its attributes
+    let attributes = verify_starting_tag(context, "gpx")?;
+    let version = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "version")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("version", "gpx"))?;
+    gpx.version = version_string_to_version(&version.value)?;
+    context.version = gpx.version;
+
     loop {
-        // Peep into the reader and see what type of event is next. Based on
-        // that information, we'll either forward the event to a downstream
-        // module or take the information for ourselves.
-        let event: Result<ParseEvent> = {
+        let next_event = {
             if let Some(next) = context.reader.peek() {
-                match next {
-                    &Ok(XmlEvent::StartElement {
-                        ref name,
-                        ref attributes,
-                        ..
-                    }) => match name.local_name.as_ref() {
-                        "metadata" if context.version != GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartMetadata)
-                        }
-                        "trk" => Ok(ParseEvent::StartTrack),
-                        "wpt" => Ok(ParseEvent::StartWaypoint),
-                        "gpx" => {
-                            if let Ok(version) = attributes
-                                .iter()
-                                .filter(|attr| attr.name.local_name == "version")
-                                .nth(0)
-                                .ok_or("no version found".to_owned())
-                            {
-                                gpx.version = version_string_to_version(&version.value)?;
-                                context.version = gpx.version;
-                                Ok(ParseEvent::Ignore)
-                            } else {
-                                Err(Error::from(ErrorKind::InvalidElementLacksAttribute(
-                                    "version",
-                                )))
-                            }
-                        }
-                        "time" if context.version == GpxVersion::Gpx10 => Ok(ParseEvent::StartTime),
-                        "bounds" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartBounds)
-                        }
-                        "author" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartAuthor)
-                        }
-                        "email" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartEmail)
-                        }
-                        "url" if context.version == GpxVersion::Gpx10 => Ok(ParseEvent::StartUrl),
-                        "urlname" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartUrlname)
-                        }
-                        "name" if context.version == GpxVersion::Gpx10 => Ok(ParseEvent::StartName),
-                        "description" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartDescription)
-                        }
-                        "keywords" if context.version == GpxVersion::Gpx10 => {
-                            Ok(ParseEvent::StartKeywords)
-                        }
-                        child => Err(Error::from(ErrorKind::InvalidChildElement(
-                            String::from(child),
-                            "gpx",
-                        )))?,
-                    },
-
-                    &Ok(XmlEvent::EndElement { .. }) => Ok(ParseEvent::EndGpx),
-
-                    _ => Ok(ParseEvent::Ignore),
-                }
+                next.clone()
             } else {
                 break;
             }
         };
 
-        match event.chain_err(|| Error::from("error while parsing gpx event"))? {
-            ParseEvent::Ignore => {
-                context.reader.next();
-            }
-
-            ParseEvent::StartAuthor => {
-                author = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartBounds => {
-                bounds = Some(bounds::consume(context)?);
-            }
-
-            ParseEvent::StartEmail => {
-                email = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartMetadata => {
-                gpx.metadata = Some(metadata::consume(context)?);
-            }
-
-            ParseEvent::StartName => {
-                name = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartTime => {
-                time = Some(time::consume(context)?);
-            }
-
-            ParseEvent::StartUrl => {
-                url = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartUrlname => {
-                urlname = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartDescription => {
-                description = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartKeywords => {
-                keywords = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartTrack => {
-                gpx.tracks.push(track::consume(context)?);
-            }
-
-            ParseEvent::StartWaypoint => {
-                gpx.waypoints.push(waypoint::consume(context)?);
-            }
-
-            ParseEvent::EndGpx => {
+        match next_event.chain_err(|| Error::from("error while parsing gpx event"))? {
+            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
+                "metadata" if context.version != GpxVersion::Gpx10 => {
+                    gpx.metadata = Some(metadata::consume(context)?);
+                }
+                "trk" => {
+                    gpx.tracks.push(track::consume(context)?);
+                }
+                "wpt" => {
+                    gpx.waypoints.push(waypoint::consume(context, "wpt")?);
+                }
+                "time" if context.version == GpxVersion::Gpx10 => {
+                    time = Some(time::consume(context)?);
+                }
+                "bounds" if context.version == GpxVersion::Gpx10 => {
+                    bounds = Some(bounds::consume(context)?);
+                }
+                "author" if context.version == GpxVersion::Gpx10 => {
+                    author = Some(string::consume(context, "author")?);
+                }
+                "email" if context.version == GpxVersion::Gpx10 => {
+                    email = Some(string::consume(context, "email")?);
+                }
+                "url" if context.version == GpxVersion::Gpx10 => {
+                    url = Some(string::consume(context, "url")?);
+                }
+                "urlname" if context.version == GpxVersion::Gpx10 => {
+                    urlname = Some(string::consume(context, "urlname")?);
+                }
+                "name" if context.version == GpxVersion::Gpx10 => {
+                    gpx_name = Some(string::consume(context, "name")?);
+                }
+                "description" if context.version == GpxVersion::Gpx10 => {
+                    description = Some(string::consume(context, "description")?);
+                }
+                "keywords" if context.version == GpxVersion::Gpx10 => {
+                    keywords = Some(string::consume(context, "keywords")?);
+                }
+                child => {
+                    bail!(ErrorKind::InvalidChildElement(String::from(child), "gpx"));
+                }
+            },
+            XmlEvent::EndElement { name } => {
+                ensure!(
+                    name.local_name == "gpx",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "gpx")
+                );
                 if gpx.version == GpxVersion::Gpx10 {
                     let mut metadata: Metadata = Default::default();
-                    metadata.name = name;
+                    metadata.name = gpx_name;
                     metadata.time = time;
                     metadata.bounds = bounds;
                     let mut person: Person = Default::default();
@@ -206,20 +133,21 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
 
                 return Ok(gpx);
             }
+            _ => {
+                context.reader.next(); //consume and ignore this event
+            }
         }
     }
 
-    return Err("no end tag for gpx".into());
+    bail!(ErrorKind::MissingClosingTag("gpx"));
 }
 
 #[cfg(test)]
 mod tests {
     use geo::Point;
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

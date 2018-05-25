@@ -9,110 +9,77 @@ use parser::link;
 use parser::person;
 use parser::string;
 use parser::time;
+use parser::verify_starting_tag;
 use parser::Context;
 
 use Metadata;
 
-enum ParseEvent {
-    StartName,
-    StartDescription,
-    StartAuthor,
-    StartKeywords,
-    StartTime,
-    StartLink,
-    StartBounds,
-    Ignore,
-    EndMetadata,
-}
-
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
     let mut metadata: Metadata = Default::default();
+    verify_starting_tag(context, "metadata")?;
 
     loop {
-        // Peep into the reader and see what type of event is next. Based on
-        // that information, we'll either forward the event to a downstream
-        // module or take the information for ourselves.
-        let event: Result<ParseEvent> = {
+        let next_event = {
             if let Some(next) = context.reader.peek() {
-                match next {
-                    &Ok(XmlEvent::StartElement { ref name, .. }) => {
-                        match name.local_name.as_ref() {
-                            "metadata" => Ok(ParseEvent::Ignore),
-                            "name" => Ok(ParseEvent::StartName),
-                            "description" => Ok(ParseEvent::StartDescription),
-                            "author" => Ok(ParseEvent::StartAuthor),
-                            "keywords" => Ok(ParseEvent::StartKeywords),
-                            "time" => Ok(ParseEvent::StartTime),
-                            "link" => Ok(ParseEvent::StartLink),
-                            "bounds" => Ok(ParseEvent::StartBounds),
-                            child => Err(Error::from(ErrorKind::InvalidChildElement(
-                                String::from(child),
-                                "metadata",
-                            )))?,
-                        }
-                    }
-
-                    &Ok(XmlEvent::EndElement { .. }) => Ok(ParseEvent::EndMetadata),
-
-                    _ => Ok(ParseEvent::Ignore),
-                }
+                next.clone()
             } else {
                 break;
             }
         };
 
-        match event.chain_err(|| Error::from("error while parsing gpx event"))? {
-            ParseEvent::Ignore => {
-                context.reader.next();
-            }
-
-            ParseEvent::StartName => {
-                metadata.name = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartDescription => {
-                metadata.description = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartAuthor => {
-                metadata.author = Some(person::consume(context)?);
-            }
-
-            ParseEvent::StartKeywords => {
-                metadata.keywords = Some(string::consume(context)?);
-            }
-
-            ParseEvent::StartTime => {
-                metadata.time = Some(time::consume(context)?);
-            }
-
-            ParseEvent::StartLink => {
-                metadata.links.push(link::consume(context)?);
-            }
-
-            ParseEvent::StartBounds => {
-                metadata.bounds = Some(bounds::consume(context)?);
-            }
-
-            ParseEvent::EndMetadata => {
-                context.reader.next();
-
+        match next_event.chain_err(|| Error::from("error while parsing metadata event"))? {
+            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
+                "name" => {
+                    metadata.name = Some(string::consume(context, "name")?);
+                }
+                "description" => {
+                    metadata.description = Some(string::consume(context, "description")?);
+                }
+                "author" => {
+                    metadata.author = Some(person::consume(context, "author")?);
+                }
+                "keywords" => {
+                    metadata.keywords = Some(string::consume(context, "keywords")?);
+                }
+                "time" => {
+                    metadata.time = Some(time::consume(context)?);
+                }
+                "link" => {
+                    metadata.links.push(link::consume(context)?);
+                }
+                "bounds" => {
+                    metadata.bounds = Some(bounds::consume(context)?);
+                }
+                child => {
+                    bail!(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "metadata"
+                    ));
+                }
+            },
+            XmlEvent::EndElement { ref name } => {
+                ensure!(
+                    name.local_name == "metadata",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "metadata")
+                );
+                context.reader.next(); //consume the end tag
                 return Ok(metadata);
+            }
+            _ => {
+                context.reader.next(); //consume and ignore this event
             }
         }
     }
 
-    return Err("no end tag for metadata".into());
+    bail!(ErrorKind::MissingClosingTag("metadata"));
 }
 
 #[cfg(test)]
 mod tests {
     use chrono::prelude::*;
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

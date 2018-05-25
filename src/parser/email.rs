@@ -4,67 +4,58 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
+use parser::verify_starting_tag;
 use parser::Context;
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
 /// tag.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
-    let mut email: Option<String> = None;
+    let attributes = verify_starting_tag(context, "email")?;
+    // get required id and domain attributes
+    let id = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "id")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("id", "email"))?;
+
+    let domain = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "domain")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("domain", "email"))?;
+
+    let email = format!("{id}@{domain}", id = &id.value, domain = &domain.value);
 
     while let Some(event) = context.reader.next() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement {
-                name, attributes, ..
-            } => {
-                match name.local_name.as_ref() {
-                    "email" => {
-                        // get required id and domain attributes
-                        let id = attributes
-                            .iter()
-                            .filter(|attr| attr.name.local_name == "id")
-                            .nth(0)
-                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute("id")))?;
-
-                        let id = id.clone().value;
-
-                        let domain = attributes
-                            .iter()
-                            .filter(|attr| attr.name.local_name == "domain")
-                            .nth(0)
-                            .ok_or(Error::from(ErrorKind::InvalidElementLacksAttribute(
-                                "domain",
-                            )))?;
-
-                        let domain = domain.clone().value;
-
-                        email = Some(format!("{id}@{domain}", id = id, domain = domain));
-                    }
-                    child => Err(Error::from(ErrorKind::InvalidChildElement(
-                        String::from(child),
-                        "email",
-                    )))?,
-                }
+            XmlEvent::StartElement { ref name, .. } => {
+                bail!(ErrorKind::InvalidChildElement(
+                    name.local_name.clone(),
+                    "email"
+                ));
             }
-
-            XmlEvent::EndElement { .. } => {
-                return Ok(email.unwrap());
+            XmlEvent::Characters(content) => {
+                bail!(ErrorKind::InvalidChildElement(content, "email"));
             }
-
-            _ => {}
+            XmlEvent::EndElement { ref name } => {
+                ensure!(
+                    name.local_name == "email",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "email")
+                );
+                return Ok(email);
+            }
+            _ => {} //consume and ignore other events
         }
     }
-
-    unreachable!("should return by now");
+    bail!(ErrorKind::MissingClosingTag("email"));
 }
 
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]
@@ -105,7 +96,7 @@ mod tests {
         );
         assert_eq!(
             err.to_string(),
-            "invalid element, lacks required attribute id"
+            "invalid element, email lacks required attribute id"
         );
     }
 
@@ -119,7 +110,7 @@ mod tests {
         );
         assert_eq!(
             err.to_string(),
-            "invalid element, lacks required attribute domain"
+            "invalid element, email lacks required attribute domain"
         );
     }
 

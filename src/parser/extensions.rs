@@ -39,10 +39,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

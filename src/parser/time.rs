@@ -12,7 +12,7 @@ use parser::Context;
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
-    let time = string::consume(context)?;
+    let time = string::consume(context, "time")?;
 
     let time =
         DateTime::parse_from_rfc3339(&time).chain_err(|| "error while parsing time as RFC3339")?;
@@ -23,10 +23,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

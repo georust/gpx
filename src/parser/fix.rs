@@ -10,7 +10,7 @@ use types::Fix;
 
 /// consume consumes an element as a fix.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
-    let fix_string = string::consume(context)?;
+    let fix_string = string::consume(context, "fix")?;
 
     let fix = match fix_string.as_ref() {
         "none" => Fix::None,
@@ -27,11 +27,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
 
-    use parser::Context;
     use Fix;
     use GpxVersion;
 

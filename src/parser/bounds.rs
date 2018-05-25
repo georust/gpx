@@ -4,90 +4,86 @@ use geo::Bbox;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
+use parser::verify_starting_tag;
 use parser::Context;
 
-/// consume consumes an element as a nothing.
+/// consume consumes a bounds element until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
-    let mut element: Option<String> = None;
-    let mut bounds: Bbox<f64> = Bbox {
-        xmin: 0.,
-        xmax: 0.,
-        ymin: 0.,
-        ymax: 0.,
+    let attributes = verify_starting_tag(context, "bounds")?;
+    // get required bounds
+    let minlat = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "minlat")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("minlat", "bounds"))?;
+    let maxlat = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "maxlat")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlat", "bounds"))?;
+
+    let minlat: f64 = minlat
+        .value
+        .parse()
+        .chain_err(|| "error while casting min latitude to f64")?;
+    let maxlat: f64 = maxlat
+        .value
+        .parse()
+        .chain_err(|| "error while casting max latitude to f64")?;
+
+    let minlon = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "minlon")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("minlon", "bounds"))?;
+    let maxlon = attributes
+        .iter()
+        .filter(|attr| attr.name.local_name == "maxlon")
+        .nth(0)
+        .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlon", "bounds"))?;
+
+    let minlon: f64 = minlon
+        .value
+        .parse()
+        .chain_err(|| "error while casting min longitude to f64")?;
+    let maxlon: f64 = maxlon
+        .value
+        .parse()
+        .chain_err(|| "error while casting max longitude to f64")?;
+
+    let bounds: Bbox<f64> = Bbox {
+        xmin: minlon,
+        xmax: maxlon,
+        ymin: minlat,
+        ymax: maxlat,
     };
+
     for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
-            XmlEvent::StartElement {
-                name, attributes, ..
-            } => {
-                ensure!(element.is_none(), "cannot start element inside bounds");
-                // get required bounds
-                let minlat = attributes
-                    .iter()
-                    .filter(|attr| attr.name.local_name == "minlat")
-                    .nth(0)
-                    .ok_or("no min latitude attribute on bounds tag".to_owned())?;
-                let maxlat = attributes
-                    .iter()
-                    .filter(|attr| attr.name.local_name == "maxlat")
-                    .nth(0)
-                    .ok_or("no max latitude attribute on bounds tag".to_owned())?;
-
-                let minlat: f64 = minlat
-                    .value
-                    .parse()
-                    .chain_err(|| "error while casting min latitude to f64")?;
-                let maxlat: f64 = maxlat
-                    .value
-                    .parse()
-                    .chain_err(|| "error while casting max latitude to f64")?;
-
-                let minlon = attributes
-                    .iter()
-                    .filter(|attr| attr.name.local_name == "minlon")
-                    .nth(0)
-                    .ok_or("no min longitude attribute on bounds tag".to_owned())?;
-                let maxlon = attributes
-                    .iter()
-                    .filter(|attr| attr.name.local_name == "maxlon")
-                    .nth(0)
-                    .ok_or("no max longitude attribute on bounds tag".to_owned())?;
-
-                let minlon: f64 = minlon
-                    .value
-                    .parse()
-                    .chain_err(|| "error while casting min longitude to f64")?;
-                let maxlon: f64 = maxlon
-                    .value
-                    .parse()
-                    .chain_err(|| "error while casting max longitude to f64")?;
-
-                bounds.xmin = minlon;
-                bounds.xmax = maxlon;
-                bounds.ymin = minlat;
-                bounds.ymax = maxlat;
-
-                element = Some(name.local_name);
+            XmlEvent::StartElement { name, .. } => {
+                bail!(ErrorKind::InvalidChildElement(
+                    name.local_name.clone(),
+                    "bounds"
+                ));
             }
-
-            XmlEvent::EndElement { .. } => {
+            XmlEvent::EndElement { name } => {
+                ensure!(
+                    name.local_name == "bounds",
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "bounds")
+                );
                 return Ok(bounds);
             }
-
             _ => {}
         }
     }
-
-    return Err("no end tag for bounds".into());
+    bail!(ErrorKind::MissingClosingTag("bounds"));
 }
 
 #[cfg(test)]
 mod tests {
     use std::io::BufReader;
-    use xml::reader::EventReader;
 
     use super::consume;
-    use parser::Context;
     use GpxVersion;
 
     #[test]

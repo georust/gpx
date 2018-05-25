@@ -171,12 +171,24 @@ impl ToGeo<f64> for TrackSegment {
     }
 }
 
+// A Version of geo::Point that has the Default trait implemented, which
+// allows us to initialise the GpxPoint with default values compactly
+// in the Waypoint::new function below
+#[derive(Clone, Debug)]
+struct GpxPoint(Point<f64>);
+
+impl Default for GpxPoint {
+    fn default() -> GpxPoint {
+        GpxPoint(Point::new(0 as f64, 0 as f64))
+    }
+}
+
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
-#[derive(Clone, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Waypoint {
     /// The geographical point.
-    point: Point<f64>,
+    point: GpxPoint,
 
     /// Elevation (in meters) of the point.
     pub elevation: Option<f64>,
@@ -265,7 +277,7 @@ impl Waypoint {
     /// }
     /// ```
     pub fn point(&self) -> Point<f64> {
-        self.point
+        self.point.0 //.0 to extract the geo::Point from the tuple struct GpxPoint
     }
 
     /// Creates a new Waypoint from a given geographical point.
@@ -285,26 +297,9 @@ impl Waypoint {
     /// }
     /// ```
     pub fn new(point: Point<f64>) -> Waypoint {
-        // Unfortunately we don't have an easy way to write this.
         Waypoint {
-            point: point,
-            elevation: None,
-            speed: None,
-            time: None,
-            name: None,
-            comment: None,
-            description: None,
-            source: None,
-            links: vec![],
-            symbol: None,
-            _type: None,
-            fix: None,
-            sat: None,
-            hdop: None,
-            vdop: None,
-            pdop: None,
-            age: None,
-            dgpsid: None,
+            point: GpxPoint(point),
+            ..Default::default()
         }
     }
 }
