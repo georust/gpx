@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.4.0
+
+- [`5869643`](https://github.com/georust/rust-gpx/commit/5869643a4c6021882dffca37ee02d4f2ab9b8ecf): Bump dependencies: `geo`, `xml-rs`
+- [`78ce583`](https://github.com/georust/rust-gpx/commit/78ce583906920ebfd832c5b6a03ae1bc72f3fde1): Rework parsing: More strict and (hopefully) cleaner
+
 ## 0.3.0
 
 The 0.3.0 release contains added support for GPX 1.0, "bounds" support for tracks, and improved error reporting.
