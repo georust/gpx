@@ -10,8 +10,8 @@ documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/rust-gpx"
 
 [dependencies]
-geo = "0.7"
-xml-rs = "0.6"
+geo = "0.9"
+xml-rs = "0.8"
 chrono = "0.4"
 error-chain = "0.11.0"
 assert_approx_eq = "1.0.0"

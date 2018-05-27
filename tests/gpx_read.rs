@@ -13,7 +13,7 @@ extern crate gpx;
 mod tests {
     use chrono::prelude::*;
     use geo::algorithm::haversine_distance::HaversineDistance;
-    use geo::length::Length;
+    use geo::euclidean_length::EuclideanLength;
     use geo::{Geometry, Point, ToGeo};
     use std::fs::File;
     use std::io::BufReader;
@@ -101,7 +101,7 @@ mod tests {
 
         // Check some Geo operations on the track.
         let mls = track.multilinestring();
-        assert_approx_eq!(mls.length(), 0.12704048);
+        assert_approx_eq!(mls.euclidean_length(), 0.12704048);
 
         // Get the first track segment.
         assert_eq!(track.segments.len(), 1);

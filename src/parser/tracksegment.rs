@@ -53,7 +53,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 
 #[cfg(test)]
 mod tests {
-    use geo::length::Length;
+    use geo::euclidean_length::EuclideanLength;
     use std::io::BufReader;
 
     use super::consume;
@@ -83,7 +83,7 @@ mod tests {
         assert_eq!(segment.points.len(), 3);
 
         let linestring = segment.linestring();
-        assert_approx_eq!(linestring.length(), 9.2377437);
+        assert_approx_eq!(linestring.euclidean_length(), 9.2377437);
     }
 
     #[test]
