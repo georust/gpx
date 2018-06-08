@@ -14,7 +14,7 @@ use std::io::BufReader;
 use std::fs::File;
 
 use gpx::read;
-use gpx::{Gpx, Track, Waypoint};
+use gpx::{Gpx, Track, TrackSegment};
 
 fn main() {
     // This XML file actually exists — try it for yourself!
