@@ -1,6 +1,6 @@
-# rust-gpx
+# gpx
 
-[![Crates.io](https://img.shields.io/crates/v/gpx.svg)](https://crates.io/crates/gpx) [![Build Status](https://travis-ci.org/georust/rust-gpx.svg?branch=master)](https://travis-ci.org/georust/rust-gpx) [![docs.rs](https://docs.rs/gpx/badge.svg)](https://docs.rs/gpx)
+[![Crates.io](https://img.shields.io/crates/v/gpx.svg)](https://crates.io/crates/gpx) [![Build Status](https://travis-ci.org/georust/gpx.svg?branch=master)](https://travis-ci.org/georust/gpx) [![docs.rs](https://docs.rs/gpx/badge.svg)](https://docs.rs/gpx)
 
 gpx is a library for reading and writing GPX (GPS Exchange Format) files. It uses the
 primitives provided by [rust-geo](https://github.com/georust/rust-geo) to allow for storage

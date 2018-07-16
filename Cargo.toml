@@ -7,7 +7,7 @@ version = "0.4.0"
 authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@rwell.org>"]
 readme = "README.md"
 documentation = "https://docs.rs/gpx"
-repository = "https://github.com/georust/rust-gpx"
+repository = "https://github.com/georust/gpx"
 
 [dependencies]
 geo = "0.9"
