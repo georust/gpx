@@ -87,6 +87,11 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
                 // Optional accuracy information
                 "fix" => waypoint.fix = Some(fix::consume(context)?),
+                "geoidheight" => {
+                    waypoint.geoidheight = Some(string::consume(context, "geoidheight")?
+                        .parse()
+                        .chain_err(|| "error while casting geoid (geoidheight) to f64")?)
+                }
                 "sat" => {
                     waypoint.sat = Some(string::consume(context, "sat")?
                         .parse()
