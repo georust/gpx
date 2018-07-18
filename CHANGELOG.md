@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.1
+
+- [`d7fec64`](https://github.com/georust/gpx/commit/d7fec646469c820a299d32f8b09daa2c7f4525a3): Support geoidheight waypoint tag
+
 ## 0.4.0
 
 - [`5869643`](https://github.com/georust/gpx/commit/5869643a4c6021882dffca37ee02d4f2ab9b8ecf): Bump dependencies: `geo`, `xml-rs`
