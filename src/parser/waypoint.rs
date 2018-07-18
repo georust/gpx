@@ -66,15 +66,19 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "ele" => {
                     // Cast the elevation to an f64, from a string.
-                    waypoint.elevation = Some(string::consume(context, "ele")?
-                        .parse()
-                        .chain_err(|| "error while casting elevation to f64")?)
+                    waypoint.elevation = Some(
+                        string::consume(context, "ele")?
+                            .parse()
+                            .chain_err(|| "error while casting elevation to f64")?,
+                    )
                 }
                 "speed" if context.version == GpxVersion::Gpx10 => {
                     // Speed is from GPX 1.0
-                    waypoint.speed = Some(string::consume(context, "speed")?
-                        .parse()
-                        .chain_err(|| "error while casting speed to f64")?);
+                    waypoint.speed = Some(
+                        string::consume(context, "speed")?
+                            .parse()
+                            .chain_err(|| "error while casting speed to f64")?,
+                    );
                 }
                 "time" => waypoint.time = Some(time::consume(context)?),
                 "name" => waypoint.name = Some(string::consume(context, "name")?),
@@ -87,10 +91,19 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
                 // Optional accuracy information
                 "fix" => waypoint.fix = Some(fix::consume(context)?),
+                "geoidheight" => {
+                    waypoint.geoidheight = Some(
+                        string::consume(context, "geoidheight")?
+                            .parse()
+                            .chain_err(|| "error while casting geoid (geoidheight) to f64")?,
+                    )
+                }
                 "sat" => {
-                    waypoint.sat = Some(string::consume(context, "sat")?
-                        .parse()
-                        .chain_err(|| "error while casting number of satellites (sat) to u64")?)
+                    waypoint.sat = Some(
+                        string::consume(context, "sat")?
+                            .parse()
+                            .chain_err(|| "error while casting number of satellites (sat) to u64")?,
+                    )
                 }
                 "hdop" => {
                     waypoint.hdop = Some(string::consume(context, "hdop")?.parse().chain_err(
@@ -108,14 +121,18 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                     )?)
                 }
                 "ageofgpsdata" => {
-                    waypoint.age = Some(string::consume(context, "ageofgpsdata")?
-                        .parse()
-                        .chain_err(|| "error while casting age of GPS data to f64")?)
+                    waypoint.age = Some(
+                        string::consume(context, "ageofgpsdata")?
+                            .parse()
+                            .chain_err(|| "error while casting age of GPS data to f64")?,
+                    )
                 }
                 "dgpsid" => {
-                    waypoint.dgpsid = Some(string::consume(context, "dgpsid")?
-                        .parse()
-                        .chain_err(|| "error while casting DGPS station ID to u16")?)
+                    waypoint.dgpsid = Some(
+                        string::consume(context, "dgpsid")?
+                            .parse()
+                            .chain_err(|| "error while casting DGPS station ID to u16")?,
+                    )
                 }
 
                 // Finally the GPX 1.1 extensions
