@@ -231,7 +231,7 @@ pub struct Waypoint {
     pub _type: Option<String>,
 
     // <magvar> degreesType </magvar> [0..1] ?
-    /// Heigh of geoid in meters above WGS 84. This correspond to the sea level.
+    /// Height of geoid in meters above WGS 84. This correspond to the sea level.
     pub geoidheight: Option<f64>,
 
     /// Type of GPS fix. `none` means GPS had no fix. To signify "the fix info
