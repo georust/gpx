@@ -1,7 +1,6 @@
 //! generic types for GPX
 
-use geo::{Rect, LineString, MultiLineString, Point};
-use geo::{Geometry, ToGeo};
+use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
 use chrono::prelude::Utc;
 use chrono::DateTime;
@@ -118,9 +117,9 @@ impl Track {
     }
 }
 
-impl ToGeo<f64> for Track {
-    fn to_geo(&self) -> Geometry<f64> {
-        Geometry::MultiLineString(self.multilinestring())
+impl From<Track> for Geometry<f64> {
+    fn from(track: Track) -> Geometry<f64> {
+        Geometry::MultiLineString(track.multilinestring())
     }
 }
 
@@ -149,10 +148,10 @@ impl TrackSegment {
     ///
     /// ```
     /// extern crate gpx;
-    /// extern crate geo;
+    /// extern crate geo_types;
     ///
     /// use gpx::{TrackSegment, Waypoint};
-    /// use geo::Point;
+    /// use geo_types::Point;
     ///
     /// fn main() {
     ///     let mut trkseg: TrackSegment = TrackSegment::new();
@@ -165,13 +164,13 @@ impl TrackSegment {
     }
 }
 
-impl ToGeo<f64> for TrackSegment {
-    fn to_geo(&self) -> Geometry<f64> {
-        Geometry::LineString(self.linestring())
+impl From<TrackSegment> for Geometry<f64> {
+    fn from(track_segment: TrackSegment) -> Geometry<f64> {
+        Geometry::LineString(track_segment.linestring())
     }
 }
 
-// A Version of geo::Point that has the Default trait implemented, which
+// A Version of geo_types::Point that has the Default trait implemented, which
 // allows us to initialise the GpxPoint with default values compactly
 // in the Waypoint::new function below
 #[derive(Clone, Debug)]
@@ -264,11 +263,11 @@ impl Waypoint {
     /// Gives the geographical point of the waypoint.
     ///
     /// ```
-    /// extern crate geo;
+    /// extern crate geo_types;
     /// extern crate gpx;
     ///
     /// use gpx::Waypoint;
-    /// use geo::Point;
+    /// use geo_types::Point;
     ///
     /// fn main() {
     ///     // Kind of useless, but it shows the point.
@@ -279,17 +278,17 @@ impl Waypoint {
     /// }
     /// ```
     pub fn point(&self) -> Point<f64> {
-        self.point.0 //.0 to extract the geo::Point from the tuple struct GpxPoint
+        self.point.0 //.0 to extract the geo_types::Point from the tuple struct GpxPoint
     }
 
     /// Creates a new Waypoint from a given geographical point.
     ///
     /// ```
-    /// extern crate geo;
+    /// extern crate geo_types;
     /// extern crate gpx;
     ///
     /// use gpx::Waypoint;
-    /// use geo::Point;
+    /// use geo_types::Point;
     ///
     /// fn main() {
     ///     let point = Point::new(-121.97, 37.24);
@@ -306,9 +305,9 @@ impl Waypoint {
     }
 }
 
-impl ToGeo<f64> for Waypoint {
-    fn to_geo(&self) -> Geometry<f64> {
-        Geometry::Point(self.point())
+impl From<Waypoint> for Geometry<f64> {
+    fn from(waypoint: Waypoint) -> Geometry<f64> {
+        Geometry::Point(waypoint.point())
     }
 }
 

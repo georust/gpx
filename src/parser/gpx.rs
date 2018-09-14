@@ -2,7 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use errors::*;
-use geo::Rect;
+use geo_types::Rect;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
@@ -144,7 +144,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
 
 #[cfg(test)]
 mod tests {
-    use geo::Point;
+    use geo_types::Point;
     use std::io::BufReader;
 
     use super::consume;

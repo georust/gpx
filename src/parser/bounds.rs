@@ -1,6 +1,6 @@
 use errors::*;
 
-use geo::{Coordinate, Rect};
+use geo_types::{Coordinate, Rect};
 use std::io::Read;
 use xml::reader::XmlEvent;
 
