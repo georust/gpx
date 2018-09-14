@@ -2,7 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use errors::*;
-use geo::Bbox;
+use geo::Rect;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
@@ -39,7 +39,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     let mut urlname: Option<String> = None;
     let mut email: Option<String> = None;
     let mut time: Option<DateTime<Utc>> = None;
-    let mut bounds: Option<Bbox<f64>> = None;
+    let mut bounds: Option<Rect<f64>> = None;
     let mut gpx_name: Option<String> = None;
     let mut description: Option<String> = None;
     let mut keywords: Option<String> = None;
