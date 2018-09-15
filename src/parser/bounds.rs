@@ -1,6 +1,6 @@
 use errors::*;
 
-use geo::Bbox;
+use geo_types::{Coordinate, Rect};
 use std::io::Read;
 use xml::reader::XmlEvent;
 
@@ -8,7 +8,7 @@ use parser::verify_starting_tag;
 use parser::Context;
 
 /// consume consumes a bounds element until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
     let attributes = verify_starting_tag(context, "bounds")?;
     // get required bounds
     let minlat = attributes
@@ -51,11 +51,15 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Bbox<f64>> {
         .parse()
         .chain_err(|| "error while casting max longitude to f64")?;
 
-    let bounds: Bbox<f64> = Bbox {
-        xmin: minlon,
-        xmax: maxlon,
-        ymin: minlat,
-        ymax: maxlat,
+    let bounds: Rect<f64> = Rect {
+        min: Coordinate {
+            x: minlon,
+            y: minlat,
+        },
+        max: Coordinate {
+            x: maxlon,
+            y: maxlat,
+        },
     };
 
     for event in context.reader() {
@@ -98,10 +102,10 @@ mod tests {
         assert!(bounds.is_ok());
 
         let bounds = bounds.unwrap();
-        assert_eq!(bounds.xmin, -74.031837463);
-        assert_eq!(bounds.ymin, 45.487064362);
-        assert_eq!(bounds.xmax, -73.586273193);
-        assert_eq!(bounds.ymax, 45.701225281);
+        assert_eq!(bounds.min.x, -74.031837463);
+        assert_eq!(bounds.min.y, 45.487064362);
+        assert_eq!(bounds.max.x, -73.586273193);
+        assert_eq!(bounds.max.y, 45.701225281);
     }
 
     #[test]

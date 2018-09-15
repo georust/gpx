@@ -1,5 +1,5 @@
 //! gpx is a library for reading and writing GPX (GPS Exchange Format) files.
-//! It uses the primitives provided by [rust-geo](https://github.com/georust/rust-geo)
+//! It uses the primitives provided by [geo-types](https://github.com/georust/geo)
 //! to allow for storage of GPS data.
 //!
 //! # Examples
@@ -39,8 +39,11 @@ extern crate error_chain;
 extern crate assert_approx_eq;
 
 extern crate chrono;
-extern crate geo;
+extern crate geo_types;
 extern crate xml;
+
+#[cfg(test)]
+extern crate geo;
 
 // Export our type structs in the root, along with the read function.
 pub use reader::read;

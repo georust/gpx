@@ -4,7 +4,7 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use geo::Point;
+use geo_types::Point;
 use parser::extensions;
 use parser::fix;
 use parser::link;
@@ -99,26 +99,28 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                     )
                 }
                 "sat" => {
-                    waypoint.sat = Some(
-                        string::consume(context, "sat")?
-                            .parse()
-                            .chain_err(|| "error while casting number of satellites (sat) to u64")?,
-                    )
+                    waypoint.sat =
+                        Some(string::consume(context, "sat")?.parse().chain_err(|| {
+                            "error while casting number of satellites (sat) to u64"
+                        })?)
                 }
                 "hdop" => {
-                    waypoint.hdop = Some(string::consume(context, "hdop")?.parse().chain_err(
-                        || "error while casting horizontal dilution of precision (hdop) to f64",
-                    )?)
+                    waypoint.hdop =
+                        Some(string::consume(context, "hdop")?.parse().chain_err(|| {
+                            "error while casting horizontal dilution of precision (hdop) to f64"
+                        })?)
                 }
                 "vdop" => {
-                    waypoint.vdop = Some(string::consume(context, "vdop")?.parse().chain_err(
-                        || "error while casting vertical dilution of precision (vdop) to f64",
-                    )?)
+                    waypoint.vdop =
+                        Some(string::consume(context, "vdop")?.parse().chain_err(|| {
+                            "error while casting vertical dilution of precision (vdop) to f64"
+                        })?)
                 }
                 "pdop" => {
-                    waypoint.pdop = Some(string::consume(context, "pdop")?.parse().chain_err(
-                        || "error while casting position dilution of precision (pdop) to f64",
-                    )?)
+                    waypoint.pdop =
+                        Some(string::consume(context, "pdop")?.parse().chain_err(|| {
+                            "error while casting position dilution of precision (pdop) to f64"
+                        })?)
                 }
                 "ageofgpsdata" => {
                     waypoint.age = Some(
@@ -163,7 +165,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
 #[cfg(test)]
 mod tests {
-    use geo::Point;
+    use geo_types::Point;
     use std::io::BufReader;
 
     use super::consume;

@@ -7,6 +7,7 @@ extern crate assert_approx_eq;
 
 extern crate chrono;
 extern crate geo;
+extern crate geo_types;
 extern crate gpx;
 
 #[cfg(test)]
@@ -14,7 +15,7 @@ mod tests {
     use chrono::prelude::*;
     use geo::algorithm::haversine_distance::HaversineDistance;
     use geo::euclidean_length::EuclideanLength;
-    use geo::{Geometry, Point, ToGeo};
+    use geo_types::{Geometry, Point};
     use std::fs::File;
     use std::io::BufReader;
 
@@ -124,10 +125,10 @@ mod tests {
             assert!(time < Utc.ymd(2017, 7, 30).and_hms_micro(0, 0, 0, 000_000));
 
             // Should coerce to Point.
-            let geo: Geometry<f64> = point.to_geo();
+            let geo: Geometry<f64> = point.clone().into();
             match geo {
                 Geometry::Point(_) => {} // ok
-                _ => panic!("point.to_geo() gave bad geometry"),
+                _ => panic!("point.into() gave bad geometry"),
             }
 
             // It's missing almost all fields, actually.
