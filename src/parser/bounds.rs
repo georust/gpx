@@ -52,8 +52,14 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
         .chain_err(|| "error while casting max longitude to f64")?;
 
     let bounds: Rect<f64> = Rect {
-        min: Coordinate { x: minlon, y: minlat },
-        max: Coordinate { x: maxlon, y: maxlat },
+        min: Coordinate {
+            x: minlon,
+            y: minlat,
+        },
+        max: Coordinate {
+            x: maxlon,
+            y: maxlat,
+        },
     };
 
     for event in context.reader() {
