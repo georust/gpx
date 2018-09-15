@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0
+
+- [#20](https://github.com/georust/gpx/pull/20): Switch from `geo` to `geo-types`
+
 ## 0.4.1
 
 - [`d7fec64`](https://github.com/georust/gpx/commit/d7fec646469c820a299d32f8b09daa2c7f4525a3): Support geoidheight waypoint tag
