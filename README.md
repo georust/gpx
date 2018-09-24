@@ -41,8 +41,8 @@ fn main() {
 
 ## Current Status
 
-rust-gpx currently supports reading both GPX 1.1 and 1.0. GPX extensions and
-writing to files are not yet supported.
+rust-gpx currently supports reading and writing both GPX 1.1 and 1.0.
+GPX extensions and are not yet supported.
 
 ## Contributing
 All contributions are welcome! Please open an issue if you find a bug / have any

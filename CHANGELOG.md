@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.6.0
+
+- [#22](https://github.com/georust/gpx/pull/22): Support writing GPX files
+
 ## 0.5.0
 
 - [#20](https://github.com/georust/gpx/pull/20): Switch from `geo` to `geo-types`
