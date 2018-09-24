@@ -45,13 +45,15 @@ extern crate xml;
 #[cfg(test)]
 extern crate geo;
 
-// Export our type structs in the root, along with the read function.
+// Export our type structs in the root, along with the read and write functions.
 pub use reader::read;
 pub use types::*;
+pub use writer::write;
 
 mod parser;
 mod reader;
 mod types;
+mod writer;
 
 // Errors should be namespaced away.
 pub mod errors;
