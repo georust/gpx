@@ -119,7 +119,8 @@ mod tests {
         let err = consume!(
             "<email id=\"id\" domain=\"domain\"><child /></email>",
             GpxVersion::Gpx11
-        ).unwrap_err();
+        )
+        .unwrap_err();
 
         assert_eq!(err.description(), "invalid child element");
         assert_eq!(err.to_string(), "invalid child element 'child' in email");

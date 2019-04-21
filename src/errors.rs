@@ -1,7 +1,7 @@
 //! errors provides error generics for the gpx parser.
 
 // This gives us our error boilerplate macros.
-error_chain!{
+error_chain! {
     errors {
         /// InvalidChildElement signifies when an element has a child that isn't
         /// valid per the GPX spec.
