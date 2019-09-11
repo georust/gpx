@@ -73,6 +73,52 @@ mod tests {
     }
 
     #[test]
+    fn gpx_reader_read_test_gpsies() {
+        // Should not give an error, and should have all the correct data.
+        let file = File::open("tests/fixtures/gpsies_example.gpx").unwrap();
+        let reader = BufReader::new(file);
+
+        let result = read(reader);
+        match result {
+            Ok(_) => {
+
+            },
+            Err(ref e) => {
+                println!("{:?}", e);
+            }
+        }
+        assert!(result.is_ok());
+
+        let result = result.unwrap();
+
+        // Check the metadata, of course; here it has a time.
+        let metadata = result.metadata.unwrap();
+        assert_eq!(
+            metadata.time.unwrap(),
+            Utc.ymd(2019, 09, 11).and_hms(17, 08, 31)
+        );
+
+        assert_eq!(metadata.links.len(), 1);
+        let link = &metadata.links[0];
+        assert_eq!(link.href, "https://www.gpsies.com/");
+        assert_eq!(link.text, Some(String::from("Innrunde on AllTrails")));
+
+        // There should just be one track, "example gpx document".
+        assert_eq!(result.tracks.len(), 1);
+        let track = &result.tracks[0];
+
+        assert_eq!(track.name, Some(String::from("Innrunde on AllTrails")));
+
+        // Each point has its own information; test elevation.
+        assert_eq!(track.segments.len(), 1);
+        let points = &track.segments[0].points;
+
+        assert_eq!(points[0].elevation, Some(305.0));
+        assert_eq!(points[1].elevation, Some(304.0));
+        assert_eq!(points[2].elevation, Some(305.0));
+    }
+
+    #[test]
     fn gpx_reader_read_test_garmin_activity() {
         let file = File::open("tests/fixtures/garmin-activity.gpx").unwrap();
         let reader = BufReader::new(file);
