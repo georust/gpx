@@ -4,6 +4,7 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
+use parser::extensions;
 use parser::bounds;
 use parser::link;
 use parser::person;
@@ -49,6 +50,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
                 }
                 "bounds" => {
                     metadata.bounds = Some(bounds::consume(context)?);
+                }
+                "extensions" => {
+                    extensions::consume(context)?;
                 }
                 child => {
                     bail!(ErrorKind::InvalidChildElement(
