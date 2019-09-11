@@ -5,6 +5,7 @@ use std::io::Read;
 use xml::reader::XmlEvent;
 
 use parser::string;
+use parser::link;
 use parser::tracksegment;
 use parser::verify_starting_tag;
 use parser::Context;
@@ -44,6 +45,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
                 }
                 "trkseg" => {
                     track.segments.push(tracksegment::consume(context)?);
+                }
+                "link" => {
+                    track.links.push(link::consume(context)?);
                 }
                 child => {
                     bail!(ErrorKind::InvalidChildElement(String::from(child), "track"));
