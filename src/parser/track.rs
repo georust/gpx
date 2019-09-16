@@ -4,8 +4,8 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use parser::string;
 use parser::link;
+use parser::string;
 use parser::tracksegment;
 use parser::verify_starting_tag;
 use parser::Context;

@@ -4,8 +4,8 @@ use errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-use parser::extensions;
 use parser::bounds;
+use parser::extensions;
 use parser::link;
 use parser::person;
 use parser::string;

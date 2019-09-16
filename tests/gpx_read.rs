@@ -80,9 +80,7 @@ mod tests {
 
         let result = read(reader);
         match result {
-            Ok(_) => {
-
-            },
+            Ok(_) => {}
             Err(ref e) => {
                 println!("{:?}", e);
             }
