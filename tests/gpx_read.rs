@@ -109,6 +109,10 @@ mod tests {
 
         assert_eq!(track.name, Some(String::from("Innrunde on AllTrails")));
 
+        let link = &result.tracks[0].links[0];
+
+        assert_eq!(link.href, "https://www.gpsies.com/map.do");
+
         // Each point has its own information; test elevation.
         assert_eq!(track.segments.len(), 1);
         let points = &track.segments[0].points;
