@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.8.0
+
+- [#24](https://github.com/georust/gpx/pull/24): Parse `link` elements inside `trk` tags, `extensions` inside `metadata`
+
+## 0.7.0
+
+Just different dependency updates.
+
 ## 0.6.0
 
 - [#22](https://github.com/georust/gpx/pull/22): Support writing GPX files
