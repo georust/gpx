@@ -36,8 +36,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
 
         match next_event.chain_err(|| Error::from("error while parsing link event"))? {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
-                "text" => link.text = Some(string::consume(context, "text")?),
-                "type" => link._type = Some(string::consume(context, "type")?),
+                "text" => link.text = Some(string::consume(context, "text", false)?),
+                "type" => link._type = Some(string::consume(context, "type", false)?),
                 child => {
                     bail!(ErrorKind::InvalidChildElement(String::from(child), "link"));
                 }

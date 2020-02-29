@@ -8,8 +8,11 @@ use parser::verify_starting_tag;
 use parser::Context;
 
 /// consume consumes a single string as tag content.
-pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Result<String> {
+pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str, allow_empty: bool) -> Result<String> {
     let mut string: Option<String> = None;
+    if allow_empty {
+        string = Some("".to_string());
+    }
     verify_starting_tag(context, tagname)?;
 
     for event in context.reader() {

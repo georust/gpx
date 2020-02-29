@@ -10,7 +10,7 @@ use types::Fix;
 
 /// consume consumes an element as a fix.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
-    let fix_string = string::consume(context, "fix")?;
+    let fix_string = string::consume(context, "fix", false)?;
 
     let fix = match fix_string.as_ref() {
         "none" => Fix::None,
