@@ -18,6 +18,14 @@ macro_rules! consume {
             $tagname,
         )
     }};
+    ($xml:expr, $version:expr, $tagname:expr, $allow_empty:expr) => {{
+        use parser::create_context;
+        consume(
+            &mut create_context(BufReader::new($xml.as_bytes()), $version),
+            $tagname,
+            $allow_empty,
+        )
+    }};
 }
 
 pub mod bounds;
@@ -62,7 +70,7 @@ impl<R: Read> Context<R> {
 pub fn verify_starting_tag<R: Read>(
     context: &mut Context<R>,
     local_name: &'static str,
-) -> Result<(Vec<OwnedAttribute>)> {
+) -> Result<Vec<OwnedAttribute>> {
     //makes sure the specified starting tag is the next tag on the stream
     //we ignore and skip all xmlevents except StartElement, Characters and EndElement
     loop {
