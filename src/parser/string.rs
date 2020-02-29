@@ -50,7 +50,12 @@ mod tests {
 
     #[test]
     fn consume_simple_string() {
-        let result = consume!("<string>hello world</string>", GpxVersion::Gpx11, "string", false);
+        let result = consume!(
+            "<string>hello world</string>",
+            GpxVersion::Gpx11,
+            "string",
+            false
+        );
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "hello world");
