@@ -63,89 +63,94 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         };
 
         match next_event.chain_err(|| Error::from("error while parsing waypoint event"))? {
-            XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
-                "ele" => {
-                    // Cast the elevation to an f64, from a string.
-                    waypoint.elevation = Some(
-                        string::consume(context, "ele", false)?
-                            .parse()
-                            .chain_err(|| "error while casting elevation to f64")?,
-                    )
-                }
-                "speed" if context.version == GpxVersion::Gpx10 => {
-                    // Speed is from GPX 1.0
-                    waypoint.speed = Some(
-                        string::consume(context, "speed", false)?
-                            .parse()
-                            .chain_err(|| "error while casting speed to f64")?,
-                    );
-                }
-                "time" => waypoint.time = Some(time::consume(context)?),
-                "name" => waypoint.name = Some(string::consume(context, "name", false)?),
-                "cmt" => waypoint.comment = Some(string::consume(context, "cmt", true)?),
-                "desc" => waypoint.description = Some(string::consume(context, "desc", true)?),
-                "src" => waypoint.source = Some(string::consume(context, "src", true)?),
-                "link" => waypoint.links.push(link::consume(context)?),
-                "sym" => waypoint.symbol = Some(string::consume(context, "sym", false)?),
-                "type" => waypoint._type = Some(string::consume(context, "type", false)?),
+            XmlEvent::StartElement { ref name, .. } => {
+                match name.local_name.as_ref() {
+                    "ele" => {
+                        // Cast the elevation to an f64, from a string.
+                        waypoint.elevation = Some(
+                            string::consume(context, "ele", false)?
+                                .parse()
+                                .chain_err(|| "error while casting elevation to f64")?,
+                        )
+                    }
+                    "speed" if context.version == GpxVersion::Gpx10 => {
+                        // Speed is from GPX 1.0
+                        waypoint.speed = Some(
+                            string::consume(context, "speed", false)?
+                                .parse()
+                                .chain_err(|| "error while casting speed to f64")?,
+                        );
+                    }
+                    "time" => waypoint.time = Some(time::consume(context)?),
+                    "name" => waypoint.name = Some(string::consume(context, "name", false)?),
+                    "cmt" => waypoint.comment = Some(string::consume(context, "cmt", true)?),
+                    "desc" => waypoint.description = Some(string::consume(context, "desc", true)?),
+                    "src" => waypoint.source = Some(string::consume(context, "src", true)?),
+                    "link" => waypoint.links.push(link::consume(context)?),
+                    "sym" => waypoint.symbol = Some(string::consume(context, "sym", false)?),
+                    "type" => waypoint._type = Some(string::consume(context, "type", false)?),
 
-                // Optional accuracy information
-                "fix" => waypoint.fix = Some(fix::consume(context)?),
-                "geoidheight" => {
-                    waypoint.geoidheight = Some(
-                        string::consume(context, "geoidheight", false)?
+                    // Optional accuracy information
+                    "fix" => waypoint.fix = Some(fix::consume(context)?),
+                    "geoidheight" => {
+                        waypoint.geoidheight = Some(
+                            string::consume(context, "geoidheight", false)?
+                                .parse()
+                                .chain_err(|| "error while casting geoid (geoidheight) to f64")?,
+                        )
+                    }
+                    "sat" => {
+                        waypoint.sat =
+                            Some(string::consume(context, "sat", false)?.parse().chain_err(
+                                || "error while casting number of satellites (sat) to u64",
+                            )?)
+                    }
+                    "hdop" => waypoint.hdop = Some(
+                        string::consume(context, "hdop", false)?
                             .parse()
-                            .chain_err(|| "error while casting geoid (geoidheight) to f64")?,
-                    )
-                }
-                "sat" => {
-                    waypoint.sat =
-                        Some(string::consume(context, "sat", false)?.parse().chain_err(|| {
-                            "error while casting number of satellites (sat) to u64"
-                        })?)
-                }
-                "hdop" => {
-                    waypoint.hdop =
-                        Some(string::consume(context, "hdop", false)?.parse().chain_err(|| {
-                            "error while casting horizontal dilution of precision (hdop) to f64"
-                        })?)
-                }
-                "vdop" => {
-                    waypoint.vdop =
-                        Some(string::consume(context, "vdop", false)?.parse().chain_err(|| {
-                            "error while casting vertical dilution of precision (vdop) to f64"
-                        })?)
-                }
-                "pdop" => {
-                    waypoint.pdop =
-                        Some(string::consume(context, "pdop", false)?.parse().chain_err(|| {
-                            "error while casting position dilution of precision (pdop) to f64"
-                        })?)
-                }
-                "ageofgpsdata" => {
-                    waypoint.age = Some(
-                        string::consume(context, "ageofgpsdata", false)?
+                            .chain_err(|| {
+                                "error while casting horizontal dilution of precision (hdop) to f64"
+                            })?,
+                    ),
+                    "vdop" => waypoint.vdop = Some(
+                        string::consume(context, "vdop", false)?
                             .parse()
-                            .chain_err(|| "error while casting age of GPS data to f64")?,
-                    )
-                }
-                "dgpsid" => {
-                    waypoint.dgpsid = Some(
-                        string::consume(context, "dgpsid", false)?
+                            .chain_err(|| {
+                                "error while casting vertical dilution of precision (vdop) to f64"
+                            })?,
+                    ),
+                    "pdop" => waypoint.pdop = Some(
+                        string::consume(context, "pdop", false)?
                             .parse()
-                            .chain_err(|| "error while casting DGPS station ID to u16")?,
-                    )
-                }
+                            .chain_err(|| {
+                                "error while casting position dilution of precision (pdop) to f64"
+                            })?,
+                    ),
+                    "ageofgpsdata" => {
+                        waypoint.age = Some(
+                            string::consume(context, "ageofgpsdata", false)?
+                                .parse()
+                                .chain_err(|| "error while casting age of GPS data to f64")?,
+                        )
+                    }
+                    "dgpsid" => {
+                        waypoint.dgpsid = Some(
+                            string::consume(context, "dgpsid", false)?
+                                .parse()
+                                .chain_err(|| "error while casting DGPS station ID to u16")?,
+                        )
+                    }
 
-                // Finally the GPX 1.1 extensions
-                "extensions" => extensions::consume(context)?,
-                child => {
-                    bail!(ErrorKind::InvalidChildElement(
-                        String::from(child),
-                        "waypoint"
-                    ));
+                    // Finally the GPX 1.1 extensions
+                    "extensions" => extensions::consume(context)?,
+                    child => {
+                        bail!(ErrorKind::InvalidChildElement(
+                            String::from(child),
+                            "waypoint"
+                        ));
+                    }
                 }
-            },
+            }
             XmlEvent::EndElement { ref name } => {
                 ensure!(
                     name.local_name == tagname,
