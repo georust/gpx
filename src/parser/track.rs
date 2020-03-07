@@ -29,19 +29,19 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
         match next_event.chain_err(|| Error::from("error while parsing track event"))? {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => {
-                    track.name = Some(string::consume(context, "name")?);
+                    track.name = Some(string::consume(context, "name", false)?);
                 }
                 "cmt" => {
-                    track.comment = Some(string::consume(context, "cmt")?);
+                    track.comment = Some(string::consume(context, "cmt", true)?);
                 }
                 "desc" => {
-                    track.description = Some(string::consume(context, "desc")?);
+                    track.description = Some(string::consume(context, "desc", true)?);
                 }
                 "src" => {
-                    track.source = Some(string::consume(context, "src")?);
+                    track.source = Some(string::consume(context, "src", true)?);
                 }
                 "type" => {
-                    track._type = Some(string::consume(context, "type")?);
+                    track._type = Some(string::consume(context, "type", false)?);
                 }
                 "trkseg" => {
                     track.segments.push(tracksegment::consume(context)?);
