@@ -47,6 +47,7 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<()> {
     for track in &gpx.tracks {
         write_track(track, &mut writer)?;
     }
+    write_route(&gpx.route, &mut writer)?;
     write_xml_event(XmlEvent::end_element(), &mut writer)?;
     Ok(())
 }
@@ -266,6 +267,23 @@ fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> Result<(
     write_string_if_exists("type", &track._type, writer)?;
     for segment in &track.segments {
         write_track_segment(segment, writer)?;
+    }
+    write_xml_event(XmlEvent::end_element(), writer)?;
+    Ok(())
+}
+
+fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> Result<()> {
+    write_xml_event(XmlEvent::start_element("rte"), writer)?;
+    write_string_if_exists("name", &route.name, writer)?;
+    write_string_if_exists("cmt", &route.comment, writer)?;
+    write_string_if_exists("desc", &route.description, writer)?;
+    write_string_if_exists("src", &route.source, writer)?;
+    for link in &route.links {
+        write_link(link, writer)?;
+    }
+    write_string_if_exists("type", &route._type, writer)?;
+    for point in &route.points {
+        write_waypoint("rtept", point, writer);
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())

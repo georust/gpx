@@ -32,6 +32,9 @@ pub struct Gpx {
 
     /// A list of tracks.
     pub tracks: Vec<Track>,
+
+    /// A route with a list of point-by-point directions
+    pub route: Route,
 }
 
 /// Metadata is information about the GPX file, author, and copyright restrictions.
@@ -62,6 +65,70 @@ pub struct Metadata {
     /// Bounds for the tracks in the GPX.
     pub bounds: Option<Rect<f64>>,
     /*extensions: GpxExtensionsType,*/
+}
+
+/// Route represents an ordered list of waypoints representing a series of turn points leading to a destination.
+#[derive(Clone, Default, Debug)]
+pub struct Route {
+    /// GPS name of route.
+    pub name: Option<String>,
+
+    /// GPS comment for route.
+    pub comment: Option<String>,
+
+    /// User description of route.
+    pub description: Option<String>,
+
+    /// Source of data. Included to give user some idea of reliability
+    /// and accuracy of data.
+    pub source: Option<String>,
+
+    /// Links to external information about the route.
+    pub links: Vec<Link>,
+
+    /// GPS route number.
+    pub number: Option<u32>,
+
+    /// Type (classification) of route.
+    pub _type: Option<String>,
+
+    /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
+    /// for a single point in a track.
+    pub points: Vec<Waypoint>,
+}
+
+impl Route {
+  /// Gives the linestring of the segment's points, the sequence of points that
+  /// comprises the track segment.
+  pub fn linestring(&self) -> LineString<f64> {
+      self.points.iter().map(|wpt| wpt.point()).collect()
+  }
+
+  /// Creates a new Route with default values.
+  ///
+  /// ```
+  /// extern crate gpx;
+  /// extern crate geo_types;
+  ///
+  /// use gpx::{Route, Waypoint};
+  /// use geo_types::Point;
+  ///
+  /// fn main() {
+  ///     let mut route: Route = Route::new();
+  ///
+  ///     let point = Waypoint::new(Point::new(-121.97, 37.24));
+  ///     route.points.push(point);
+  /// }
+  ///
+  pub fn new() -> Route {
+      Default::default()
+  }
+}
+
+impl From<Route> for Geometry<f64> {
+  fn from(route: Route) -> Geometry<f64> {
+      Geometry::LineString(route.linestring())
+  }
 }
 
 /// Track represents an ordered list of points describing a path.

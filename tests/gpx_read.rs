@@ -191,6 +191,54 @@ mod tests {
     }
 
     #[test]
+    fn gpx_reader_read_test_lovers_lane() {
+        let file = File::open("tests/fixtures/ecology-trail-and-lovers-lane-loop.gpx").unwrap();
+        let reader = BufReader::new(file);
+
+        let result = read(reader);
+        assert!(result.is_ok());
+        let res = result.unwrap();
+
+        // Check the info on the metadata.
+        let metadata = res.metadata.unwrap();
+
+        assert_eq!(metadata.name, Some(String::from("Trail Planner Map")));
+        assert_eq!(metadata.links.len(), 1);
+        let link = &metadata.links[0];
+        assert_eq!(link.text, Some(String::from("Trail Planner Map on AllTrails")));
+        assert_eq!(link.href, String::from("https://www.gpsies.com/"));
+
+        // Check the main track.
+        let route = &res.route;
+        assert_eq!(route.name, Some(String::from("Trail Planner Map on AllTrails")));
+        assert_eq!(route.points.len(), 139);
+
+        // Test for every single point in the file.
+        for point in route.points.iter() {
+
+            // Elevation is between 90 and 220.
+            let elevation = point.elevation.unwrap();
+            assert!(elevation > 15. && elevation < 100.);
+
+            // Should coerce to Point.
+            let geo: Geometry<f64> = point.clone().into();
+            match geo {
+                Geometry::Point(_) => {} // ok
+                _ => panic!("point.into() gave bad geometry"),
+            }
+
+            // It's missing almost all fields, actually.
+            assert!(point.name.is_none());
+            assert!(point.comment.is_none());
+            assert!(point.description.is_none());
+            assert!(point.source.is_none());
+            assert!(point.symbol.is_none());
+            assert!(point._type.is_none());
+            assert_eq!(point.links.len(), 0);
+        }
+    }
+
+    #[test]
     fn gpx_reader_read_test_with_accuracy() {
         let file = File::open("tests/fixtures/with_accuracy.gpx").unwrap();
         let reader = BufReader::new(file);

@@ -10,6 +10,7 @@ use parser::bounds;
 use parser::metadata;
 use parser::string;
 use parser::time;
+use parser::route;
 use parser::track;
 use parser::verify_starting_tag;
 use parser::waypoint;
@@ -70,6 +71,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                 }
                 "trk" => {
                     gpx.tracks.push(track::consume(context)?);
+                }
+                "rte" => {
+                    gpx.route = route::consume(context)?;
                 }
                 "wpt" => {
                     gpx.waypoints.push(waypoint::consume(context, "wpt")?);
@@ -183,6 +187,7 @@ mod tests {
                 <wpt lon=\"10.256\" lat=\"-81.324\">
                     <time>2001-10-26T19:32:52+00:00</time>
                 </wpt>
+                <rte></rte>
             </gpx>
             ",
             GpxVersion::Unknown

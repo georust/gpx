@@ -40,6 +40,7 @@ pub mod string;
 pub mod time;
 pub mod track;
 pub mod tracksegment;
+pub mod route;
 pub mod waypoint;
 
 use errors::*;
