@@ -283,7 +283,7 @@ fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> Result<(
     }
     write_string_if_exists("type", &route._type, writer)?;
     for point in &route.points {
-        write_waypoint("rtept", point, writer);
+        write_waypoint("rtept", point, writer)?;
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
