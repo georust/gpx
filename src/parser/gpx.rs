@@ -8,9 +8,9 @@ use xml::reader::XmlEvent;
 
 use parser::bounds;
 use parser::metadata;
+use parser::route;
 use parser::string;
 use parser::time;
-use parser::route;
 use parser::track;
 use parser::verify_starting_tag;
 use parser::waypoint;

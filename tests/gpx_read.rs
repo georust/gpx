@@ -205,17 +205,22 @@ mod tests {
         assert_eq!(metadata.name, Some(String::from("Trail Planner Map")));
         assert_eq!(metadata.links.len(), 1);
         let link = &metadata.links[0];
-        assert_eq!(link.text, Some(String::from("Trail Planner Map on AllTrails")));
+        assert_eq!(
+            link.text,
+            Some(String::from("Trail Planner Map on AllTrails"))
+        );
         assert_eq!(link.href, String::from("https://www.gpsies.com/"));
 
         // Check the main track.
         let route = &res.route;
-        assert_eq!(route.name, Some(String::from("Trail Planner Map on AllTrails")));
+        assert_eq!(
+            route.name,
+            Some(String::from("Trail Planner Map on AllTrails"))
+        );
         assert_eq!(route.points.len(), 139);
 
         // Test for every single point in the file.
         for point in route.points.iter() {
-
             // Elevation is between 90 and 220.
             let elevation = point.elevation.unwrap();
             assert!(elevation > 15. && elevation < 100.);

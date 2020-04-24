@@ -7,9 +7,8 @@ use xml::reader::XmlEvent;
 use parser::link;
 use parser::string;
 use parser::verify_starting_tag;
-use parser::Context;
 use parser::waypoint;
-
+use parser::Context;
 
 use Route;
 
