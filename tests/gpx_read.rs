@@ -221,7 +221,7 @@ mod tests {
 
         // Test for every single point in the file.
         for point in route.points.iter() {
-            // Elevation is between 90 and 220.
+            // Elevation is between 15 and 100
             let elevation = point.elevation.unwrap();
             assert!(elevation > 15. && elevation < 100.);
 
