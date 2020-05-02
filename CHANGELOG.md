@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.8.1
+
+- [allow empty fields: "desc", "cmt", "description", "keywords", "src"](https://github.com/georust/gpx/pull/25)
+- [Add support for route tag](https://github.com/georust/gpx/pull/26)
+
 ## 0.8.0
 
 - [#24](https://github.com/georust/gpx/pull/24): Parse `link` elements inside `trk` tags, `extensions` inside `metadata`
