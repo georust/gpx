@@ -36,6 +36,7 @@ pub mod gpx;
 pub mod link;
 pub mod metadata;
 pub mod person;
+pub mod route;
 pub mod string;
 pub mod time;
 pub mod track;
