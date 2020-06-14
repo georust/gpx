@@ -13,13 +13,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
     // get required bounds
     let minlat = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "minlat")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "minlat")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("minlat", "bounds"))?;
     let maxlat = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "maxlat")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "maxlat")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlat", "bounds"))?;
 
     let minlat: f64 = minlat
@@ -33,13 +31,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
 
     let minlon = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "minlon")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "minlon")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("minlon", "bounds"))?;
     let maxlon = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "maxlon")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "maxlon")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlon", "bounds"))?;
 
     let minlon: f64 = minlon

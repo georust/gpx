@@ -24,8 +24,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
     // get required latitude and longitude
     let latitude = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "lat")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "lat")
         .ok_or(ErrorKind::InvalidElementLacksAttribute(
             "latitude", "waypoint",
         ))?;
@@ -37,8 +36,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
     let longitude = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "lon")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "lon")
         .ok_or(ErrorKind::InvalidElementLacksAttribute(
             "longitude",
             "waypoint",

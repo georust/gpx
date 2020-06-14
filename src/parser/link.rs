@@ -18,8 +18,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
     let attributes = verify_starting_tag(context, "link")?;
     let attr = attributes
         .into_iter()
-        .filter(|attr| attr.name.local_name == "href")
-        .nth(0);
+        .find(|attr| attr.name.local_name == "href");
 
     let attr = attr.ok_or(ErrorKind::InvalidElementLacksAttribute("href", "link"))?;
 

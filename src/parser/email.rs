@@ -15,14 +15,12 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
     // get required id and domain attributes
     let id = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "id")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "id")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("id", "email"))?;
 
     let domain = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "domain")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "domain")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("domain", "email"))?;
 
     let email = format!("{id}@{domain}", id = &id.value, domain = &domain.value);

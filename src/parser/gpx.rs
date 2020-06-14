@@ -49,8 +49,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     let attributes = verify_starting_tag(context, "gpx")?;
     let version = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "version")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "version")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("version", "gpx"))?;
     gpx.version = version_string_to_version(&version.value)?;
     context.version = gpx.version;
