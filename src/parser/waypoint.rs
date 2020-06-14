@@ -31,7 +31,6 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         ))?;
 
     let latitude: f64 = latitude
-        .clone()
         .value
         .parse()
         .chain_err(|| "error while casting latitude to f64")?;
@@ -46,7 +45,6 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         ))?;
 
     let longitude: f64 = longitude
-        .clone()
         .value
         .parse()
         .chain_err(|| "error while casting longitude to f64")?;
@@ -56,13 +54,16 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing waypoint event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing waypoint event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => {
                 match name.local_name.as_ref() {
                     "ele" => {

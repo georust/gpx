@@ -28,13 +28,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing link event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing link event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "text" => link.text = Some(string::consume(context, "text", false)?),
                 "type" => link._type = Some(string::consume(context, "type", false)?),

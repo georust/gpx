@@ -18,13 +18,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing tracksegment event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing tracksegment event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "trkpt" => segment.points.push(waypoint::consume(context, "trkpt")?),
                 child => {

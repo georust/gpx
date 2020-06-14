@@ -19,13 +19,16 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing person event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing person event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => person.name = Some(string::consume(context, "name", false)?),
                 "email" => person.email = Some(email::consume(context)?),
