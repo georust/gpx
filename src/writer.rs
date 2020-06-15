@@ -156,7 +156,7 @@ fn write_email_if_exists<W: Write>(
     writer: &mut EventWriter<W>,
 ) -> Result<()> {
     if let Some(ref email) = email {
-        let mut parts = email.split("@");
+        let mut parts = email.split('@');
         let id = parts.next().ok_or("Missing id part in email!")?;
         let domain = parts.next().ok_or("Missing domain part in email!")?;
         if parts.next().is_some() {

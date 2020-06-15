@@ -115,7 +115,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
             XmlEvent::EndElement { name } => {
                 ensure!(
                     name.local_name == "gpx",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "gpx")
+                    ErrorKind::InvalidClosingTag(name.local_name, "gpx")
                 );
                 if gpx.version == GpxVersion::Gpx10 {
                     let mut metadata: Metadata = Default::default();

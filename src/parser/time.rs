@@ -17,7 +17,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
     let time =
         DateTime::parse_from_rfc3339(&time).chain_err(|| "error while parsing time as RFC3339")?;
 
-    return Ok(DateTime::from_utc(time.naive_utc(), Utc));
+    Ok(DateTime::from_utc(time.naive_utc(), Utc))
 }
 
 #[cfg(test)]

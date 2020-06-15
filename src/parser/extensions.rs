@@ -34,7 +34,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
         }
     }
 
-    return Err("no end tag for extensions".into());
+    Err("no end tag for extensions".into())
 }
 
 #[cfg(test)]

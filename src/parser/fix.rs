@@ -21,7 +21,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
         _ => Fix::Other(fix_string),
     };
 
-    return Ok(fix);
+    Ok(fix)
 }
 
 #[cfg(test)]

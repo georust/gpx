@@ -70,14 +70,14 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement { name, .. } => {
                 bail!(ErrorKind::InvalidChildElement(
-                    name.local_name.clone(),
+                    name.local_name,
                     "bounds"
                 ));
             }
             XmlEvent::EndElement { name } => {
                 ensure!(
                     name.local_name == "bounds",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "bounds")
+                    ErrorKind::InvalidClosingTag(name.local_name, "bounds")
                 );
                 return Ok(bounds);
             }
