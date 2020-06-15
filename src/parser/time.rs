@@ -1,14 +1,14 @@
 //! time handles parsing of xsd:dateTime.
 
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 
 use chrono::prelude::Utc;
 use chrono::DateTime;
 
-use parser::string;
-use parser::Context;
+use crate::parser::string;
+use crate::parser::Context;
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
@@ -25,7 +25,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_time() {

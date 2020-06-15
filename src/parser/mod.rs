@@ -5,21 +5,21 @@
 #[macro_export]
 macro_rules! consume {
     ($xml:expr, $version:expr) => {{
-        use parser::create_context;
+        use crate::parser::create_context;
         consume(&mut create_context(
             BufReader::new($xml.as_bytes()),
             $version,
         ))
     }};
     ($xml:expr, $version:expr, $tagname:expr) => {{
-        use parser::create_context;
+        use crate::parser::create_context;
         consume(
             &mut create_context(BufReader::new($xml.as_bytes()), $version),
             $tagname,
         )
     }};
     ($xml:expr, $version:expr, $tagname:expr, $allow_empty:expr) => {{
-        use parser::create_context;
+        use crate::parser::create_context;
         consume(
             &mut create_context(BufReader::new($xml.as_bytes()), $version),
             $tagname,
@@ -43,15 +43,16 @@ pub mod track;
 pub mod tracksegment;
 pub mod waypoint;
 
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use std::iter::Peekable;
-use types::GpxVersion;
+use crate::types::GpxVersion;
 use xml::attribute::OwnedAttribute;
 use xml::reader::Events;
 use xml::reader::XmlEvent;
 use xml::EventReader;
 use xml::ParserConfig;
+use error_chain::{bail, ensure};
 
 pub struct Context<R: Read> {
     reader: Peekable<Events<R>>,

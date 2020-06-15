@@ -2,14 +2,6 @@
 // Feel free to read through these tests and their accompanying
 // .gpx files to see how usage might be.
 
-#[macro_use]
-extern crate assert_approx_eq;
-
-extern crate chrono;
-extern crate geo;
-extern crate geo_types;
-extern crate gpx;
-
 #[cfg(test)]
 mod tests {
     use chrono::prelude::*;
@@ -18,6 +10,7 @@ mod tests {
     use geo_types::{Geometry, Point};
     use std::fs::File;
     use std::io::BufReader;
+    use assert_approx_eq::assert_approx_eq;
 
     use gpx::read;
     use gpx::Fix;

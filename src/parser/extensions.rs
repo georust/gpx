@@ -2,11 +2,12 @@
 
 // TODO: extensions are not implemented
 
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
+use error_chain::{bail, ensure};
 
-use parser::Context;
+use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
@@ -41,7 +42,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_arbitrary_extensions() {

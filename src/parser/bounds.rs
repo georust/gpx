@@ -1,11 +1,12 @@
-use errors::*;
+use crate::errors::*;
 
 use geo_types::{Coordinate, Rect};
 use std::io::Read;
 use xml::reader::XmlEvent;
+use error_chain::{bail, ensure};
 
-use parser::verify_starting_tag;
-use parser::Context;
+use crate::parser::verify_starting_tag;
+use crate::parser::Context;
 
 /// consume consumes a bounds element until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
@@ -91,7 +92,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_bounds() {

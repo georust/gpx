@@ -1,11 +1,12 @@
 //! email handles parsing of GPX-spec emails.
 
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
+use error_chain::{bail, ensure};
 
-use parser::verify_starting_tag;
-use parser::Context;
+use crate::parser::verify_starting_tag;
+use crate::parser::Context;
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
@@ -54,7 +55,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_simple_email() {

@@ -1,11 +1,12 @@
 //! string handles parsing of GPX-spec strings.
 
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
+use error_chain::{bail, ensure};
 
-use parser::verify_starting_tag;
-use parser::Context;
+use crate::parser::verify_starting_tag;
+use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
 pub fn consume<R: Read>(
@@ -46,7 +47,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_simple_string() {

@@ -1,7 +1,3 @@
-extern crate geo;
-extern crate geo_types;
-extern crate gpx;
-
 #[cfg(test)]
 mod tests {
     use std::fs::File;

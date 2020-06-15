@@ -1,16 +1,17 @@
 //! route handles parsing of GPX-spec routes.
 
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use xml::reader::XmlEvent;
+use error_chain::{bail, ensure};
 
-use parser::link;
-use parser::string;
-use parser::verify_starting_tag;
-use parser::waypoint;
-use parser::Context;
+use crate::parser::link;
+use crate::parser::string;
+use crate::parser::verify_starting_tag;
+use crate::parser::waypoint;
+use crate::parser::Context;
 
-use Route;
+use crate::Route;
 
 /// consume consumes a GPX route from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
@@ -78,7 +79,7 @@ mod tests {
     use std::io::BufReader;
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_full_route() {
