@@ -1,27 +1,17 @@
 //! gpx handles parsing of GPX elements.
 
-use chrono::{DateTime, Utc};
-use crate::errors::*;
-use geo_types::Rect;
 use std::io::Read;
-use xml::reader::XmlEvent;
+
+use chrono::{DateTime, Utc};
 use error_chain::{bail, ensure};
+use geo_types::Rect;
+use xml::reader::XmlEvent;
 
-use crate::parser::bounds;
-use crate::parser::metadata;
-use crate::parser::route;
-use crate::parser::string;
-use crate::parser::time;
-use crate::parser::track;
-use crate::parser::verify_starting_tag;
-use crate::parser::waypoint;
-use crate::parser::Context;
-
-use crate::Gpx;
-use crate::GpxVersion;
-use crate::Link;
-use crate::Metadata;
-use crate::Person;
+use crate::errors::*;
+use crate::parser::{
+    bounds, metadata, route, string, time, track, verify_starting_tag, waypoint, Context,
+};
+use crate::{Gpx, GpxVersion, Link, Metadata, Person};
 
 /// Convert the version string to the version enum
 fn version_string_to_version(version_str: &str) -> Result<GpxVersion> {
@@ -115,7 +105,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
             XmlEvent::EndElement { name } => {
                 ensure!(
                     name.local_name == "gpx",
-                    ErrorKind::InvalidClosingTag(name.local_name, "gpx")
+                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "gpx")
                 );
                 if gpx.version == GpxVersion::Gpx10 {
                     let mut metadata: Metadata = Default::default();
@@ -152,7 +142,6 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
 #[cfg(test)]
 mod tests {
     use geo_types::Point;
-    use std::io::BufReader;
 
     use super::consume;
     use crate::GpxVersion;

@@ -2,18 +2,14 @@
 
 use std::io::Write;
 
-use chrono::prelude::Utc;
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 use error_chain::bail;
-
-use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
-
 use geo_types::Rect;
+use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 use crate::errors::*;
 use crate::types::*;
-use crate::Gpx;
-use crate::GpxVersion;
+use crate::{Gpx, GpxVersion};
 
 /// Writes an activity to GPX format.
 ///

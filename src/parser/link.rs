@@ -1,14 +1,12 @@
 //! link handles parsing of GPX-spec links.
 
-use crate::errors::*;
 use std::io::Read;
-use xml::reader::XmlEvent;
+
 use error_chain::{bail, ensure};
+use xml::reader::XmlEvent;
 
-use crate::parser::string;
-use crate::parser::verify_starting_tag;
-use crate::parser::Context;
-
+use crate::errors::*;
+use crate::parser::{string, verify_starting_tag, Context};
 use crate::Link;
 
 /// consume consumes a GPX link from the `reader` until it ends.
@@ -64,8 +62,6 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
     use crate::GpxVersion;
 

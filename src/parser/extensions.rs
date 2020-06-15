@@ -2,11 +2,12 @@
 
 // TODO: extensions are not implemented
 
-use crate::errors::*;
 use std::io::Read;
-use xml::reader::XmlEvent;
-use error_chain::{bail, ensure};
 
+use error_chain::ensure;
+use xml::reader::XmlEvent;
+
+use crate::errors::*;
 use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
@@ -39,8 +40,6 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
     use crate::GpxVersion;
 

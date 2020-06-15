@@ -5,6 +5,7 @@
 #[macro_export]
 macro_rules! consume {
     ($xml:expr, $version:expr) => {{
+        use std::io::BufReader;
         use crate::parser::create_context;
         consume(&mut create_context(
             BufReader::new($xml.as_bytes()),
@@ -12,6 +13,7 @@ macro_rules! consume {
         ))
     }};
     ($xml:expr, $version:expr, $tagname:expr) => {{
+        use std::io::BufReader;
         use crate::parser::create_context;
         consume(
             &mut create_context(BufReader::new($xml.as_bytes()), $version),
@@ -19,6 +21,7 @@ macro_rules! consume {
         )
     }};
     ($xml:expr, $version:expr, $tagname:expr, $allow_empty:expr) => {{
+        use std::io::BufReader;
         use crate::parser::create_context;
         consume(
             &mut create_context(BufReader::new($xml.as_bytes()), $version),
@@ -43,16 +46,16 @@ pub mod track;
 pub mod tracksegment;
 pub mod waypoint;
 
-use crate::errors::*;
 use std::io::Read;
 use std::iter::Peekable;
-use crate::types::GpxVersion;
-use xml::attribute::OwnedAttribute;
-use xml::reader::Events;
-use xml::reader::XmlEvent;
-use xml::EventReader;
-use xml::ParserConfig;
+
 use error_chain::{bail, ensure};
+use xml::attribute::OwnedAttribute;
+use xml::reader::{Events, XmlEvent};
+use xml::{EventReader, ParserConfig};
+
+use crate::errors::*;
+use crate::types::GpxVersion;
 
 pub struct Context<R: Read> {
     reader: Peekable<Events<R>>,

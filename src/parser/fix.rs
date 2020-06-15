@@ -1,11 +1,9 @@
 //! fix handles parsing of xsd:simpleType "fixType".
 
-use crate::errors::*;
 use std::io::Read;
 
-use crate::parser::string;
-use crate::parser::Context;
-
+use crate::errors::*;
+use crate::parser::{string, Context};
 use crate::types::Fix;
 
 /// consume consumes an element as a fix.
@@ -26,12 +24,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
-
-    use crate::Fix;
-    use crate::GpxVersion;
+    use crate::{Fix, GpxVersion};
 
     #[test]
     fn consume_fix() {

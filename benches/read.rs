@@ -1,6 +1,5 @@
 #![feature(test)]
 
-extern crate gpx;
 extern crate test;
 
 const NITER: usize = 100;

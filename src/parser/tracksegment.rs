@@ -1,14 +1,12 @@
 //! tracksegment handles parsing of GPX-spec track segments.
 
-use crate::errors::*;
 use std::io::Read;
-use xml::reader::XmlEvent;
+
 use error_chain::{bail, ensure};
+use xml::reader::XmlEvent;
 
-use crate::parser::verify_starting_tag;
-use crate::parser::waypoint;
-use crate::parser::Context;
-
+use crate::errors::*;
+use crate::parser::{verify_starting_tag, waypoint, Context};
 use crate::TrackSegment;
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
@@ -57,9 +55,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 
 #[cfg(test)]
 mod tests {
-    use geo::algorithm::euclidean_length::EuclideanLength;
-    use std::io::BufReader;
     use assert_approx_eq::assert_approx_eq;
+    use geo::euclidean_length::EuclideanLength;
 
     use super::consume;
     use crate::GpxVersion;

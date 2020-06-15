@@ -3,10 +3,8 @@
 use std::io::Read;
 
 use crate::errors::*;
-
 use crate::parser::{create_context, gpx};
-use crate::Gpx;
-use crate::GpxVersion;
+use crate::{Gpx, GpxVersion};
 
 /// Reads an activity in GPX format.
 ///

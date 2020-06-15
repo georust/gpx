@@ -1,16 +1,12 @@
 //! track handles parsing of GPX-spec tracks.
 
-use crate::errors::*;
 use std::io::Read;
-use xml::reader::XmlEvent;
+
 use error_chain::{bail, ensure};
+use xml::reader::XmlEvent;
 
-use crate::parser::link;
-use crate::parser::string;
-use crate::parser::tracksegment;
-use crate::parser::verify_starting_tag;
-use crate::parser::Context;
-
+use crate::errors::*;
+use crate::parser::{link, string, tracksegment, verify_starting_tag, Context};
 use crate::Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
@@ -76,8 +72,6 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
     use crate::GpxVersion;
 
