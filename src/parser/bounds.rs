@@ -51,16 +51,23 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
         .parse()
         .chain_err(|| "error while casting max longitude to f64")?;
 
-    let bounds: Rect<f64> = Rect {
-        min: Coordinate {
+    // Verify bounding box first, since Rect::new will panic if these are wrong.
+    if minlon > maxlon {
+        bail!("Minimum longitude larger than maximum longitude");
+    } else if minlat > maxlat {
+        bail!("Minimum latitude larger than maximum latitude");
+    }
+
+    let bounds: Rect<f64> = Rect::new(
+        Coordinate {
             x: minlon,
             y: minlat,
         },
-        max: Coordinate {
+        Coordinate {
             x: maxlon,
             y: maxlat,
         },
-    };
+    );
 
     for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -102,10 +109,10 @@ mod tests {
         assert!(bounds.is_ok());
 
         let bounds = bounds.unwrap();
-        assert_eq!(bounds.min.x, -74.031837463);
-        assert_eq!(bounds.min.y, 45.487064362);
-        assert_eq!(bounds.max.x, -73.586273193);
-        assert_eq!(bounds.max.y, 45.701225281);
+        assert_eq!(bounds.min().x, -74.031837463);
+        assert_eq!(bounds.min().y, 45.487064362);
+        assert_eq!(bounds.max().x, -73.586273193);
+        assert_eq!(bounds.max().y, 45.701225281);
     }
 
     #[test]
