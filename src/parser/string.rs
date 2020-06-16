@@ -13,11 +13,8 @@ pub fn consume<R: Read>(
     tagname: &'static str,
     allow_empty: bool,
 ) -> Result<String> {
-    let mut string: Option<String> = None;
-    if allow_empty {
-        string = Some("".to_string());
-    }
     verify_starting_tag(context, tagname)?;
+    let mut string = String::new();
 
     for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
@@ -27,13 +24,16 @@ pub fn consume<R: Read>(
                     tagname
                 ));
             }
-            XmlEvent::Characters(content) => string = Some(content),
+            XmlEvent::Characters(content) => string = content,
             XmlEvent::EndElement { ref name } => {
                 ensure!(
                     name.local_name == tagname,
                     ErrorKind::InvalidClosingTag(name.local_name.clone(), tagname)
                 );
-                return string.ok_or("no content inside string".into());
+                if allow_empty || !string.is_empty() {
+                    return Ok(string);
+                }
+                bail!("no content inside string");
             }
             _ => {}
         }

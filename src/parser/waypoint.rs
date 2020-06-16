@@ -24,29 +24,25 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
     // get required latitude and longitude
     let latitude = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "lat")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "lat")
         .ok_or(ErrorKind::InvalidElementLacksAttribute(
             "latitude", "waypoint",
         ))?;
 
     let latitude: f64 = latitude
-        .clone()
         .value
         .parse()
         .chain_err(|| "error while casting latitude to f64")?;
 
     let longitude = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "lon")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "lon")
         .ok_or(ErrorKind::InvalidElementLacksAttribute(
             "longitude",
             "waypoint",
         ))?;
 
     let longitude: f64 = longitude
-        .clone()
         .value
         .parse()
         .chain_err(|| "error while casting longitude to f64")?;
@@ -56,13 +52,16 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing waypoint event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing waypoint event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => {
                 match name.local_name.as_ref() {
                     "ele" => {

@@ -49,8 +49,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     let attributes = verify_starting_tag(context, "gpx")?;
     let version = attributes
         .iter()
-        .filter(|attr| attr.name.local_name == "version")
-        .nth(0)
+        .find(|attr| attr.name.local_name == "version")
         .ok_or(ErrorKind::InvalidElementLacksAttribute("version", "gpx"))?;
     gpx.version = version_string_to_version(&version.value)?;
     context.version = gpx.version;
@@ -58,13 +57,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
-                next.clone()
+                match next {
+                    Ok(n) => n,
+                    Err(_) => bail!("error while parsing gpx event"),
+                }
             } else {
                 break;
             }
         };
 
-        match next_event.chain_err(|| Error::from("error while parsing gpx event"))? {
+        match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "metadata" if context.version != GpxVersion::Gpx10 => {
                     gpx.metadata = Some(metadata::consume(context)?);
