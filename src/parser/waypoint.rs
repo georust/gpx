@@ -1,21 +1,14 @@
 //! waypoint handles parsing of GPX-spec waypoints.
 
-use errors::*;
 use std::io::Read;
+
+use error_chain::{bail, ensure};
+use geo_types::Point;
 use xml::reader::XmlEvent;
 
-use geo_types::Point;
-use parser::extensions;
-use parser::fix;
-use parser::link;
-use parser::string;
-use parser::time;
-use parser::verify_starting_tag;
-use parser::Context;
-
-use Waypoint;
-
-use GpxVersion;
+use crate::errors::*;
+use crate::parser::{extensions, fix, link, string, time, verify_starting_tag, Context};
+use crate::{GpxVersion, Waypoint};
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Result<Waypoint> {
@@ -170,11 +163,9 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 #[cfg(test)]
 mod tests {
     use geo_types::Point;
-    use std::io::BufReader;
 
     use super::consume;
-    use Fix;
-    use GpxVersion;
+    use crate::{Fix, GpxVersion};
 
     #[test]
     fn consume_waypoint() {

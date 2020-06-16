@@ -1,19 +1,13 @@
 //! metadata handles parsing of GPX-spec metadata.
 
-use errors::*;
 use std::io::Read;
+
+use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use parser::bounds;
-use parser::extensions;
-use parser::link;
-use parser::person;
-use parser::string;
-use parser::time;
-use parser::verify_starting_tag;
-use parser::Context;
-
-use Metadata;
+use crate::errors::*;
+use crate::parser::{bounds, extensions, link, person, string, time, verify_starting_tag, Context};
+use crate::Metadata;
 
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
     let mut metadata: Metadata = Default::default();
@@ -83,11 +77,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
 
 #[cfg(test)]
 mod tests {
-    use chrono::prelude::*;
-    use std::io::BufReader;
+    use chrono::{TimeZone, Utc};
 
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_empty() {

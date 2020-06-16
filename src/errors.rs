@@ -1,5 +1,7 @@
 //! errors provides error generics for the gpx parser.
 
+use error_chain::*;
+
 // This gives us our error boilerplate macros.
 error_chain! {
     errors {

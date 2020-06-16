@@ -1,11 +1,11 @@
-use errors::*;
-
-use geo_types::{Coordinate, Rect};
 use std::io::Read;
+
+use error_chain::{bail, ensure};
+use geo_types::{Coordinate, Rect};
 use xml::reader::XmlEvent;
 
-use parser::verify_starting_tag;
-use parser::Context;
+use crate::errors::*;
+use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a bounds element until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
@@ -68,15 +68,12 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
     for event in context.reader() {
         match event.chain_err(|| "error while parsing XML")? {
             XmlEvent::StartElement { name, .. } => {
-                bail!(ErrorKind::InvalidChildElement(
-                    name.local_name.clone(),
-                    "bounds"
-                ));
+                bail!(ErrorKind::InvalidChildElement(name.local_name, "bounds"));
             }
             XmlEvent::EndElement { name } => {
                 ensure!(
                     name.local_name == "bounds",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "bounds")
+                    ErrorKind::InvalidClosingTag(name.local_name, "bounds")
                 );
                 return Ok(bounds);
             }
@@ -88,10 +85,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_bounds() {

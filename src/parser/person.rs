@@ -1,16 +1,13 @@
 //! person handles parsing of GPX-spec persons.
 
-use errors::*;
 use std::io::Read;
+
+use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use parser::email;
-use parser::link;
-use parser::string;
-use parser::verify_starting_tag;
-use parser::Context;
-
-use Person;
+use crate::errors::*;
+use crate::parser::{email, link, string, verify_starting_tag, Context};
+use crate::Person;
 
 pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Result<Person> {
     let mut person: Person = Default::default();
@@ -59,10 +56,8 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_whole_person() {

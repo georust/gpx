@@ -2,11 +2,13 @@
 
 // TODO: extensions are not implemented
 
-use errors::*;
 use std::io::Read;
+
+use error_chain::ensure;
 use xml::reader::XmlEvent;
 
-use parser::Context;
+use crate::errors::*;
+use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
@@ -33,15 +35,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
         }
     }
 
-    return Err("no end tag for extensions".into());
+    Err("no end tag for extensions".into())
 }
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_arbitrary_extensions() {

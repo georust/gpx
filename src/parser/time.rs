@@ -1,14 +1,13 @@
 //! time handles parsing of xsd:dateTime.
 
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-use errors::*;
 use std::io::Read;
 
 use chrono::prelude::Utc;
 use chrono::DateTime;
 
-use parser::string;
-use parser::Context;
+use crate::errors::*;
+use crate::parser::{string, Context};
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
@@ -17,15 +16,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>> {
     let time =
         DateTime::parse_from_rfc3339(&time).chain_err(|| "error while parsing time as RFC3339")?;
 
-    return Ok(DateTime::from_utc(time.naive_utc(), Utc));
+    Ok(DateTime::from_utc(time.naive_utc(), Utc))
 }
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-
     use super::consume;
-    use GpxVersion;
+    use crate::GpxVersion;
 
     #[test]
     fn consume_time() {

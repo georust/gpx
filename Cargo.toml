@@ -1,5 +1,4 @@
 [package]
-
 name = "gpx"
 description = "Rust read/write support for GPS Exchange Format (GPX)"
 license = "MIT"
@@ -8,6 +7,7 @@ authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@
 readme = "README.md"
 documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/gpx"
+edition = "2018"
 
 [dependencies]
 assert_approx_eq = "1"

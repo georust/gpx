@@ -2,17 +2,14 @@
 
 use std::io::Write;
 
-use chrono::prelude::Utc;
-use chrono::DateTime;
-
+use chrono::{DateTime, Utc};
+use error_chain::bail;
+use geo_types::Rect;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
-use geo_types::Rect;
-
-use errors::*;
-use types::*;
-use Gpx;
-use GpxVersion;
+use crate::errors::*;
+use crate::types::*;
+use crate::{Gpx, GpxVersion};
 
 /// Writes an activity to GPX format.
 ///
@@ -155,7 +152,7 @@ fn write_email_if_exists<W: Write>(
     writer: &mut EventWriter<W>,
 ) -> Result<()> {
     if let Some(ref email) = email {
-        let mut parts = email.split("@");
+        let mut parts = email.split('@');
         let id = parts.next().ok_or("Missing id part in email!")?;
         let domain = parts.next().ok_or("Missing domain part in email!")?;
         if parts.next().is_some() {

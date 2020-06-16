@@ -2,8 +2,7 @@
 
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
-use chrono::prelude::Utc;
-use chrono::DateTime;
+use chrono::{DateTime, Utc};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GpxVersion {

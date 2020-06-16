@@ -31,24 +31,10 @@
 //! assert_eq!(segment.points[2].elevation, Some(6.87));
 //! ```
 
-#[macro_use]
-extern crate error_chain;
-
-#[cfg(test)]
-#[macro_use]
-extern crate assert_approx_eq;
-
-extern crate chrono;
-extern crate geo_types;
-extern crate xml;
-
-#[cfg(test)]
-extern crate geo;
-
 // Export our type structs in the root, along with the read and write functions.
-pub use reader::read;
-pub use types::*;
-pub use writer::write;
+pub use crate::reader::read;
+pub use crate::types::*;
+pub use crate::writer::write;
 
 mod parser;
 mod reader;
