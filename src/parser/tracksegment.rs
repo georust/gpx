@@ -56,7 +56,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
 
 #[cfg(test)]
 mod tests {
-    use geo::euclidean_length::EuclideanLength;
+    use geo::algorithm::euclidean_length::EuclideanLength;
     use std::io::BufReader;
 
     use super::consume;

@@ -227,10 +227,10 @@ fn write_bounds_if_exists<W: Write>(
     if let Some(ref bounds) = bounds {
         write_xml_event(
             XmlEvent::start_element("bounds")
-                .attr("minlat", &bounds.min.y.to_string())
-                .attr("maxlat", &bounds.max.y.to_string())
-                .attr("minlon", &bounds.min.x.to_string())
-                .attr("maxlon", &bounds.max.x.to_string()),
+                .attr("minlat", &bounds.min().y.to_string())
+                .attr("maxlat", &bounds.max().y.to_string())
+                .attr("minlon", &bounds.min().x.to_string())
+                .attr("maxlon", &bounds.max().x.to_string()),
             writer,
         )?;
         write_xml_event(XmlEvent::end_element(), writer)?;
