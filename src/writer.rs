@@ -278,6 +278,7 @@ fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> Result<(
     for link in &route.links {
         write_link(link, writer)?;
     }
+    write_value_if_exists("number", &route.number, writer)?;
     write_string_if_exists("type", &route._type, writer)?;
     for point in &route.points {
         write_waypoint("rtept", point, writer)?;

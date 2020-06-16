@@ -40,6 +40,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
                 "src" => {
                     route.source = Some(string::consume(context, "src", true)?);
                 }
+                "number" => {
+                    route.number = Some(
+                        string::consume(context, "number", false)?
+                            .parse()
+                            .chain_err(|| "error while casting route number (number) to u32")?,
+                    )
+                }
                 "type" => {
                     route._type = Some(string::consume(context, "type", false)?);
                 }
@@ -84,6 +91,7 @@ mod tests {
                 <cmt>route comment</cmt>
                 <desc>route description</desc>
                 <src>route source</src>
+                <number>66</number>
                 <type>route type</type>
             </rte>
             ",
@@ -98,6 +106,7 @@ mod tests {
         assert_eq!(route.comment.unwrap(), "route comment");
         assert_eq!(route.description.unwrap(), "route description");
         assert_eq!(route.source.unwrap(), "route source");
+        assert_eq!(route.number.unwrap(), 66);
         assert_eq!(route._type.unwrap(), "route type");
     }
 
