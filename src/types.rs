@@ -18,7 +18,7 @@ impl Default for GpxVersion {
 }
 
 /// Gpx is the root element in the XML file.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Gpx {
     /// Version of the Gpx file.
     pub version: GpxVersion,
@@ -40,7 +40,7 @@ pub struct Gpx {
 ///
 /// Providing rich, meaningful information about your GPX files allows others to
 /// search for and use your GPS data.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Metadata {
     /// The name of the GPX file.
     pub name: Option<String>,
@@ -67,7 +67,7 @@ pub struct Metadata {
 }
 
 /// Route represents an ordered list of waypoints representing a series of turn points leading to a destination.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Route {
     /// GPS name of route.
     pub name: Option<String>,
@@ -131,7 +131,7 @@ impl From<Route> for Geometry<f64> {
 }
 
 /// Track represents an ordered list of points describing a path.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Track {
     /// GPS name of track.
     pub name: Option<String>,
@@ -195,7 +195,7 @@ impl From<Track> for Geometry<f64> {
 /// connected in order. To represent a single GPS track where GPS reception
 /// was lost, or the GPS receiver was turned off, start a new Track Segment
 /// for each continuous span of track data.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct TrackSegment {
     /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
     /// for a single point in a track.
@@ -239,7 +239,7 @@ impl From<TrackSegment> for Geometry<f64> {
 // A Version of geo_types::Point that has the Default trait implemented, which
 // allows us to initialise the GpxPoint with default values compactly
 // in the Waypoint::new function below
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct GpxPoint(Point<f64>);
 
 impl Default for GpxPoint {
@@ -250,7 +250,7 @@ impl Default for GpxPoint {
 
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Waypoint {
     /// The geographical point.
     point: GpxPoint,
@@ -378,7 +378,7 @@ impl From<Waypoint> for Geometry<f64> {
 }
 
 /// Person represents a person or organization.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Person {
     /// Name of person or organization.
     pub name: Option<String>,
@@ -394,7 +394,7 @@ pub struct Person {
 ///
 /// An external resource could be a web page, digital photo,
 /// video clip, etc., with additional information.
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Link {
     /// URL of hyperlink.
     pub href: String,
