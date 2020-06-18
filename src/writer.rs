@@ -44,7 +44,9 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<()> {
     for track in &gpx.tracks {
         write_track(track, &mut writer)?;
     }
-    write_route(&gpx.route, &mut writer)?;
+    for route in &gpx.routes {
+            write_route(route, &mut writer)?;
+    }
     write_xml_event(XmlEvent::end_element(), &mut writer)?;
     Ok(())
 }
