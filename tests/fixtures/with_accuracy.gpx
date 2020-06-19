@@ -17,7 +17,7 @@
                 <hdop>5</hdop>
                 <vdop>6.2</vdop>
                 <pdop>728</pdop>
-                <ageofgpsdata>1</ageofgpsdata>
+                <ageofdgpsdata>1</ageofdgpsdata>
                 <dgpsid>3</dgpsid>
             </trkpt>
             <trkpt lat="51.120654" lon="3.772442">
@@ -28,7 +28,7 @@
                 <hdop>3.6</hdop>
                 <vdop>5</vdop>
                 <pdop>619.1</pdop>
-                <ageofgpsdata>2.01</ageofgpsdata>
+                <ageofdgpsdata>2.01</ageofdgpsdata>
                 <dgpsid>4</dgpsid>
             </trkpt>
             <trkpt lat="51.130122" lon="3.773967">

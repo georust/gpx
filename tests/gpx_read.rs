@@ -268,7 +268,7 @@ fn gpx_reader_read_test_with_accuracy() {
     assert_eq!(points[0].hdop.unwrap(), 5.);
     assert_eq!(points[0].vdop.unwrap(), 6.2);
     assert_eq!(points[0].pdop.unwrap(), 728.);
-    assert_eq!(points[0].age.unwrap(), 1.);
+    assert_eq!(points[0].dgps_age.unwrap(), 1.);
     assert_eq!(points[0].dgpsid.unwrap(), 3);
 
     assert_eq!(points[1].fix, Some(Fix::ThreeDimensional));
@@ -276,7 +276,7 @@ fn gpx_reader_read_test_with_accuracy() {
     assert_eq!(points[1].hdop.unwrap(), 3.6);
     assert_eq!(points[1].vdop.unwrap(), 5.);
     assert_eq!(points[1].pdop.unwrap(), 619.1);
-    assert_eq!(points[1].age.unwrap(), 2.01);
+    assert_eq!(points[1].dgps_age.unwrap(), 2.01);
     assert_eq!(points[1].dgpsid.unwrap(), 4);
 
     assert_eq!(
