@@ -121,10 +121,14 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                         person.link = Some(link);
                     }
                     person.email = email;
-                    metadata.author = Some(person);
+                    if person != Default::default() {
+                        metadata.author = Some(person);
+                    }
                     metadata.keywords = keywords;
                     metadata.description = description;
-                    gpx.metadata = Some(metadata);
+                    if metadata != Default::default() {
+                        gpx.metadata = Some(metadata);
+                    }
                 }
                 context.reader.next();
 
