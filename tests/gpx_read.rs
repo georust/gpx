@@ -203,15 +203,15 @@ fn gpx_reader_read_test_lovers_lane() {
     assert_eq!(link.href, String::from("https://www.gpsies.com/"));
 
     // Check the main track.
-    let route = &res.route;
+    let routes = &res.routes;
     assert_eq!(
-        route.name,
+        routes[0].name,
         Some(String::from("Trail Planner Map on AllTrails"))
     );
-    assert_eq!(route.points.len(), 139);
+    assert_eq!(routes[0].points.len(), 139);
 
     // Test for every single point in the file.
-    for point in route.points.iter() {
+    for point in routes[0].points.iter() {
         // Elevation is between 15 and 100
         let elevation = point.elevation.unwrap();
         assert!(elevation > 15. && elevation < 100.);

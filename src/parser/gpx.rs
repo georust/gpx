@@ -66,7 +66,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                     gpx.tracks.push(track::consume(context)?);
                 }
                 "rte" => {
-                    gpx.route = route::consume(context)?;
+                    gpx.routes.push(route::consume(context)?);
                 }
                 "wpt" => {
                     gpx.waypoints.push(waypoint::consume(context, "wpt")?);

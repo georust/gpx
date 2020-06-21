@@ -32,8 +32,8 @@ pub struct Gpx {
     /// A list of tracks.
     pub tracks: Vec<Track>,
 
-    /// A route with a list of point-by-point directions
-    pub route: Route,
+    /// A list of routes with a list of point-by-point directions
+    pub routes: Vec<Route>,
 }
 
 /// Metadata is information about the GPX file, author, and copyright restrictions.
