@@ -317,8 +317,11 @@ pub struct Waypoint {
     /// Positional dilution of precision.
     pub pdop: Option<f64>,
 
-    /// Number of seconds since last DGPS update, from the <ageofgpsdata> element.
+    #[deprecated = "Prior to gpx 0.9.0 version crate used incorrect field to parse and emit DGPS age. Use `dgps_age` instead. See https://github.com/georust/gpx/issues/21"]
     pub age: Option<f64>,
+
+    /// Number of seconds since last DGPS update, from the <ageofdgpsdata> element.
+    pub dgps_age: Option<f64>,
 
     /// ID of DGPS station used in differential correction, in the range [0, 1023].
     pub dgpsid: Option<u16>,

@@ -118,11 +118,11 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                                 "error while casting position dilution of precision (pdop) to f64"
                             })?,
                     ),
-                    "ageofgpsdata" => {
-                        waypoint.age = Some(
-                            string::consume(context, "ageofgpsdata", false)?
+                    "ageofdgpsdata" => {
+                        waypoint.dgps_age = Some(
+                            string::consume(context, "ageofdgpsdata", false)?
                                 .parse()
-                                .chain_err(|| "error while casting age of GPS data to f64")?,
+                                .chain_err(|| "error while casting age of DGPS data to f64")?,
                         )
                     }
                     "dgpsid" => {

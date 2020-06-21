@@ -112,7 +112,7 @@ fn check_waypoints_equal(reference: &Vec<Waypoint>, written: &Vec<Waypoint>) {
         assert_eq!(r_wp.hdop, w_wp.hdop);
         assert_eq!(r_wp.vdop, w_wp.vdop);
         assert_eq!(r_wp.pdop, w_wp.pdop);
-        assert_eq!(r_wp.age, w_wp.age);
+        assert_eq!(r_wp.dgps_age, w_wp.dgps_age);
         assert_eq!(r_wp.dgpsid, w_wp.dgpsid);
     }
 }

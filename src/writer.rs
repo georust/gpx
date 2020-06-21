@@ -330,7 +330,7 @@ fn write_waypoint<W: Write>(
     write_value_if_exists("hdop", &waypoint.hdop, writer)?;
     write_value_if_exists("vdop", &waypoint.vdop, writer)?;
     write_value_if_exists("pdop", &waypoint.pdop, writer)?;
-    write_value_if_exists("ageofgpsdata", &waypoint.age, writer)?;
+    write_value_if_exists("ageofdgpsdata", &waypoint.dgps_age, writer)?;
     write_value_if_exists("dgpsid", &waypoint.dgpsid, writer)?;
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
