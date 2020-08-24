@@ -27,6 +27,10 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         .parse()
         .chain_err(|| "error while casting latitude to f64")?;
 
+    if latitude < -90.0 || latitude > 90.0 {
+        bail!("latitude must be between [-90.0, 90.0]");
+    };
+
     let longitude = attributes
         .iter()
         .find(|attr| attr.name.local_name == "lon")
@@ -39,6 +43,10 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         .value
         .parse()
         .chain_err(|| "error while casting longitude to f64")?;
+
+    if longitude < -180.0 || longitude >= 180.0 {
+        bail!("longitude must be between [-180.0, 180.0[");
+    };
 
     let mut waypoint: Waypoint = Waypoint::new(Point::new(longitude, latitude));
 
@@ -232,6 +240,50 @@ mod tests {
             "<wpt lat=\"32.4\" lon=\"notanumber\"></wpt>",
             GpxVersion::Gpx11,
             "wpt"
+        );
+
+        assert!(waypoint.is_err());
+    }
+
+    #[test]
+    fn consume_bad_latitude_1() {
+        let waypoint = consume!(
+            "<trkpt lat=\"-90.1\" lon=\"1.234\"></trkpt>",
+            GpxVersion::Gpx11,
+            "trkpt"
+        );
+
+        assert!(waypoint.is_err());
+    }
+
+    #[test]
+    fn consume_bad_latitude_2() {
+        let waypoint = consume!(
+            "<trkpt lat=\"90.1\" lon=\"1.234\"></trkpt>",
+            GpxVersion::Gpx11,
+            "trkpt"
+        );
+
+        assert!(waypoint.is_err());
+    }
+
+    #[test]
+    fn consume_bad_longitude_1() {
+        let waypoint = consume!(
+            "<trkpt lat=\"-32.4\" lon=\"-180.1\"></trkpt>",
+            GpxVersion::Gpx11,
+            "trkpt"
+        );
+
+        assert!(waypoint.is_err());
+    }
+
+    #[test]
+    fn consume_bad_longitude_2() {
+        let waypoint = consume!(
+            "<trkpt lat=\"32.4\" lon=\"180.0\"></trkpt>",
+            GpxVersion::Gpx11,
+            "trkpt"
         );
 
         assert!(waypoint.is_err());
