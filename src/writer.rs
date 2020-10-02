@@ -31,10 +31,11 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(writer);
+    let creator: &str = gpx.creator.as_deref().unwrap_or("https://github.com/georust/gpx");
     write_xml_event(
         XmlEvent::start_element("gpx")
             .attr("version", version_to_version_string(gpx.version)?)
-            .attr("creator", "https://github.com/georust/gpx"),
+            .attr("creator", creator),
         &mut writer,
     )?;
     write_metadata(gpx, &mut writer)?;

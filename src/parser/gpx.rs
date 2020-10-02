@@ -45,6 +45,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     gpx.version = version_string_to_version(&version.value)?;
     context.version = gpx.version;
 
+    let creator = attributes
+        .iter()
+        .find(|attr| attr.name.local_name == "creator");
+    gpx.creator = creator.map(|c| c.value.to_owned());
+
     loop {
         let next_event = {
             if let Some(next) = context.reader.peek() {
@@ -169,6 +174,14 @@ mod tests {
         let gpx = consume!("<gpx version=\"1.2\"></gpx>", GpxVersion::Unknown);
 
         assert!(gpx.is_err());
+    }
+
+    #[test]
+    fn consume_gpx_creator() {
+        let gpx = consume!("<gpx version=\"1.1\" creator=\"unit test\"></gpx>", GpxVersion::Unknown);
+
+        assert!(gpx.is_ok());
+        assert_eq!(gpx.unwrap().creator, Some("unit test".into()));
     }
 
     #[test]
