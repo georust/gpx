@@ -23,6 +23,9 @@ pub struct Gpx {
     /// Version of the Gpx file.
     pub version: GpxVersion,
 
+    /// Creator name or URL of the software that created GPX document
+    pub creator: Option<String>,
+
     /// Metadata about the file.
     pub metadata: Option<Metadata>,
 
