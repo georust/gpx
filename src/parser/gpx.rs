@@ -178,7 +178,10 @@ mod tests {
 
     #[test]
     fn consume_gpx_creator() {
-        let gpx = consume!("<gpx version=\"1.1\" creator=\"unit test\"></gpx>", GpxVersion::Unknown);
+        let gpx = consume!(
+            "<gpx version=\"1.1\" creator=\"unit test\"></gpx>",
+            GpxVersion::Unknown
+        );
 
         assert!(gpx.is_ok());
         assert_eq!(gpx.unwrap().creator, Some("unit test".into()));

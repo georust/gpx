@@ -31,7 +31,10 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(writer);
-    let creator: &str = gpx.creator.as_deref().unwrap_or("https://github.com/georust/gpx");
+    let creator: &str = gpx
+        .creator
+        .as_deref()
+        .unwrap_or("https://github.com/georust/gpx");
     write_xml_event(
         XmlEvent::start_element("gpx")
             .attr("version", version_to_version_string(gpx.version)?)
@@ -46,7 +49,7 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<()> {
         write_track(track, &mut writer)?;
     }
     for route in &gpx.routes {
-            write_route(route, &mut writer)?;
+        write_route(route, &mut writer)?;
     }
     write_xml_event(XmlEvent::end_element(), &mut writer)?;
     Ok(())

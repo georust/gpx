@@ -10,7 +10,7 @@ rust:
 before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
   - rustup install nightly
-  - cargo +nightly install --force rustfmt-nightly
+  - rustup component add rustfmt --toolchain nightly
 
 script:
   - cargo +nightly fmt -- --check
