@@ -5,7 +5,7 @@ use std::io::Read;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
-use crate::parser::{link, string, tracksegment, verify_starting_tag, Context};
+use crate::parser::{extensions, link, string, tracksegment, verify_starting_tag, Context};
 use crate::Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
@@ -50,6 +50,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
                 }
                 "number" => {
                     track.number = Some(string::consume(context, "number", false)?.parse()?)
+                }
+                "extensions" => {
+                    extensions::consume(context)?;
                 }
                 child => {
                     return Err(GpxError::InvalidChildElement(String::from(child), "track"));
