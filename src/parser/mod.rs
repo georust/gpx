@@ -32,6 +32,7 @@ macro_rules! consume {
 }
 
 pub mod bounds;
+pub mod copyright;
 pub mod email;
 pub mod extensions;
 pub mod fix;

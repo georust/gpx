@@ -39,6 +39,17 @@ pub struct Gpx {
     pub routes: Vec<Route>,
 }
 
+/// Information about the copyright holder and any license governing use of this file.
+///
+/// By linking to an appropriate license, you may place your data into the
+/// public domain or grant additional usage rights.
+#[derive(Clone, Default, Debug, PartialEq)]
+pub struct GpxCopyright {
+    pub author: Option<String>,
+    pub year: Option<i32>,
+    pub license: Option<String>,
+}
+
 /// Metadata is information about the GPX file, author, and copyright restrictions.
 ///
 /// Providing rich, meaningful information about your GPX files allows others to
@@ -63,7 +74,10 @@ pub struct Metadata {
     /// Keywords associated with the file. Search engines or databases can use
     /// this information to classify the data.
     pub keywords: Option<String>,
-    /*copyright: GpxCopyrightType,*/
+
+    /// Information about the copyright holder and any license governing use of this file.
+    pub copyright: Option<GpxCopyright>,
+
     /// Bounds for the tracks in the GPX.
     pub bounds: Option<Rect<f64>>,
     /*extensions: GpxExtensionsType,*/
