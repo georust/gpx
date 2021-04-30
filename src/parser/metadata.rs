@@ -6,7 +6,9 @@ use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
 use crate::errors::*;
-use crate::parser::{bounds, copyright, extensions, link, person, string, time, verify_starting_tag, Context};
+use crate::parser::{
+    bounds, copyright, extensions, link, person, string, time, verify_starting_tag, Context,
+};
 use crate::Metadata;
 
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {

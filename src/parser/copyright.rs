@@ -37,7 +37,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright> {
                 "license" => copyright.license = Some(string::consume(context, "license", false)?),
                 "year" => copyright.year = string::consume(context, "year", false)?.parse().ok(),
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(String::from(child), "copyright"));
+                    bail!(ErrorKind::InvalidChildElement(
+                        String::from(child),
+                        "copyright"
+                    ));
                 }
             },
             XmlEvent::EndElement { ref name } => {
@@ -80,7 +83,10 @@ mod tests {
         assert_eq!(copyright.year.unwrap(), 2020);
 
         assert!(copyright.license.is_some());
-        assert_eq!(copyright.license.unwrap(), "https://www.openstreetmap.org/copyright");
+        assert_eq!(
+            copyright.license.unwrap(),
+            "https://www.openstreetmap.org/copyright"
+        );
     }
 
     #[test]

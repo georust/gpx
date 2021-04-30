@@ -300,7 +300,10 @@ fn gpx_reader_read_test_strava_route() {
     let copyright = metadata.copyright.unwrap();
     assert_eq!(copyright.author.unwrap(), "OpenStreetMap contributors");
     assert_eq!(copyright.year.unwrap(), 2020);
-    assert_eq!(copyright.license.unwrap(), "https://www.openstreetmap.org/copyright");
+    assert_eq!(
+        copyright.license.unwrap(),
+        "https://www.openstreetmap.org/copyright"
+    );
 
     assert_eq!(metadata.links.len(), 1);
 
