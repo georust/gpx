@@ -87,7 +87,7 @@ fn write_gpx10_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Res
     }
     let metadata = gpx.metadata.as_ref().unwrap();
     write_string_if_exists("name", &metadata.name, writer)?;
-    write_string_if_exists("description", &metadata.description, writer)?;
+    write_string_if_exists("desc", &metadata.description, writer)?;
     if let Some(author) = metadata.author.as_ref() {
         write_string_if_exists("author", &author.name, writer)?;
         write_email_if_exists(&author.email, writer)?;
@@ -109,7 +109,7 @@ fn write_gpx11_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Res
     let metadata = gpx.metadata.as_ref().unwrap();
     write_xml_event(XmlEvent::start_element("metadata"), writer)?;
     write_string_if_exists("name", &metadata.name, writer)?;
-    write_string_if_exists("description", &metadata.description, writer)?;
+    write_string_if_exists("desc", &metadata.description, writer)?;
     write_person_if_exists("author", &metadata.author, writer)?;
     write_string_if_exists("keywords", &metadata.keywords, writer)?;
     write_time_if_exists(&metadata.time, writer)?;
