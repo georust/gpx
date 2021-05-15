@@ -284,3 +284,33 @@ fn gpx_reader_read_test_with_accuracy() {
         Some(Fix::Other("something_not_in_the_spec".to_string()))
     );
 }
+
+#[test]
+fn gpx_reader_read_test_strava_route() {
+    let file = File::open("tests/fixtures/strava_route_example.gpx").unwrap();
+    let reader = BufReader::new(file);
+
+    let result = read(reader);
+    assert!(result.is_ok());
+    let res = result.unwrap();
+
+    // Check the info on the metadata.
+    let metadata = res.metadata.unwrap();
+    assert_eq!(metadata.name.unwrap(), "Afternoon Run");
+    let copyright = metadata.copyright.unwrap();
+    assert_eq!(copyright.author.unwrap(), "OpenStreetMap contributors");
+    assert_eq!(copyright.year.unwrap(), 2020);
+    assert_eq!(
+        copyright.license.unwrap(),
+        "https://www.openstreetmap.org/copyright"
+    );
+
+    assert_eq!(metadata.links.len(), 1);
+
+    // Check the main track.
+    assert_eq!(res.tracks.len(), 1);
+    let track = &res.tracks[0];
+    assert_eq!(track.segments.len(), 1);
+    let segment = &track.segments[0];
+    assert_eq!(segment.points.len(), 113);
+}
