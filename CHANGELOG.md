@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- [#49](https://github.com/georust/gpx/pull/49): Use correct XML tag "desc" instead of "description"
+
 ## 0.8.1
 
 - [allow empty fields: "desc", "cmt", "description", "keywords", "src"](https://github.com/georust/gpx/pull/25)

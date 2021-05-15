@@ -30,8 +30,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
                 "name" => {
                     metadata.name = Some(string::consume(context, "name", false)?);
                 }
-                "description" => {
-                    metadata.description = Some(string::consume(context, "description", true)?);
+                "desc" => {
+                    metadata.description = Some(string::consume(context, "desc", true)?);
                 }
                 "author" => {
                     metadata.author = Some(person::consume(context, "author")?);
@@ -103,7 +103,7 @@ mod tests {
             <metadata>
                 <link href=\"example.com\" />
                 <name>xxname</name>
-                <description>xxdescription</description>
+                <desc>xxdescription</desc>
                 <author>
                     <name>John Doe</name>
                     <email id=\"john.doe\" domain=\"example.com\" />

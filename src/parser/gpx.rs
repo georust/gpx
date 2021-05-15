@@ -97,8 +97,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                 "name" if context.version == GpxVersion::Gpx10 => {
                     gpx_name = Some(string::consume(context, "name", false)?);
                 }
-                "description" if context.version == GpxVersion::Gpx10 => {
-                    description = Some(string::consume(context, "description", true)?);
+                "desc" if context.version == GpxVersion::Gpx10 => {
+                    description = Some(string::consume(context, "desc", true)?);
                 }
                 "keywords" if context.version == GpxVersion::Gpx10 => {
                     keywords = Some(string::consume(context, "keywords", true)?);
