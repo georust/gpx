@@ -2,7 +2,7 @@
 name = "gpx"
 description = "Rust read/write support for GPS Exchange Format (GPX)"
 license = "MIT"
-version = "0.8.1"
+version = "0.8.2"
 authors = ["Brendan Ashworth <brendan.ashworth@me.com>", "Corey Farwell <coreyf@rwell.org>", "Felix Gruber <felgru@gmx.de>"]
 readme = "README.md"
 documentation = "https://docs.rs/gpx"
