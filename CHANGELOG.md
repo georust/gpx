@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.8.2
 
 - [#49](https://github.com/georust/gpx/pull/49): Use correct XML tag "desc" instead of "description"
 - [#48](https://github.com/georust/gpx/pull/48): Support parsing copyright tag in metadata
