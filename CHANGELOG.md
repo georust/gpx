@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.8.3
+
+- [#55](https://github.com/georust/gpx/pull/55): Allow `name` tags inside of `trk`s to be empty
+
 ## 0.8.2
 
 - [#49](https://github.com/georust/gpx/pull/49): Use correct XML tag "desc" instead of "description"

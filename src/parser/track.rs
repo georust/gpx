@@ -29,7 +29,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
         match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => {
-                    track.name = Some(string::consume(context, "name", false)?);
+                    track.name = Some(string::consume(context, "name", true)?);
                 }
                 "cmt" => {
                     track.comment = Some(string::consume(context, "cmt", true)?);

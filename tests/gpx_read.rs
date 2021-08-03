@@ -314,3 +314,11 @@ fn gpx_reader_read_test_strava_route() {
     let segment = &track.segments[0];
     assert_eq!(segment.points.len(), 113);
 }
+
+#[test]
+fn gpx_reader_read_empty_name_tag() {
+    let file = File::open("tests/fixtures/empty_name_tag.gpx").unwrap();
+    let reader = BufReader::new(file);
+
+    read(reader).unwrap();
+}
