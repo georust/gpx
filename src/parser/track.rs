@@ -49,6 +49,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
                 "link" => {
                     track.links.push(link::consume(context)?);
                 }
+                "number" => {
+                    track.number = Some(
+                        string::consume(context, "number", false)?
+                            .parse()
+                            .chain_err(|| "error while casting track number to u32")?,
+                    )
+                }
                 child => {
                     bail!(ErrorKind::InvalidChildElement(String::from(child), "track"));
                 }
