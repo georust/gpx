@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.8.4
+
+- [#57](https://github.com/georust/gpx/pull/57): Support Number on Tracks
+
 ## 0.8.3
 
 - [#55](https://github.com/georust/gpx/pull/55): Allow `name` tags inside of `trk`s to be empty
