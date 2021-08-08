@@ -326,7 +326,7 @@ fn gpx_reader_read_empty_name_tag() {
 #[test]
 fn gpx_reader_read_test_with_track_numbers() {
     // Should not give an error, and should have all the correct data.
-    let file = File::open("tests/fixtures/lands_end_2_john_o_groats.gpx").unwrap();
+    let file = File::open("tests/fixtures/mousehole_to_paul.gpx").unwrap();
     let reader = BufReader::new(file);
     let result = read(reader);
     assert!(result.is_ok());
