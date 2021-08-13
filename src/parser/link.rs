@@ -2,24 +2,23 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{string, verify_starting_tag, Context};
 use crate::Link;
 
 /// consume consumes a GPX link from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX link
 /// tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link, GpxError> {
     let mut link: Link = Default::default();
     let attributes = verify_starting_tag(context, "link")?;
     let attr = attributes
         .into_iter()
         .find(|attr| attr.name.local_name == "href");
 
-    let attr = attr.ok_or(ErrorKind::InvalidElementLacksAttribute("href", "link"))?;
+    let attr = attr.ok_or(GpxError::InvalidElementLacksAttribute("href", "link"))?;
 
     link.href = attr.value;
 
@@ -28,7 +27,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing link event"),
+                    Err(_) => return Err(GpxError::EventParsingError("link event")),
                 }
             } else {
                 break;
@@ -40,14 +39,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
                 "text" => link.text = Some(string::consume(context, "text", false)?),
                 "type" => link._type = Some(string::consume(context, "type", false)?),
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(String::from(child), "link"));
+                    return Err(GpxError::InvalidChildElement(String::from(child), "link"));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "link",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "link")
-                );
+                if name.local_name != "link" {
+                    return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "link"));
+                }
                 context.reader.next();
                 return Ok(link);
             }
@@ -57,7 +55,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("link"));
+    Err(GpxError::MissingClosingTag("link"))
 }
 
 #[cfg(test)]

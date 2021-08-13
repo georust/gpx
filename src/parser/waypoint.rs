@@ -2,50 +2,54 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use geo_types::Point;
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{extensions, fix, link, string, time, verify_starting_tag, Context};
 use crate::{GpxVersion, Waypoint};
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Result<Waypoint> {
+pub fn consume<R: Read>(
+    context: &mut Context<R>,
+    tagname: &'static str,
+) -> Result<Waypoint, GpxError> {
     let attributes = verify_starting_tag(context, tagname)?;
 
     // get required latitude and longitude
     let latitude = attributes
         .iter()
         .find(|attr| attr.name.local_name == "lat")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute(
+        .ok_or(GpxError::InvalidElementLacksAttribute(
             "latitude", "waypoint",
         ))?;
 
-    let latitude: f64 = latitude
-        .value
-        .parse()
-        .chain_err(|| "error while casting latitude to f64")?;
+    let latitude: f64 = latitude.value.parse()?;
 
-    if latitude < -90.0 || latitude > 90.0 {
-        bail!("latitude must be between [-90.0, 90.0]");
+    if !(-90.0..=90.0).contains(&latitude) {
+        return Err(GpxError::LonLatOutOfBoundsError(
+            "latitude",
+            "[-90.0, 90.0]",
+            latitude,
+        ));
     };
 
     let longitude = attributes
         .iter()
         .find(|attr| attr.name.local_name == "lon")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute(
+        .ok_or(GpxError::InvalidElementLacksAttribute(
             "longitude",
             "waypoint",
         ))?;
 
-    let longitude: f64 = longitude
-        .value
-        .parse()
-        .chain_err(|| "error while casting longitude to f64")?;
+    let longitude: f64 = longitude.value.parse()?;
 
-    if longitude < -180.0 || longitude >= 180.0 {
-        bail!("longitude must be between [-180.0, 180.0[");
+    if !(-180.0..180.0).contains(&longitude) {
+        return Err(GpxError::LonLatOutOfBoundsError(
+            "Longitude",
+            "[-180.0, 180.0",
+            longitude,
+        ));
     };
 
     let mut waypoint: Waypoint = Waypoint::new(Point::new(longitude, latitude));
@@ -55,7 +59,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing waypoint event"),
+                    Err(_) => return Err(GpxError::EventParsingError("waypoint event")),
                 }
             } else {
                 break;
@@ -67,19 +71,11 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                 match name.local_name.as_ref() {
                     "ele" => {
                         // Cast the elevation to an f64, from a string.
-                        waypoint.elevation = Some(
-                            string::consume(context, "ele", false)?
-                                .parse()
-                                .chain_err(|| "error while casting elevation to f64")?,
-                        )
+                        waypoint.elevation = Some(string::consume(context, "ele", false)?.parse()?)
                     }
                     "speed" if context.version == GpxVersion::Gpx10 => {
                         // Speed is from GPX 1.0
-                        waypoint.speed = Some(
-                            string::consume(context, "speed", false)?
-                                .parse()
-                                .chain_err(|| "error while casting speed to f64")?,
-                        );
+                        waypoint.speed = Some(string::consume(context, "speed", false)?.parse()?);
                     }
                     "time" => waypoint.time = Some(time::consume(context)?),
                     "name" => waypoint.name = Some(string::consume(context, "name", false)?),
@@ -93,69 +89,44 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                     // Optional accuracy information
                     "fix" => waypoint.fix = Some(fix::consume(context)?),
                     "geoidheight" => {
-                        waypoint.geoidheight = Some(
-                            string::consume(context, "geoidheight", false)?
-                                .parse()
-                                .chain_err(|| "error while casting geoid (geoidheight) to f64")?,
-                        )
+                        waypoint.geoidheight =
+                            Some(string::consume(context, "geoidheight", false)?.parse()?)
                     }
-                    "sat" => {
-                        waypoint.sat =
-                            Some(string::consume(context, "sat", false)?.parse().chain_err(
-                                || "error while casting number of satellites (sat) to u64",
-                            )?)
+                    "sat" => waypoint.sat = Some(string::consume(context, "sat", false)?.parse()?),
+                    "hdop" => {
+                        waypoint.hdop = Some(string::consume(context, "hdop", false)?.parse()?)
                     }
-                    "hdop" => waypoint.hdop = Some(
-                        string::consume(context, "hdop", false)?
-                            .parse()
-                            .chain_err(|| {
-                                "error while casting horizontal dilution of precision (hdop) to f64"
-                            })?,
-                    ),
-                    "vdop" => waypoint.vdop = Some(
-                        string::consume(context, "vdop", false)?
-                            .parse()
-                            .chain_err(|| {
-                                "error while casting vertical dilution of precision (vdop) to f64"
-                            })?,
-                    ),
-                    "pdop" => waypoint.pdop = Some(
-                        string::consume(context, "pdop", false)?
-                            .parse()
-                            .chain_err(|| {
-                                "error while casting position dilution of precision (pdop) to f64"
-                            })?,
-                    ),
+                    "vdop" => {
+                        waypoint.vdop = Some(string::consume(context, "vdop", false)?.parse()?)
+                    }
+                    "pdop" => {
+                        waypoint.pdop = Some(string::consume(context, "pdop", false)?.parse()?)
+                    }
                     "ageofdgpsdata" => {
-                        waypoint.dgps_age = Some(
-                            string::consume(context, "ageofdgpsdata", false)?
-                                .parse()
-                                .chain_err(|| "error while casting age of DGPS data to f64")?,
-                        )
+                        waypoint.dgps_age =
+                            Some(string::consume(context, "ageofdgpsdata", false)?.parse()?)
                     }
                     "dgpsid" => {
-                        waypoint.dgpsid = Some(
-                            string::consume(context, "dgpsid", false)?
-                                .parse()
-                                .chain_err(|| "error while casting DGPS station ID to u16")?,
-                        )
+                        waypoint.dgpsid = Some(string::consume(context, "dgpsid", false)?.parse()?)
                     }
 
                     // Finally the GPX 1.1 extensions
                     "extensions" => extensions::consume(context)?,
                     child => {
-                        bail!(ErrorKind::InvalidChildElement(
+                        return Err(GpxError::InvalidChildElement(
                             String::from(child),
-                            "waypoint"
+                            "waypoint",
                         ));
                     }
                 }
             }
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == tagname,
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "waypoint")
-                );
+                if name.local_name != tagname {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "waypoint",
+                    ));
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(waypoint);
             }
@@ -165,7 +136,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("waypoint"));
+    Err(GpxError::MissingClosingTag("waypoint"))
 }
 
 #[cfg(test)]

@@ -1,57 +1,45 @@
 use std::io::Read;
 
-use error_chain::{bail, ensure};
+// use error_chain::{bail, ensure};
 use geo_types::{Coordinate, Rect};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a bounds element until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>, GpxError> {
     let attributes = verify_starting_tag(context, "bounds")?;
     // get required bounds
     let minlat = attributes
         .iter()
         .find(|attr| attr.name.local_name == "minlat")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("minlat", "bounds"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("minlat", "bounds"))?;
     let maxlat = attributes
         .iter()
         .find(|attr| attr.name.local_name == "maxlat")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlat", "bounds"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("maxlat", "bounds"))?;
 
-    let minlat: f64 = minlat
-        .value
-        .parse()
-        .chain_err(|| "error while casting min latitude to f64")?;
-    let maxlat: f64 = maxlat
-        .value
-        .parse()
-        .chain_err(|| "error while casting max latitude to f64")?;
+    let minlat: f64 = minlat.value.parse()?;
+    let maxlat: f64 = maxlat.value.parse()?;
 
     let minlon = attributes
         .iter()
         .find(|attr| attr.name.local_name == "minlon")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("minlon", "bounds"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("minlon", "bounds"))?;
     let maxlon = attributes
         .iter()
         .find(|attr| attr.name.local_name == "maxlon")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("maxlon", "bounds"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("maxlon", "bounds"))?;
 
-    let minlon: f64 = minlon
-        .value
-        .parse()
-        .chain_err(|| "error while casting min longitude to f64")?;
-    let maxlon: f64 = maxlon
-        .value
-        .parse()
-        .chain_err(|| "error while casting max longitude to f64")?;
+    let minlon: f64 = minlon.value.parse()?;
+    let maxlon: f64 = maxlon.value.parse()?;
 
     // Verify bounding box first, since Rect::new will panic if these are wrong.
     if minlon > maxlon {
-        bail!("Minimum longitude larger than maximum longitude");
+        return Err(GpxError::OutOfBounds("longitude"));
     } else if minlat > maxlat {
-        bail!("Minimum latitude larger than maximum latitude");
+        return Err(GpxError::OutOfBounds("latitude"));
     }
 
     let bounds: Rect<f64> = Rect::new(
@@ -66,21 +54,21 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>> {
     );
 
     for event in context.reader() {
-        match event.chain_err(|| "error while parsing XML")? {
+        match event? {
             XmlEvent::StartElement { name, .. } => {
-                bail!(ErrorKind::InvalidChildElement(name.local_name, "bounds"));
+                return Err(GpxError::InvalidChildElement(name.local_name, "bounds"));
             }
             XmlEvent::EndElement { name } => {
-                ensure!(
-                    name.local_name == "bounds",
-                    ErrorKind::InvalidClosingTag(name.local_name, "bounds")
-                );
-                return Ok(bounds);
+                if name.local_name != "bounds" {
+                    return Err(GpxError::InvalidClosingTag(name.local_name, "bounds"));
+                } else {
+                    return Ok(bounds);
+                }
             }
             _ => {}
         }
     }
-    bail!(ErrorKind::MissingClosingTag("bounds"));
+    Err(GpxError::MissingClosingTag("bounds"))
 }
 
 #[cfg(test)]

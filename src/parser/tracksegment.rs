@@ -2,15 +2,14 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{verify_starting_tag, waypoint, Context};
 use crate::TrackSegment;
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment, GpxError> {
     let mut segment: TrackSegment = Default::default();
     verify_starting_tag(context, "trkseg")?;
 
@@ -19,7 +18,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing tracksegment event"),
+                    Err(_) => return Err(GpxError::TrackSegmentError()),
                 }
             } else {
                 break;
@@ -30,17 +29,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "trkpt" => segment.points.push(waypoint::consume(context, "trkpt")?),
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(
+                    return Err(GpxError::InvalidChildElement(
                         String::from(child),
-                        "tracksegment"
+                        "tracksegment",
                     ));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "trkseg",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "trksegment")
-                );
+                if name.local_name != "trkseg" {
+                    GpxError::InvalidClosingTag(name.local_name.clone(), "trksegment");
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(segment);
             }
@@ -50,7 +48,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("tracksegment"));
+    Err(GpxError::MissingClosingTag("tracksegment"))
 }
 
 #[cfg(test)]

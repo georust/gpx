@@ -2,14 +2,16 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{email, link, string, verify_starting_tag, Context};
 use crate::Person;
 
-pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Result<Person> {
+pub fn consume<R: Read>(
+    context: &mut Context<R>,
+    tagname: &'static str,
+) -> Result<Person, GpxError> {
     let mut person: Person = Default::default();
     verify_starting_tag(context, tagname)?;
 
@@ -18,7 +20,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing person event"),
+                    Err(_) => return Err(GpxError::EventParsingError("person")),
                 }
             } else {
                 break;
@@ -31,17 +33,16 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
                 "email" => person.email = Some(email::consume(context)?),
                 "link" => person.link = Some(link::consume(context)?),
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(
-                        String::from(child),
-                        "person"
-                    ));
+                    return Err(GpxError::InvalidChildElement(String::from(child), "person"));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == tagname,
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "person")
-                );
+                if name.local_name != tagname {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "person",
+                    ));
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(person);
             }
@@ -51,7 +52,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> Resu
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("person"));
+    Err(GpxError::MissingClosingTag("person"))
 }
 
 #[cfg(test)]

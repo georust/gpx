@@ -2,15 +2,14 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{link, string, verify_starting_tag, waypoint, Context};
 use crate::Route;
 
 /// consume consumes a GPX route from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route, GpxError> {
     let mut route: Route = Default::default();
     verify_starting_tag(context, "rte")?;
 
@@ -19,7 +18,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing route event"),
+                    Err(_) => return Err(GpxError::EventParsingError("route event")),
                 }
             } else {
                 break;
@@ -41,11 +40,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
                     route.source = Some(string::consume(context, "src", true)?);
                 }
                 "number" => {
-                    route.number = Some(
-                        string::consume(context, "number", false)?
-                            .parse()
-                            .chain_err(|| "error while casting route number (number) to u32")?,
-                    )
+                    route.number = Some(string::consume(context, "number", false)?.parse()?)
                 }
                 "type" => {
                     route._type = Some(string::consume(context, "type", false)?);
@@ -57,14 +52,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
                     route.links.push(link::consume(context)?);
                 }
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(String::from(child), "route"));
+                    return Err(GpxError::InvalidChildElement(String::from(child), "route"));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "rte",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "route")
-                );
+                if name.local_name != "rte" {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "route",
+                    ));
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(route);
             }
@@ -74,7 +71,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Route> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("route"));
+    Err(GpxError::MissingClosingTag("route"))
 }
 
 #[cfg(test)]

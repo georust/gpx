@@ -2,7 +2,7 @@
 
 use std::io::Read;
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::parser::{create_context, gpx};
 use crate::{Gpx, GpxVersion};
 
@@ -15,12 +15,12 @@ use crate::{Gpx, GpxVersion};
 /// use std::io::BufReader;
 /// use gpx::read;
 /// use gpx::Gpx;
-/// use gpx::errors::*;
+/// use gpx::errors::GpxError;
 ///
 /// // You can give it anything that implements `std::io::Read`.
 /// let data = BufReader::new("<gpx></gpx>".as_bytes());
 ///
-/// let res: Result<Gpx> = read(data);
+/// let res: Result<Gpx, GpxError> = read(data);
 ///
 /// match res {
 ///     Ok(gpx) => {
@@ -32,6 +32,6 @@ use crate::{Gpx, GpxVersion};
 ///     }
 /// }
 /// ```
-pub fn read<R: Read>(reader: R) -> Result<Gpx> {
+pub fn read<R: Read>(reader: R) -> Result<Gpx, GpxError> {
     gpx::consume(&mut create_context(reader, GpxVersion::Unknown))
 }

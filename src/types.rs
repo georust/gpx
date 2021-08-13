@@ -11,6 +11,12 @@ pub enum GpxVersion {
     Gpx11,
 }
 
+impl std::fmt::Display for GpxVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl Default for GpxVersion {
     fn default() -> GpxVersion {
         GpxVersion::Unknown
