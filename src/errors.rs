@@ -8,8 +8,8 @@ use thiserror::Error;
 pub enum GpxError {
     #[error("error while casting to f64")]
     ParseFloatError(#[from] ParseFloatError),
-    #[error("error while attempting to cast route number to u32")]
-    ParseRouteNumberError(#[from] ParseIntError),
+    #[error("Could not convert value to u32")]
+    ParseIntegerError(#[from] ParseIntError),
     #[error("invalid child element `{0}` in `{1}`")]
     InvalidChildElement(String, &'static str),
     #[error("invalid closing tag `{0}` in `{1}`")]
