@@ -2,7 +2,7 @@
 
 use std::io::Read;
 
-use crate::errors::{GpxError, GpxResult};
+use crate::errors::GpxResult;
 use crate::parser::{string, Context};
 use crate::types::Fix;
 

@@ -4,7 +4,7 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{
     bounds, copyright, extensions, link, person, string, time, verify_starting_tag, Context,
 };

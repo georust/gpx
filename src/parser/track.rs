@@ -4,7 +4,7 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{link, string, tracksegment, verify_starting_tag, Context};
 use crate::Track;
 

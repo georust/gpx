@@ -6,7 +6,7 @@ use std::io::Read;
 use chrono::prelude::Utc;
 use chrono::DateTime;
 
-use crate::errors::{GpxError, GpxResult};
+use crate::errors::GpxResult;
 use crate::parser::{string, Context};
 
 /// consume consumes an element as a time.
