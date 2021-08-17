@@ -4,14 +4,11 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{email, link, string, verify_starting_tag, Context};
 use crate::Person;
 
-pub fn consume<R: Read>(
-    context: &mut Context<R>,
-    tagname: &'static str,
-) -> Result<Person, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxResult<Person> {
     let mut person: Person = Default::default();
     verify_starting_tag(context, tagname)?;
 

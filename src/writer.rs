@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use geo_types::Rect;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::types::*;
 use crate::{Gpx, GpxVersion};
 
@@ -26,7 +26,7 @@ use crate::{Gpx, GpxVersion};
 /// // You can give it anything that implements `std::io::Write`.
 /// write(&data, std::io::stdout()).unwrap();
 /// ```
-pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<(), GpxError> {
+pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(writer);
@@ -54,7 +54,7 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> Result<(), GpxError> {
     Ok(())
 }
 
-fn write_xml_event<'a, W, E>(event: E, writer: &mut EventWriter<W>) -> Result<(), GpxError>
+fn write_xml_event<'a, W, E>(event: E, writer: &mut EventWriter<W>) -> GpxResult<()>
 where
     W: Write,
     E: Into<XmlEvent<'a>>,
@@ -62,7 +62,7 @@ where
     Ok(writer.write(event)?)
 }
 
-fn version_to_version_string(version: GpxVersion) -> Result<&'static str, GpxError> {
+fn version_to_version_string(version: GpxVersion) -> GpxResult<&'static str> {
     match version {
         GpxVersion::Gpx10 => Ok("1.0"),
         GpxVersion::Gpx11 => Ok("1.1"),
@@ -70,7 +70,7 @@ fn version_to_version_string(version: GpxVersion) -> Result<&'static str, GpxErr
     }
 }
 
-fn write_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     match gpx.version {
         GpxVersion::Gpx10 => write_gpx10_metadata(gpx, writer),
         GpxVersion::Gpx11 => write_gpx11_metadata(gpx, writer),
@@ -78,7 +78,7 @@ fn write_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Result<()
     }
 }
 
-fn write_gpx10_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_gpx10_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     if gpx.metadata.is_none() {
         return Ok(());
     }
@@ -99,7 +99,7 @@ fn write_gpx10_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Res
     Ok(())
 }
 
-fn write_gpx11_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_gpx11_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     if gpx.metadata.is_none() {
         return Ok(());
     }
@@ -118,11 +118,7 @@ fn write_gpx11_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> Res
     Ok(())
 }
 
-fn write_string<W: Write>(
-    key: &str,
-    value: &str,
-    writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+fn write_string<W: Write>(key: &str, value: &str, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element(key), writer)?;
     write_xml_event(XmlEvent::characters(value), writer)?;
     write_xml_event(XmlEvent::end_element(), writer)?;
@@ -133,7 +129,7 @@ fn write_string_if_exists<W: Write>(
     key: &str,
     value: &Option<String>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref value) = value {
         write_string(key, value, writer)?;
     }
@@ -144,7 +140,7 @@ fn write_value_if_exists<W: Write, T: ToString>(
     key: &str,
     value: &Option<T>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref value) = value {
         write_xml_event(XmlEvent::start_element(key), writer)?;
         let value = &value.to_string();
@@ -157,7 +153,7 @@ fn write_value_if_exists<W: Write, T: ToString>(
 fn write_email_if_exists<W: Write>(
     email: &Option<String>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref email) = email {
         let mut parts = email.split('@');
         let id = parts.next().ok_or(GpxError::MissingEmailPartError("id"))?;
@@ -178,7 +174,7 @@ fn write_email_if_exists<W: Write>(
     Ok(())
 }
 
-fn write_link<W: Write>(link: &Link, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_link<W: Write>(link: &Link, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(
         XmlEvent::start_element("link").attr("href", &link.href),
         writer,
@@ -192,7 +188,7 @@ fn write_link<W: Write>(link: &Link, writer: &mut EventWriter<W>) -> Result<(), 
 fn write_link_if_exists<W: Write>(
     link: &Option<Link>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref link) = link {
         write_link(link, writer)?;
     }
@@ -203,7 +199,7 @@ fn write_person_if_exists<W: Write>(
     key: &str,
     value: &Option<Person>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref value) = value {
         write_xml_event(XmlEvent::start_element(key), writer)?;
         write_string_if_exists("name", &value.name, writer)?;
@@ -217,7 +213,7 @@ fn write_person_if_exists<W: Write>(
 fn write_time_if_exists<W: Write>(
     time: &Option<DateTime<Utc>>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref time) = time {
         write_xml_event(XmlEvent::start_element("time"), writer)?;
         write_xml_event(XmlEvent::characters(&time.to_rfc3339()), writer)?;
@@ -229,7 +225,7 @@ fn write_time_if_exists<W: Write>(
 fn write_bounds_if_exists<W: Write>(
     bounds: &Option<Rect<f64>>,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     if let Some(ref bounds) = bounds {
         write_xml_event(
             XmlEvent::start_element("bounds")
@@ -244,10 +240,7 @@ fn write_bounds_if_exists<W: Write>(
     Ok(())
 }
 
-fn write_fix_if_exists<W: Write>(
-    fix: &Option<Fix>,
-    writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+fn write_fix_if_exists<W: Write>(fix: &Option<Fix>, writer: &mut EventWriter<W>) -> GpxResult<()> {
     if let Some(ref fix) = fix {
         write_xml_event(XmlEvent::start_element("fix"), writer)?;
         let fix_str = match fix {
@@ -264,7 +257,7 @@ fn write_fix_if_exists<W: Write>(
     Ok(())
 }
 
-fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("trk"), writer)?;
     write_string_if_exists("name", &track.name, writer)?;
     write_string_if_exists("cmt", &track.comment, writer)?;
@@ -281,7 +274,7 @@ fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> Result<(
     Ok(())
 }
 
-fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> Result<(), GpxError> {
+fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("rte"), writer)?;
     write_string_if_exists("name", &route.name, writer)?;
     write_string_if_exists("cmt", &route.comment, writer)?;
@@ -302,7 +295,7 @@ fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> Result<(
 fn write_track_segment<W: Write>(
     segment: &TrackSegment,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("trkseg"), writer)?;
     for point in &segment.points {
         write_waypoint("trkpt", point, writer)?;
@@ -315,7 +308,7 @@ fn write_waypoint<W: Write>(
     tagname: &str,
     waypoint: &Waypoint,
     writer: &mut EventWriter<W>,
-) -> Result<(), GpxError> {
+) -> GpxResult<()> {
     write_xml_event(
         XmlEvent::start_element(tagname)
             .attr("lat", &waypoint.point().lat().to_string())

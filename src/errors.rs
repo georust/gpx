@@ -3,6 +3,8 @@
 use std::num::{ParseFloatError, ParseIntError};
 use thiserror::Error;
 
+pub(crate) type GpxResult<T> = Result<T, GpxError>;
+
 #[derive(Error, Debug)]
 /// Errors that can occur when reading or writing GPX files
 pub enum GpxError {

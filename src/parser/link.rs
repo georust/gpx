@@ -11,7 +11,7 @@ use crate::Link;
 /// consume consumes a GPX link from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX link
 /// tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Link, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Link> {
     let mut link: Link = Default::default();
     let attributes = verify_starting_tag(context, "link")?;
     let attr = attributes

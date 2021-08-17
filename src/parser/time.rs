@@ -6,11 +6,11 @@ use std::io::Read;
 use chrono::prelude::Utc;
 use chrono::DateTime;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{string, Context};
 
 /// consume consumes an element as a time.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<DateTime<Utc>, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<DateTime<Utc>> {
     let time = string::consume(context, "time", false)?;
 
     let time = DateTime::parse_from_rfc3339(&time)?;

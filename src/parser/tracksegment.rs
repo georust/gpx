@@ -4,12 +4,12 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, waypoint, Context};
 use crate::TrackSegment;
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<TrackSegment, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<TrackSegment> {
     let mut segment: TrackSegment = Default::default();
     verify_starting_tag(context, "trkseg")?;
 

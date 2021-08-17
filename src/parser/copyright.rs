@@ -4,13 +4,13 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{string, verify_starting_tag, Context};
 use crate::GpxCopyright;
 
 /// consume consumes a GPX copyright from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX copyright tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<GpxCopyright> {
     let mut copyright: GpxCopyright = Default::default();
     let attributes = verify_starting_tag(context, "copyright")?;
     let attr = attributes

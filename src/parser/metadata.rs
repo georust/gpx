@@ -10,7 +10,7 @@ use crate::parser::{
 };
 use crate::Metadata;
 
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
     let mut metadata: Metadata = Default::default();
     verify_starting_tag(context, "metadata")?;
 

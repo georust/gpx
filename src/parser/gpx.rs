@@ -6,14 +6,14 @@ use chrono::{DateTime, Utc};
 use geo_types::Rect;
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{
     bounds, metadata, route, string, time, track, verify_starting_tag, waypoint, Context,
 };
 use crate::{Gpx, GpxVersion, Link, Metadata, Person};
 
 /// Convert the version string to the version enum
-fn version_string_to_version(version_str: &str) -> Result<GpxVersion, GpxError> {
+fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
     match version_str {
         "1.0" => Ok(GpxVersion::Gpx10),
         "1.1" => Ok(GpxVersion::Gpx11),

@@ -2,7 +2,7 @@
 
 use std::io::Read;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{create_context, gpx};
 use crate::{Gpx, GpxVersion};
 
@@ -32,6 +32,6 @@ use crate::{Gpx, GpxVersion};
 ///     }
 /// }
 /// ```
-pub fn read<R: Read>(reader: R) -> Result<Gpx, GpxError> {
+pub fn read<R: Read>(reader: R) -> GpxResult<Gpx> {
     gpx::consume(&mut create_context(reader, GpxVersion::Unknown))
 }

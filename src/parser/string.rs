@@ -4,7 +4,7 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a single string as tag content.
@@ -12,7 +12,7 @@ pub fn consume<R: Read>(
     context: &mut Context<R>,
     tagname: &'static str,
     allow_empty: bool,
-) -> Result<String, GpxError> {
+) -> GpxResult<String> {
     verify_starting_tag(context, tagname)?;
     let mut string = String::new();
 

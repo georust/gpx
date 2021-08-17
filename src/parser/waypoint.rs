@@ -5,15 +5,12 @@ use std::io::Read;
 use geo_types::Point;
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{extensions, fix, link, string, time, verify_starting_tag, Context};
 use crate::{GpxVersion, Waypoint};
 
 /// consume consumes a GPX waypoint from the `reader` until it ends.
-pub fn consume<R: Read>(
-    context: &mut Context<R>,
-    tagname: &'static str,
-) -> Result<Waypoint, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxResult<Waypoint> {
     let attributes = verify_starting_tag(context, tagname)?;
 
     // get required latitude and longitude

@@ -4,13 +4,13 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
 /// tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
     let attributes = verify_starting_tag(context, "email")?;
     // get required id and domain attributes
     let id = attributes

@@ -6,11 +6,11 @@ use std::io::Read;
 
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<(), GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<()> {
     let mut started = false;
 
     for event in context.reader() {

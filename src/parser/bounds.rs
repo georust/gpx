@@ -4,11 +4,11 @@ use std::io::Read;
 use geo_types::{Coordinate, Rect};
 use xml::reader::XmlEvent;
 
-use crate::errors::GpxError;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a bounds element until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Rect<f64>, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Rect<f64>> {
     let attributes = verify_starting_tag(context, "bounds")?;
     // get required bounds
     let minlat = attributes

@@ -9,7 +9,7 @@ use crate::parser::{link, string, tracksegment, verify_starting_tag, Context};
 use crate::Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track, GpxError> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
     let mut track: Track = Default::default();
     verify_starting_tag(context, "trk")?;
 
