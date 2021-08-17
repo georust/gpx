@@ -4,6 +4,7 @@ use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
 use chrono::{DateTime, Utc};
 
+/// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GpxVersion {
     Unknown,
