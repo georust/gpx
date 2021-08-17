@@ -4,22 +4,23 @@
 
 use std::io::Read;
 
-use error_chain::ensure;
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::Context;
 
 /// consume consumes a single string as tag content.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<()> {
     let mut started = false;
 
     for event in context.reader() {
-        match event.chain_err(|| "error while parsing XML")? {
+        match event? {
             XmlEvent::StartElement { name, .. } => {
                 // flip started depending on conditions
                 if &name.local_name == "extensions" {
-                    ensure!(!started, "extensions tag opened twice");
+                    if started {
+                        return Err(GpxError::TagOpenedTwice("extensions"));
+                    }
 
                     started = true;
                 }
@@ -35,7 +36,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<()> {
         }
     }
 
-    Err("no end tag for extensions".into())
+    Err(GpxError::MissingClosingTag("extensions"))
 }
 
 #[cfg(test)]

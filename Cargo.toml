@@ -13,6 +13,7 @@ edition = "2018"
 assert_approx_eq = "1"
 chrono = "0.4"
 error-chain = "0.12"
+thiserror = "1.0"
 geo-types = "0.7"
 xml-rs = "0.8"
 

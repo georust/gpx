@@ -2,12 +2,12 @@
 
 use std::io::Read;
 
-use crate::errors::*;
+use crate::errors::GpxResult;
 use crate::parser::{string, Context};
 use crate::types::Fix;
 
 /// consume consumes an element as a fix.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Fix> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Fix> {
     let fix_string = string::consume(context, "fix", false)?;
 
     let fix = match fix_string.as_ref() {

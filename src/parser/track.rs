@@ -2,15 +2,14 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{link, string, tracksegment, verify_starting_tag, Context};
 use crate::Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
     let mut track: Track = Default::default();
     verify_starting_tag(context, "trk")?;
 
@@ -19,7 +18,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing track event"),
+                    Err(_) => return Err(GpxError::EventParsingError("track event")),
                 }
             } else {
                 break;
@@ -50,21 +49,16 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
                     track.links.push(link::consume(context)?);
                 }
                 "number" => {
-                    track.number = Some(
-                        string::consume(context, "number", false)?
-                            .parse()
-                            .chain_err(|| "error while casting track number to u32")?,
-                    )
+                    track.number = Some(string::consume(context, "number", false)?.parse()?)
                 }
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(String::from(child), "track"));
+                    return Err(GpxError::InvalidChildElement(String::from(child), "track"));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "trk",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "track")
-                );
+                if name.local_name != "trk" {
+                    GpxError::InvalidClosingTag(name.local_name.clone(), "track");
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(track);
             }
@@ -74,7 +68,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Track> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("track"));
+    Err(GpxError::MissingClosingTag("track"))
 }
 
 #[cfg(test)]

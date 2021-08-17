@@ -3,27 +3,26 @@
 use std::io::Read;
 
 use chrono::{DateTime, Utc};
-use error_chain::{bail, ensure};
 use geo_types::Rect;
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{
     bounds, metadata, route, string, time, track, verify_starting_tag, waypoint, Context,
 };
 use crate::{Gpx, GpxVersion, Link, Metadata, Person};
 
 /// Convert the version string to the version enum
-fn version_string_to_version(version_str: &str) -> Result<GpxVersion> {
+fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
     match version_str {
         "1.0" => Ok(GpxVersion::Gpx10),
         "1.1" => Ok(GpxVersion::Gpx11),
-        version => Err(Error::from(format!("Unknown version {}", version))),
+        _ => Err(GpxError::UnknownVersionError(GpxVersion::Unknown)),
     }
 }
 
 /// consume consumes an entire GPX element.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
     let mut gpx: Gpx = Default::default();
 
     let mut author: Option<String> = None;
@@ -41,7 +40,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
     let version = attributes
         .iter()
         .find(|attr| attr.name.local_name == "version")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("version", "gpx"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("version", "gpx"))?;
     gpx.version = version_string_to_version(&version.value)?;
     context.version = gpx.version;
 
@@ -55,7 +54,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing gpx event"),
+                    Err(_) => return Err(GpxError::EventParsingError("Expecting an event")),
                 }
             } else {
                 break;
@@ -104,14 +103,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
                     keywords = Some(string::consume(context, "keywords", true)?);
                 }
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(String::from(child), "gpx"));
+                    return Err(GpxError::InvalidChildElement(String::from(child), "gpx"));
                 }
             },
             XmlEvent::EndElement { name } => {
-                ensure!(
-                    name.local_name == "gpx",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "gpx")
-                );
+                if name.local_name != "gpx" {
+                    return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "gpx"));
+                }
                 if gpx.version == GpxVersion::Gpx10 {
                     let mut metadata: Metadata = Default::default();
                     metadata.name = gpx_name;
@@ -145,7 +143,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("gpx"));
+    Err(GpxError::MissingClosingTag("gpx"))
 }
 
 #[cfg(test)]

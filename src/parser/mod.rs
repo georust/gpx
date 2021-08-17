@@ -50,12 +50,11 @@ pub mod waypoint;
 use std::io::Read;
 use std::iter::Peekable;
 
-use error_chain::{bail, ensure};
 use xml::attribute::OwnedAttribute;
 use xml::reader::{Events, XmlEvent};
 use xml::{EventReader, ParserConfig};
 
-use crate::errors::*;
+use crate::errors::GpxError;
 use crate::types::GpxVersion;
 
 pub struct Context<R: Read> {
@@ -76,7 +75,7 @@ impl<R: Read> Context<R> {
 pub fn verify_starting_tag<R: Read>(
     context: &mut Context<R>,
     local_name: &'static str,
-) -> Result<Vec<OwnedAttribute>> {
+) -> Result<Vec<OwnedAttribute>, GpxError> {
     //makes sure the specified starting tag is the next tag on the stream
     //we ignore and skip all xmlevents except StartElement, Characters and EndElement
     loop {
@@ -85,20 +84,20 @@ pub fn verify_starting_tag<R: Read>(
             Some(Ok(XmlEvent::StartElement {
                 name, attributes, ..
             })) => {
-                ensure!(
-                    name.local_name == local_name,
-                    ErrorKind::InvalidChildElement(name.local_name, local_name)
-                );
-                return Ok(attributes);
+                if name.local_name != local_name {
+                    return Err(GpxError::InvalidChildElement(name.local_name, local_name));
+                } else {
+                    return Ok(attributes);
+                }
             }
             Some(Ok(XmlEvent::EndElement { name, .. })) => {
-                bail!(ErrorKind::InvalidChildElement(name.local_name, local_name));
+                return Err(GpxError::InvalidChildElement(name.local_name, local_name));
             }
             Some(Ok(XmlEvent::Characters(chars))) => {
-                bail!(ErrorKind::InvalidChildElement(chars, local_name));
+                return Err(GpxError::InvalidChildElement(chars, local_name));
             }
             Some(_) => {} //ignore other elements
-            None => bail!("did not find expected opening tag for {}", local_name),
+            None => return Err(GpxError::MissingOpeningTag(local_name)),
         }
     }
 }

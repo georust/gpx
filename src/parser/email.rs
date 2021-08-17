@@ -2,52 +2,53 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a GPX email from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX email
 /// tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<String> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
     let attributes = verify_starting_tag(context, "email")?;
     // get required id and domain attributes
     let id = attributes
         .iter()
         .find(|attr| attr.name.local_name == "id")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("id", "email"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("id", "email"))?;
 
     let domain = attributes
         .iter()
         .find(|attr| attr.name.local_name == "domain")
-        .ok_or(ErrorKind::InvalidElementLacksAttribute("domain", "email"))?;
+        .ok_or(GpxError::InvalidElementLacksAttribute("domain", "email"))?;
 
     let email = format!("{id}@{domain}", id = &id.value, domain = &domain.value);
 
-    while let Some(event) = context.reader.next() {
-        match event.chain_err(|| "error while parsing XML")? {
+    for event in &mut context.reader {
+        match event? {
             XmlEvent::StartElement { ref name, .. } => {
-                bail!(ErrorKind::InvalidChildElement(
+                return Err(GpxError::InvalidChildElement(
                     name.local_name.clone(),
-                    "email"
+                    "email",
                 ));
             }
             XmlEvent::Characters(content) => {
-                bail!(ErrorKind::InvalidChildElement(content, "email"));
+                return Err(GpxError::InvalidChildElement(content, "email"));
             }
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "email",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "email")
-                );
+                if name.local_name != "email" {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "email",
+                    ));
+                }
                 return Ok(email);
             }
             _ => {} //consume and ignore other events
         }
     }
-    bail!(ErrorKind::MissingClosingTag("email"));
+    Err(GpxError::MissingClosingTag("email"))
 }
 
 #[cfg(test)]
@@ -88,12 +89,8 @@ mod tests {
         let err = consume!("<email domain='example.com'/>", GpxVersion::Gpx11).unwrap_err();
 
         assert_eq!(
-            err.description(),
-            "invalid element, lacks required attribute"
-        );
-        assert_eq!(
             err.to_string(),
-            "invalid element, email lacks required attribute id"
+            "invalid element, `email` lacks required attribute `id`"
         );
     }
 
@@ -102,12 +99,8 @@ mod tests {
         let err = consume!("<email id=\"gpx\" />", GpxVersion::Gpx11).unwrap_err();
 
         assert_eq!(
-            err.description(),
-            "invalid element, lacks required attribute"
-        );
-        assert_eq!(
             err.to_string(),
-            "invalid element, email lacks required attribute domain"
+            "invalid element, `email` lacks required attribute `domain`"
         );
     }
 
@@ -119,14 +112,13 @@ mod tests {
         )
         .unwrap_err();
 
-        assert_eq!(err.description(), "invalid child element");
-        assert_eq!(err.to_string(), "invalid child element 'child' in email");
+        assert_eq!(err.to_string(), "invalid child element `child` in `email`");
     }
 
     #[test]
     fn consume_err_no_ending_tag() {
         let err = consume!("<email id=\"id\" domain=\"domain\">", GpxVersion::Gpx11).unwrap_err();
 
-        assert_eq!(err.description(), "error while parsing XML");
+        assert_eq!(err.to_string(), "error while parsing XML");
     }
 }

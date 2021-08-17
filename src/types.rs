@@ -4,11 +4,18 @@ use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
 use chrono::{DateTime, Utc};
 
+/// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GpxVersion {
     Unknown,
     Gpx10,
     Gpx11,
+}
+
+impl std::fmt::Display for GpxVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl Default for GpxVersion {

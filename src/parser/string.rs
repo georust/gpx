@@ -2,10 +2,9 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
 /// consume consumes a single string as tag content.
@@ -13,33 +12,35 @@ pub fn consume<R: Read>(
     context: &mut Context<R>,
     tagname: &'static str,
     allow_empty: bool,
-) -> Result<String> {
+) -> GpxResult<String> {
     verify_starting_tag(context, tagname)?;
     let mut string = String::new();
 
     for event in context.reader() {
-        match event.chain_err(|| "error while parsing XML")? {
+        match event? {
             XmlEvent::StartElement { ref name, .. } => {
-                bail!(ErrorKind::InvalidChildElement(
+                return Err(GpxError::InvalidChildElement(
                     name.local_name.clone(),
-                    tagname
+                    tagname,
                 ));
             }
             XmlEvent::Characters(content) => string = content,
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == tagname,
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), tagname)
-                );
+                if name.local_name != tagname {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        tagname,
+                    ));
+                }
                 if allow_empty || !string.is_empty() {
                     return Ok(string);
                 }
-                bail!("no content inside string");
+                return Err(GpxError::NoStringContent);
             }
             _ => {}
         }
     }
-    bail!(ErrorKind::MissingClosingTag(tagname));
+    Err(GpxError::MissingClosingTag(tagname))
 }
 
 #[cfg(test)]

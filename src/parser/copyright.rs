@@ -2,16 +2,15 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{string, verify_starting_tag, Context};
 use crate::GpxCopyright;
 
 /// consume consumes a GPX copyright from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX copyright tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<GpxCopyright> {
     let mut copyright: GpxCopyright = Default::default();
     let attributes = verify_starting_tag(context, "copyright")?;
     let attr = attributes
@@ -25,7 +24,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing copyright event"),
+                    Err(_) => return Err(GpxError::EventParsingError("copyright")),
                 }
             } else {
                 break;
@@ -37,17 +36,19 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright> {
                 "license" => copyright.license = Some(string::consume(context, "license", false)?),
                 "year" => copyright.year = string::consume(context, "year", false)?.parse().ok(),
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(
+                    return Err(GpxError::InvalidChildElement(
                         String::from(child),
-                        "copyright"
+                        "copyright",
                     ));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "copyright",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "copyright")
-                );
+                if name.local_name != "copyright" {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "copyright",
+                    ));
+                }
                 context.reader.next();
                 return Ok(copyright);
             }
@@ -57,7 +58,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<GpxCopyright> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("copyright"));
+    Err(GpxError::MissingClosingTag("copyright"))
 }
 
 #[cfg(test)]

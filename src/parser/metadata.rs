@@ -2,16 +2,15 @@
 
 use std::io::Read;
 
-use error_chain::{bail, ensure};
 use xml::reader::XmlEvent;
 
-use crate::errors::*;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{
     bounds, copyright, extensions, link, person, string, time, verify_starting_tag, Context,
 };
 use crate::Metadata;
 
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
     let mut metadata: Metadata = Default::default();
     verify_starting_tag(context, "metadata")?;
 
@@ -20,7 +19,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
             if let Some(next) = context.reader.peek() {
                 match next {
                     Ok(n) => n,
-                    Err(_) => bail!("error while parsing metadata event"),
+                    Err(_) => return Err(GpxError::MetadataParsingError()),
                 }
             } else {
                 break;
@@ -57,17 +56,19 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
                     extensions::consume(context)?;
                 }
                 child => {
-                    bail!(ErrorKind::InvalidChildElement(
+                    return Err(GpxError::InvalidChildElement(
                         String::from(child),
-                        "metadata"
+                        "metadata",
                     ));
                 }
             },
             XmlEvent::EndElement { ref name } => {
-                ensure!(
-                    name.local_name == "metadata",
-                    ErrorKind::InvalidClosingTag(name.local_name.clone(), "metadata")
-                );
+                if name.local_name != "metadata" {
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "metadata",
+                    ));
+                }
                 context.reader.next(); //consume the end tag
                 return Ok(metadata);
             }
@@ -77,7 +78,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Metadata> {
         }
     }
 
-    bail!(ErrorKind::MissingClosingTag("metadata"));
+    Err(GpxError::MissingClosingTag("metadata"))
 }
 
 #[cfg(test)]
