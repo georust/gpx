@@ -37,6 +37,8 @@ pub fn consume<R: Read>(
                 }
             },
             XmlEvent::EndElement { ref name } => {
+                // TODO: revisit this (and similar) when https://github.com/rust-lang/rfcs/pull/3137
+                // has been on stable for a few versions
                 if name.local_name != tagname {
                     return Err(GpxError::InvalidClosingTag(
                         name.local_name.clone(),
