@@ -9,6 +9,9 @@ documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/gpx"
 edition = "2018"
 
+[package.metadata.docs.rs]
+features = ["use-serde"]
+
 [features]
 use-serde = [ "serde", "chrono/serde", "geo-types/serde" ]
 
