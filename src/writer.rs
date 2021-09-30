@@ -13,7 +13,9 @@ use crate::{Gpx, GpxVersion};
 /// Writes an activity to GPX format.
 ///
 /// Takes any `std::io::Write` as its writer, and returns a
-/// `std::io::Result<()>`.
+/// [`Result<(), GpxError>`].
+///
+/// [`Result<(), GpxError>`]: std::result::Result<T>
 ///
 /// ```
 /// use gpx::write;
@@ -30,6 +32,31 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(writer);
+    write_with_event_writer(gpx, &mut writer)
+}
+
+/// Writes an activity to GPX format.
+///
+/// Takes [EventWriter](xml::writer::EventWriter) as its writer, and returns a
+/// [`Result<(), GpxError>`].
+///
+/// [`Result<(), GpxError>`]: std::result::Result<T>
+///
+/// ```
+/// use gpx::write_with_event_writer;
+/// use gpx::Gpx;
+/// use gpx::GpxVersion;
+/// use xml::writer::EmitterConfig;
+///
+/// let mut data : Gpx = Default::default();
+/// data.version = GpxVersion::Gpx11;
+/// let mut writer = EmitterConfig::new()
+///         .perform_indent(false)
+///         .create_writer(std::io::stdout());
+///
+/// write_with_event_writer(&data, &mut writer).unwrap();
+/// ```
+pub fn write_with_event_writer<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     let creator: &str = gpx
         .creator
         .as_deref()
@@ -38,19 +65,19 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
         XmlEvent::start_element("gpx")
             .attr("version", version_to_version_string(gpx.version)?)
             .attr("creator", creator),
-        &mut writer,
+        writer,
     )?;
-    write_metadata(gpx, &mut writer)?;
+    write_metadata(gpx, writer)?;
     for point in &gpx.waypoints {
-        write_waypoint("wpt", point, &mut writer)?;
+        write_waypoint("wpt", point, writer)?;
     }
     for track in &gpx.tracks {
-        write_track(track, &mut writer)?;
+        write_track(track, writer)?;
     }
     for route in &gpx.routes {
-        write_route(route, &mut writer)?;
+        write_route(route, writer)?;
     }
-    write_xml_event(XmlEvent::end_element(), &mut writer)?;
+    write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
 }
 

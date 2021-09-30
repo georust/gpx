@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- [#61](https://github.com/georust/gpx/pull/61): Allow custom xml::EventWriter in write(add `write_with_event_writer`)
+
 ## 0.8.4
 
 - [#57](https://github.com/georust/gpx/pull/57): Support Number on Tracks
