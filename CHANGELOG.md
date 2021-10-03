@@ -3,6 +3,7 @@
 ## Unreleased
 
 - [#61](https://github.com/georust/gpx/pull/61): Allow custom xml::EventWriter in write(add `write_with_event_writer`)
+- [#62](https://github.com/georust/gpx/pull/62): Implementing serde (De)Serialize for GPX structs
 
 ## 0.8.4
 
