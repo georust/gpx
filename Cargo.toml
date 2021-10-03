@@ -9,6 +9,12 @@ documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/gpx"
 edition = "2018"
 
+[package.metadata.docs.rs]
+features = ["use-serde"]
+
+[features]
+use-serde = [ "serde", "chrono/serde", "geo-types/serde" ]
+
 [dependencies]
 assert_approx_eq = "1"
 chrono = "0.4"
@@ -16,6 +22,7 @@ error-chain = "0.12"
 thiserror = "1.0"
 geo-types = "0.7"
 xml-rs = "0.8"
+serde = { version = "1.0", features = [ "derive" ], optional = true }
 
 [dev-dependencies]
 geo = "0.18"

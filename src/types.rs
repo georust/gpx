@@ -3,9 +3,12 @@
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
 use chrono::{DateTime, Utc};
+#[cfg(feature = "use-serde")]
+use serde::{Deserialize, Serialize};
 
 /// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub enum GpxVersion {
     Unknown,
     Gpx10,
@@ -26,6 +29,7 @@ impl Default for GpxVersion {
 
 /// Gpx is the root element in the XML file.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Gpx {
     /// Version of the Gpx file.
     pub version: GpxVersion,
@@ -51,6 +55,7 @@ pub struct Gpx {
 /// By linking to an appropriate license, you may place your data into the
 /// public domain or grant additional usage rights.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct GpxCopyright {
     pub author: Option<String>,
     pub year: Option<i32>,
@@ -62,6 +67,7 @@ pub struct GpxCopyright {
 /// Providing rich, meaningful information about your GPX files allows others to
 /// search for and use your GPS data.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Metadata {
     /// The name of the GPX file.
     pub name: Option<String>,
@@ -92,6 +98,7 @@ pub struct Metadata {
 
 /// Route represents an ordered list of waypoints representing a series of turn points leading to a destination.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Route {
     /// GPS name of route.
     pub name: Option<String>,
@@ -156,6 +163,7 @@ impl From<Route> for Geometry<f64> {
 
 /// Track represents an ordered list of points describing a path.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Track {
     /// GPS name of track.
     pub name: Option<String>,
@@ -222,6 +230,7 @@ impl From<Track> for Geometry<f64> {
 /// was lost, or the GPS receiver was turned off, start a new Track Segment
 /// for each continuous span of track data.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct TrackSegment {
     /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
     /// for a single point in a track.
@@ -266,6 +275,7 @@ impl From<TrackSegment> for Geometry<f64> {
 // allows us to initialise the GpxPoint with default values compactly
 // in the Waypoint::new function below
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 struct GpxPoint(Point<f64>);
 
 impl Default for GpxPoint {
@@ -277,6 +287,7 @@ impl Default for GpxPoint {
 /// Waypoint represents a waypoint, point of interest, or named feature on a
 /// map.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Waypoint {
     /// The geographical point.
     point: GpxPoint,
@@ -408,6 +419,7 @@ impl From<Waypoint> for Geometry<f64> {
 
 /// Person represents a person or organization.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Person {
     /// Name of person or organization.
     pub name: Option<String>,
@@ -424,6 +436,7 @@ pub struct Person {
 /// An external resource could be a web page, digital photo,
 /// video clip, etc., with additional information.
 #[derive(Clone, Default, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Link {
     /// URL of hyperlink.
     pub href: String,
@@ -437,6 +450,7 @@ pub struct Link {
 
 /// Type of the GPS fix.
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub enum Fix {
     /// The GPS had no fix. To signify "the fix info is unknown", leave out the Fix entirely.
     None,
