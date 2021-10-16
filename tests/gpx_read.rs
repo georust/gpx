@@ -6,12 +6,14 @@ use std::fs::File;
 use std::io::BufReader;
 
 use assert_approx_eq::assert_approx_eq;
-use chrono::{TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use geo::algorithm::haversine_distance::HaversineDistance;
 use geo::euclidean_length::EuclideanLength;
 use geo_types::{Geometry, Point};
 
 use gpx::{read, Fix};
+use std::error::Error;
+use std::str::FromStr;
 
 #[test]
 fn gpx_reader_read_test_badxml() {
@@ -333,4 +335,78 @@ fn gpx_reader_read_test_with_track_numbers() {
     let result = result.unwrap();
     assert_eq!(result.tracks.len(), 1);
     assert_eq!(result.tracks.first().unwrap().number, Some(1));
+}
+#[test]
+fn gpx_reader_read_test_caltopo_export() -> Result<(), Box<dyn Error>> {
+    let file = File::open("tests/fixtures/caltopo-export.gpx")?;
+    let reader = BufReader::new(file);
+    let res = read(reader)?;
+    assert_eq!(res.tracks.len(), 2);
+
+    // ensure day 1 tracks are parsed
+    let track = &res.tracks[0];
+    assert_eq!(track.name, Some("Day 01".to_string()));
+    assert_eq!(track.segments.len(), 1);
+    let segment = &track.segments[0];
+    assert_eq!(segment.points.len(), 3);
+    let point = &segment.points[0];
+    assert_eq!(point.elevation, Some(3036.0));
+    assert_eq!(
+        point.point(),
+        Point::new(-118.17100617103279, 36.44834803417325)
+    );
+    assert_eq!(point.time, DateTime::from_str("2019-08-12T23:45:00Z").ok());
+
+    // ensure day 2 tracks are parsed
+    let track = &res.tracks[1];
+    assert_eq!(track.name, Some("Day 02".to_string()));
+    assert_eq!(track.segments.len(), 1);
+    let segment = &track.segments[0];
+    assert_eq!(segment.points.len(), 3);
+    let point = &segment.points[2];
+    assert_eq!(point.elevation, Some(2923.0));
+    assert_eq!(
+        point.point(),
+        Point::new(-118.33698051050305, 36.49673483334482)
+    );
+    assert_eq!(point.time, DateTime::from_str("2019-08-13T21:46:00Z").ok());
+
+    Ok(())
+}
+
+#[test]
+fn garmin_with_extensions() {
+    // Should not give an error, and should have all the correct data.
+    let file = File::open("tests/fixtures/garmin_with_extensions.gpx").unwrap();
+    let reader = BufReader::new(file);
+
+    let result = read(reader);
+    assert!(result.is_ok());
+
+    let result = result.unwrap();
+
+    // Check the metadata, of course; here it has a time.
+    let metadata = result.metadata.unwrap();
+    assert_eq!(
+        metadata.time.unwrap(),
+        Utc.ymd(2019, 05, 02).and_hms(08, 53, 17)
+    );
+
+    assert_eq!(metadata.links.len(), 1);
+    let link = &metadata.links[0];
+    assert_eq!(link.href, "http://www.garmin.com");
+    assert_eq!(link.text, Some(String::from("Garmin International")));
+
+    // There should just be one track, "example gpx document".
+    assert_eq!(result.tracks.len(), 1);
+    let track = &result.tracks[0];
+
+    assert_eq!(track.name, Some(String::from("2019-05-01 06:31:11 Tag")));
+
+    // Each point has its own information; test elevation.
+    assert_eq!(track.segments.len(), 2);
+    let points = &track.segments[0].points;
+
+    assert_eq!(points.len(), 35);
+    assert_eq!(points[0].elevation, Some(860.0));
 }
