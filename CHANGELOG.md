@@ -1,9 +1,5 @@
 # CHANGELOG
 
-## Unreleased
-
-- [#42] Track extensions
-
 ## 0.8.4
 
 - [#57](https://github.com/georust/gpx/pull/57): Support Number on Tracks
