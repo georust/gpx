@@ -2,9 +2,15 @@
 
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 
+#[cfg(feature = "chrono")]
 use chrono::{DateTime, Utc};
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "time")]
+use time::OffsetDateTime as Time;
+
+#[cfg(not(feature = "time"))]
+type Time = DateTime<Utc>;
 
 /// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -82,7 +88,7 @@ pub struct Metadata {
     pub links: Vec<Link>,
 
     /// The creation date of the file.
-    pub time: Option<DateTime<Utc>>,
+    pub time: Option<Time>,
 
     /// Keywords associated with the file. Search engines or databases can use
     /// this information to classify the data.
@@ -302,7 +308,7 @@ pub struct Waypoint {
     /// Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
     /// specification for date/time representation. Fractional seconds are
     /// allowed for millisecond timing in tracklogs.
-    pub time: Option<DateTime<Utc>>,
+    pub time: Option<Time>,
 
     /// The GPS name of the waypoint. This field will be transferred to and
     /// from the GPS. GPX does not place restrictions on the length of this

@@ -1,21 +1,32 @@
 //! time handles parsing of xsd:dateTime.
 
+#[cfg(feature = "chrono")]
+use chrono::{DateTime, Utc};
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 use std::io::Read;
+#[cfg(feature = "time")]
+use time::{format_description::well_known::Rfc3339, OffsetDateTime as Time, UtcOffset};
 
-use chrono::prelude::Utc;
-use chrono::DateTime;
+#[cfg(not(feature = "time"))]
+type Time = DateTime<Utc>;
 
 use crate::errors::GpxResult;
 use crate::parser::{string, Context};
 
 /// consume consumes an element as a time.
-pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<DateTime<Utc>> {
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
     let time = string::consume(context, "time", false)?;
 
-    let time = DateTime::parse_from_rfc3339(&time)?;
-
-    Ok(DateTime::from_utc(time.naive_utc(), Utc))
+    #[cfg(feature = "time")]
+    {
+        let time = Time::parse(&time, &Rfc3339)?;
+        Ok(time.to_offset(UtcOffset::UTC))
+    }
+    #[cfg(not(feature = "time"))]
+    {
+        let time = DateTime::parse_from_rfc3339(&time)?;
+        Ok(DateTime::from_utc(time.naive_utc(), Utc))
+    }
 }
 
 #[cfg(test)]

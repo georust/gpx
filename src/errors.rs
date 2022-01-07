@@ -6,6 +6,7 @@ use thiserror::Error;
 pub(crate) type GpxResult<T> = Result<T, GpxError>;
 
 #[derive(Error, Debug)]
+#[non_exhaustive]
 /// Errors that can occur when reading or writing GPX files
 pub enum GpxError {
     #[error("error while casting to f64")]
@@ -46,6 +47,13 @@ pub enum GpxError {
     MetadataParsingError(),
     #[error("invalid `{0}`: must be between `{1}`. Actual value: `{2}`")]
     LonLatOutOfBoundsError(&'static str, &'static str, f64),
+    #[cfg(feature = "time")]
+    #[error("error trying to parse RFC3339 formatted date")]
+    Rfc3339Error(#[from] time::error::Parse),
+    #[cfg(not(feature = "time"))]
     #[error("error trying to parse RFC3339 formatted date")]
     Rfc3339Error(#[from] chrono::ParseError),
+    #[cfg(feature = "time")]
+    #[error("error trying to write RFC3339 formatted date")]
+    Rfc3339ErrorWriting(#[from] time::error::Format),
 }

@@ -2,6 +2,7 @@
 
 ## unreleased
 
+- [#65](https://github.com/georust/gpx/pull/65): Allow to user chose chrono vs time
 - [#66](https://github.com/georust/gpx/pull/66): Allow `extensions` tags inside of `route`
 
 ## 0.8.5
