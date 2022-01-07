@@ -83,12 +83,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
 
 #[cfg(test)]
 mod tests {
-    #[cfg(not(feature = "time"))]
-    use chrono::{TimeZone, Utc};
 
     use super::consume;
     use crate::GpxVersion;
-    #[cfg(feature = "time")]
     use time::{Date, Month, PrimitiveDateTime, Time};
 
     #[test]
@@ -150,14 +147,12 @@ mod tests {
 
         assert!(result.time.is_some());
 
-        #[cfg(not(feature = "time"))]
-        let expect = Utc.ymd(2017, 8, 16).and_hms_micro(4, 3, 33, 735_000);
-        #[cfg(feature = "time")]
         let expect = PrimitiveDateTime::new(
             Date::from_calendar_date(2017, Month::August, 16).unwrap(),
             Time::from_hms_milli(4, 3, 33, 735).unwrap(),
         )
-        .assume_utc();
+        .assume_utc()
+        .into();
 
         assert_eq!(result.time.unwrap(), expect);
 

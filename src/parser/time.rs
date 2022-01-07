@@ -1,32 +1,36 @@
 //! time handles parsing of xsd:dateTime.
 
-#[cfg(feature = "chrono")]
-use chrono::{DateTime, Utc};
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+#[cfg(feature = "use-serde")]
+use serde::{Deserialize, Serialize};
 use std::io::Read;
-#[cfg(feature = "time")]
-use time::{format_description::well_known::Rfc3339, OffsetDateTime as Time, UtcOffset};
-
-#[cfg(not(feature = "time"))]
-type Time = DateTime<Utc>;
+use time::{format_description::well_known::Rfc3339, OffsetDateTime, UtcOffset};
 
 use crate::errors::GpxResult;
 use crate::parser::{string, Context};
+
+#[derive(Debug, Clone, Copy, Eq, Ord, PartialOrd, PartialEq, Hash)]
+#[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
+pub struct Time(OffsetDateTime);
+
+impl Time {
+    pub fn format(&self) -> GpxResult<String> {
+        self.0.format(&Rfc3339).map_err(From::from)
+    }
+}
+
+impl From<OffsetDateTime> for Time {
+    fn from(t: OffsetDateTime) -> Self {
+        Time(t)
+    }
+}
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
     let time = string::consume(context, "time", false)?;
 
-    #[cfg(feature = "time")]
-    {
-        let time = Time::parse(&time, &Rfc3339)?;
-        Ok(time.to_offset(UtcOffset::UTC))
-    }
-    #[cfg(not(feature = "time"))]
-    {
-        let time = DateTime::parse_from_rfc3339(&time)?;
-        Ok(DateTime::from_utc(time.naive_utc(), Utc))
-    }
+    let time = OffsetDateTime::parse(&time, &Rfc3339)?;
+    Ok(time.to_offset(UtcOffset::UTC).into())
 }
 
 #[cfg(test)]

@@ -13,14 +13,11 @@ edition = "2018"
 features = ["use-serde"]
 
 [features]
-default = ["chrono"]
-use-serde = [ "serde", "chrono/serde", "geo-types/serde" ]
-use-serde-time = ["serde", "time/serde-human-readable", "geo-types/serde"]
+use-serde = [ "serde", "time/serde", "geo-types/serde" ]
 
 [dependencies]
 assert_approx_eq = "1"
-time = { version = "0.3", features = ["formatting", "parsing"], optional = true }
-chrono = { version = "0.4", optional = true }
+time = { version = "0.3", features = ["formatting", "parsing"] }
 error-chain = "0.12"
 thiserror = "1.0"
 geo-types = "0.7"

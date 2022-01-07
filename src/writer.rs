@@ -2,17 +2,11 @@
 
 use std::io::Write;
 
-#[cfg(feature = "chrono")]
-use chrono::{DateTime, Utc};
 use geo_types::Rect;
-#[cfg(feature = "time")]
-use time::{format_description::well_known::Rfc3339, OffsetDateTime as Time};
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
-#[cfg(not(feature = "time"))]
-type Time = DateTime<Utc>;
-
 use crate::errors::{GpxError, GpxResult};
+use crate::parser::time::Time;
 use crate::types::*;
 use crate::{Gpx, GpxVersion};
 
@@ -249,11 +243,7 @@ fn write_time_if_exists<W: Write>(
 ) -> GpxResult<()> {
     if let Some(ref time) = time {
         write_xml_event(XmlEvent::start_element("time"), writer)?;
-        #[cfg(feature = "time")]
-        write_xml_event(XmlEvent::characters(&time.format(&Rfc3339)?), writer)?;
-        #[cfg(feature = "chrono")]
-        write_xml_event(XmlEvent::characters(&time.to_rfc3339()), writer)?;
-
+        write_xml_event(XmlEvent::characters(&time.format()?), writer)?;
         write_xml_event(XmlEvent::end_element(), writer)?;
     }
     Ok(())

@@ -1,17 +1,11 @@
 //! gpx handles parsing of GPX elements.
 
-#[cfg(feature = "time")]
-use ::time::OffsetDateTime as Time;
-#[cfg(feature = "chrono")]
-use chrono::{DateTime, Utc};
 use geo_types::Rect;
 use std::io::Read;
 use xml::reader::XmlEvent;
 
-#[cfg(not(feature = "time"))]
-type Time = DateTime<Utc>;
-
 use crate::errors::{GpxError, GpxResult};
+use crate::parser::time::Time;
 use crate::parser::{
     bounds, metadata, route, string, time, track, verify_starting_tag, waypoint, Context,
 };
