@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<gpx version="1.1"
+creator="Viking 1.10 -- http://viking.sf.net/"
+xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v2" xmlns:gpxpx="http://www.garmin.com/xmlschemas/PowerExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v2 http://www.garmin.com/xmlschemas/TrackPointExtensionv2.xsd http://www.garmin.com/xmlschemas/PowerExtensionv1.xsd">
+<wpt lat="40.71488" lon="-74.011422">
+  <name>001</name>
+</wpt>
+<trk>
+  <name>Trace</name>
+  <extensions><gpxx:TrackExtension><gpxx:DisplayColor>DarkGray</gpxx:DisplayColor></gpxx:TrackExtension></extensions>
+  <trkseg>
+  <trkpt lat="40.71631157206666" lon="-74.01103529632569">
+  </trkpt>
+  <trkpt lat="40.7154983764096" lon="-74.00927576721192">
+  </trkpt>
+  <trkpt lat="40.71435988580241" lon="-74.01021990478516">
+  </trkpt>
+  <trkpt lat="40.7139370129041" lon="-74.00888952911377">
+  </trkpt>
+  <trkpt lat="40.71149730912246" lon="-74.01047739685059">
+  </trkpt>
+  </trkseg>
+</trk>
+<rte>
+  <name>Route</name>
+  <extensions><gpxx:TrackExtension><gpxx:DisplayColor>Red</gpxx:DisplayColor></gpxx:TrackExtension></extensions>
+</rte>
+</gpx>

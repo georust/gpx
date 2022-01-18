@@ -410,3 +410,29 @@ fn garmin_with_extensions() {
     assert_eq!(points.len(), 35);
     assert_eq!(points[0].elevation, Some(860.0));
 }
+
+#[test]
+fn viking_with_route_extensions() {
+    // Should not give an error, and should have all the correct data.
+    let file = File::open("tests/fixtures/viking_with_route_extensions.gpx").unwrap();
+    let reader = BufReader::new(file);
+
+    let result = read(reader);
+    println!("result= {:#?}", result);
+    assert!(result.is_ok());
+
+    let result = result.unwrap();
+
+    // There should just be one track, "example gpx document".
+    assert_eq!(result.tracks.len(), 1);
+    let track = &result.tracks[0];
+
+    assert_eq!(track.name, Some(String::from("Trace")));
+
+    // Each point has its own information; test elevation.
+    assert_eq!(track.segments.len(), 1);
+    let points = &track.segments[0].points;
+
+    assert_eq!(points.len(), 5);
+    assert_eq!(points[0].point().lat(), 40.71631157206666);
+}
