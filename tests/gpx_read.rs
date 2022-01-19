@@ -6,14 +6,14 @@ use std::fs::File;
 use std::io::BufReader;
 
 use assert_approx_eq::assert_approx_eq;
-use chrono::{DateTime, TimeZone, Utc};
 use geo::algorithm::haversine_distance::HaversineDistance;
 use geo::euclidean_length::EuclideanLength;
 use geo_types::{Geometry, Point};
 
 use gpx::{read, Fix};
 use std::error::Error;
-use std::str::FromStr;
+
+use time::{Date, Month, PrimitiveDateTime, Time};
 
 #[test]
 fn gpx_reader_read_test_badxml() {
@@ -39,10 +39,14 @@ fn gpx_reader_read_test_wikipedia() {
 
     // Check the metadata, of course; here it has a time.
     let metadata = result.metadata.unwrap();
-    assert_eq!(
-        metadata.time.unwrap(),
-        Utc.ymd(2009, 10, 17).and_hms(22, 58, 43)
-    );
+    let expect = PrimitiveDateTime::new(
+        Date::from_calendar_date(2009, Month::October, 17).unwrap(),
+        Time::from_hms(22, 58, 43).unwrap(),
+    )
+    .assume_utc()
+    .into();
+
+    assert_eq!(metadata.time.unwrap(), expect);
 
     assert_eq!(metadata.links.len(), 1);
     let link = &metadata.links[0];
@@ -84,10 +88,15 @@ fn gpx_reader_read_test_gpsies() {
 
     // Check the metadata, of course; here it has a time.
     let metadata = result.metadata.unwrap();
-    assert_eq!(
-        metadata.time.unwrap(),
-        Utc.ymd(2019, 09, 11).and_hms(17, 08, 31)
-    );
+
+    let expect = PrimitiveDateTime::new(
+        Date::from_calendar_date(2019, Month::September, 11).unwrap(),
+        Time::from_hms(17, 8, 31).unwrap(),
+    )
+    .assume_utc()
+    .into();
+
+    assert_eq!(metadata.time.unwrap(), expect);
 
     assert_eq!(metadata.links.len(), 1);
     let link = &metadata.links[0];
@@ -124,10 +133,15 @@ fn gpx_reader_read_test_garmin_activity() {
 
     // Check the info on the metadata.
     let metadata = res.metadata.unwrap();
-    assert_eq!(
-        metadata.time.unwrap(),
-        Utc.ymd(2017, 7, 29).and_hms_micro(14, 46, 35, 000_000)
-    );
+
+    let expect = PrimitiveDateTime::new(
+        Date::from_calendar_date(2017, Month::July, 29).unwrap(),
+        Time::from_hms(14, 46, 35).unwrap(),
+    )
+    .assume_utc()
+    .into();
+
+    assert_eq!(metadata.time.unwrap(), expect);
 
     assert_eq!(metadata.links.len(), 1);
     let link = &metadata.links[0];
@@ -162,8 +176,23 @@ fn gpx_reader_read_test_garmin_activity() {
 
         // Time is between a day before and after.
         let time = point.time.unwrap();
-        assert!(time > Utc.ymd(2017, 7, 28).and_hms_micro(0, 0, 0, 000_000));
-        assert!(time < Utc.ymd(2017, 7, 30).and_hms_micro(0, 0, 0, 000_000));
+
+        let before = PrimitiveDateTime::new(
+            Date::from_calendar_date(2017, Month::July, 28).unwrap(),
+            Time::from_hms(0, 0, 0).unwrap(),
+        )
+        .assume_utc()
+        .into();
+
+        let after = PrimitiveDateTime::new(
+            Date::from_calendar_date(2017, Month::July, 30).unwrap(),
+            Time::from_hms(0, 0, 0).unwrap().into(),
+        )
+        .assume_utc()
+        .into();
+
+        assert!(time > before);
+        assert!(time < after);
 
         // Should coerce to Point.
         let geo: Geometry<f64> = point.clone().into();
@@ -355,7 +384,17 @@ fn gpx_reader_read_test_caltopo_export() -> Result<(), Box<dyn Error>> {
         point.point(),
         Point::new(-118.17100617103279, 36.44834803417325)
     );
-    assert_eq!(point.time, DateTime::from_str("2019-08-12T23:45:00Z").ok());
+
+    let expect = Some(
+        PrimitiveDateTime::new(
+            Date::from_calendar_date(2019, Month::August, 12).unwrap(),
+            Time::from_hms(23, 45, 00).unwrap(),
+        )
+        .assume_utc()
+        .into(),
+    );
+
+    assert_eq!(point.time, expect);
 
     // ensure day 2 tracks are parsed
     let track = &res.tracks[1];
@@ -369,7 +408,17 @@ fn gpx_reader_read_test_caltopo_export() -> Result<(), Box<dyn Error>> {
         point.point(),
         Point::new(-118.33698051050305, 36.49673483334482)
     );
-    assert_eq!(point.time, DateTime::from_str("2019-08-13T21:46:00Z").ok());
+
+    let expect = Some(
+        PrimitiveDateTime::new(
+            Date::from_calendar_date(2019, Month::August, 13).unwrap(),
+            Time::from_hms(21, 46, 00).unwrap(),
+        )
+        .assume_utc()
+        .into(),
+    );
+
+    assert_eq!(point.time, expect);
 
     Ok(())
 }
@@ -387,10 +436,15 @@ fn garmin_with_extensions() {
 
     // Check the metadata, of course; here it has a time.
     let metadata = result.metadata.unwrap();
-    assert_eq!(
-        metadata.time.unwrap(),
-        Utc.ymd(2019, 05, 02).and_hms(08, 53, 17)
-    );
+
+    let expect = PrimitiveDateTime::new(
+        Date::from_calendar_date(2019, Month::May, 2).unwrap(),
+        Time::from_hms(8, 53, 17).unwrap(),
+    )
+    .assume_utc()
+    .into();
+
+    assert_eq!(metadata.time.unwrap(), expect);
 
     assert_eq!(metadata.links.len(), 1);
     let link = &metadata.links[0];

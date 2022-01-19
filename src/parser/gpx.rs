@@ -1,12 +1,11 @@
 //! gpx handles parsing of GPX elements.
 
-use std::io::Read;
-
-use chrono::{DateTime, Utc};
 use geo_types::Rect;
+use std::io::Read;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
+use crate::parser::time::Time;
 use crate::parser::{
     bounds, metadata, route, string, time, track, verify_starting_tag, waypoint, Context,
 };
@@ -29,7 +28,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
     let mut url: Option<String> = None;
     let mut urlname: Option<String> = None;
     let mut email: Option<String> = None;
-    let mut time: Option<DateTime<Utc>> = None;
+    let mut time: Option<Time> = None;
     let mut bounds: Option<Rect<f64>> = None;
     let mut gpx_name: Option<String> = None;
     let mut description: Option<String> = None;

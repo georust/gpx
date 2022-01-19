@@ -1,8 +1,7 @@
 //! generic types for GPX
 
+use crate::parser::time::Time;
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
-
-use chrono::{DateTime, Utc};
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -82,7 +81,7 @@ pub struct Metadata {
     pub links: Vec<Link>,
 
     /// The creation date of the file.
-    pub time: Option<DateTime<Utc>>,
+    pub time: Option<Time>,
 
     /// Keywords associated with the file. Search engines or databases can use
     /// this information to classify the data.
@@ -302,7 +301,7 @@ pub struct Waypoint {
     /// Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601
     /// specification for date/time representation. Fractional seconds are
     /// allowed for millisecond timing in tracklogs.
-    pub time: Option<DateTime<Utc>>,
+    pub time: Option<Time>,
 
     /// The GPS name of the waypoint. This field will be transferred to and
     /// from the GPS. GPX does not place restrictions on the length of this

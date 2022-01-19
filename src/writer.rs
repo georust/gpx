@@ -2,11 +2,11 @@
 
 use std::io::Write;
 
-use chrono::{DateTime, Utc};
 use geo_types::Rect;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 use crate::errors::{GpxError, GpxResult};
+use crate::parser::time::Time;
 use crate::types::*;
 use crate::{Gpx, GpxVersion};
 
@@ -238,12 +238,12 @@ fn write_person_if_exists<W: Write>(
 }
 
 fn write_time_if_exists<W: Write>(
-    time: &Option<DateTime<Utc>>,
+    time: &Option<Time>,
     writer: &mut EventWriter<W>,
 ) -> GpxResult<()> {
     if let Some(ref time) = time {
         write_xml_event(XmlEvent::start_element("time"), writer)?;
-        write_xml_event(XmlEvent::characters(&time.to_rfc3339()), writer)?;
+        write_xml_event(XmlEvent::characters(&time.format()?), writer)?;
         write_xml_event(XmlEvent::end_element(), writer)?;
     }
     Ok(())
