@@ -64,6 +64,7 @@ pub fn write_with_event_writer<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>)
     write_xml_event(
         XmlEvent::start_element("gpx")
             .attr("version", version_to_version_string(gpx.version)?)
+            .attr("xmlns", version_to_xml_url(gpx.version)?)
             .attr("creator", creator),
         writer,
     )?;
@@ -93,6 +94,14 @@ fn version_to_version_string(version: GpxVersion) -> GpxResult<&'static str> {
     match version {
         GpxVersion::Gpx10 => Ok("1.0"),
         GpxVersion::Gpx11 => Ok("1.1"),
+        version => Err(GpxError::UnknownVersionError(version)),
+    }
+}
+
+fn version_to_xml_url(version: GpxVersion) -> GpxResult<&'static str> {
+    match version {
+        GpxVersion::Gpx10 => Ok("http://www.topografix.com/GPX/1/0"),
+        GpxVersion::Gpx11 => Ok("http://www.topografix.com/GPX/1/1"),
         version => Err(GpxError::UnknownVersionError(version)),
     }
 }
