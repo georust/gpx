@@ -5,6 +5,7 @@
 - [#65](https://github.com/georust/gpx/pull/65): Replace `chrono` to `time` crate
 - [#66](https://github.com/georust/gpx/pull/66): Allow `extensions` tags inside of `route`
 - [#68](https://github.com/georust/gpx/pull/68): Bump CI minimum rust version to 1.53, max to 1.59
+- [#67](https://github.com/georust/gpx/pull/67): Add `xmlns` attribute in written gpx for better garmin compatibility
 
 ## 0.8.5
 
