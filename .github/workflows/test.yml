@@ -30,7 +30,7 @@ jobs:
         working-directory: .
     strategy:
       matrix:
-        container_image: ["georust/geo-ci:rust-1.51", "georust/geo-ci:rust-1.57"]
+        container_image: ["georust/geo-ci:rust-1.53", "georust/geo-ci:rust-1.59"]
     container:
       image: ${{ matrix.container_image }}
     steps:
