@@ -75,7 +75,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
                         waypoint.speed = Some(string::consume(context, "speed", false)?.parse()?);
                     }
                     "time" => waypoint.time = Some(time::consume(context)?),
-                    "name" => waypoint.name = Some(string::consume(context, "name", false)?),
+                    "name" => waypoint.name = Some(string::consume(context, "name", true)?),
                     "cmt" => waypoint.comment = Some(string::consume(context, "cmt", true)?),
                     "desc" => waypoint.description = Some(string::consume(context, "desc", true)?),
                     "src" => waypoint.source = Some(string::consume(context, "src", true)?),
