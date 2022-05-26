@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="http://ridewithgps.com/">
+  <metadata>
+    <name>04/24/22</name>
+    <link href="https://ridewithgps.com/trips/1">
+      <text>04/24/22</text>
+    </link>
+    <time>2022-04-24T13:54:33Z</time>
+  </metadata>
+  <trk>
+    <name>04/24/22</name>
+    <trkseg>
+      <trkpt lat="45.454350" lon="-121.933136">
+        <ele/>
+        <time>2022-04-24T20:54:33Z</time>
+      </trkpt>
+      <trkpt lat="45.454350" lon="-121.933136">
+        <ele/>
+        <time>2022-04-24T20:54:34Z</time>
+      </trkpt>
+      <trkpt lat="45.454350" lon="-121.933136">
+        <ele/>
+        <time>2022-04-24T20:54:35Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

@@ -86,11 +86,25 @@ mod tests {
     }
 
     #[test]
-    fn consume_no_body() {
+    fn consume_no_body_with_err() {
         // must have string content
         let result = consume!("<foo></foo>", GpxVersion::Gpx11, "foo", false);
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn consume_no_body_via_complete_tag() {
+        let result = consume!("<foo></foo>", GpxVersion::Gpx11, "foo", true);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn consume_no_body_via_self_closing_tag() {
+        let result = consume!("<foo/>", GpxVersion::Gpx11, "foo", true);
+
+        assert!(result.is_ok());
     }
 
     #[test]
