@@ -7,6 +7,7 @@
 - [#68](https://github.com/georust/gpx/pull/68): Bump CI minimum rust version to 1.53, max to 1.59
 - [#67](https://github.com/georust/gpx/pull/67): Add `xmlns` attribute in written gpx for better garmin compatibility
 - [#73](https://github.com/georust/gpx/pull/68): Bump CI minimum rust version to 1.56, max to 1.59
+- [#74](https://github.com/georust/gpx/pull/74): Address deprecation warnings from geo-types
 
 ## 0.8.5
 
