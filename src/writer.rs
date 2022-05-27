@@ -347,8 +347,8 @@ fn write_waypoint<W: Write>(
 ) -> GpxResult<()> {
     write_xml_event(
         XmlEvent::start_element(tagname)
-            .attr("lat", &waypoint.point().lat().to_string())
-            .attr("lon", &waypoint.point().lng().to_string()),
+            .attr("lat", &waypoint.point().y().to_string())
+            .attr("lon", &waypoint.point().x().to_string()),
         writer,
     )?;
     write_value_if_exists("ele", &waypoint.elevation, writer)?;

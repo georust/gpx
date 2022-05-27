@@ -488,5 +488,5 @@ fn viking_with_route_extensions() {
     let points = &track.segments[0].points;
 
     assert_eq!(points.len(), 5);
-    assert_eq!(points[0].point().lat(), 40.71631157206666);
+    assert_eq!(points[0].point().y(), 40.71631157206666);
 }
