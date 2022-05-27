@@ -9,6 +9,7 @@
 - [#73](https://github.com/georust/gpx/pull/68): Bump CI minimum rust version to 1.56, max to 1.59
 - [#74](https://github.com/georust/gpx/pull/74): Address deprecation warnings from geo-types
 - [#71](https://github.com/georust/gpx/pull/71): Allow empty waypoint names
+- [#72](https://github.com/georust/gpx/pull/72): Allow empty elevation tags
 
 ## 0.8.5
 
