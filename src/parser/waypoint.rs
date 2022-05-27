@@ -203,6 +203,24 @@ mod tests {
     }
 
     #[test]
+    fn consume_empty_waypoint_name() {
+        let waypoint = consume!(
+            "<trkpt lat=\"2.345\" lon=\"1.234\">
+                <name><![CDATA[]]></name>
+            </trkpt>",
+            GpxVersion::Gpx11,
+            "trkpt"
+        );
+
+        assert!(waypoint.is_ok());
+        let waypoint = waypoint.unwrap();
+
+        assert_eq!(waypoint.point(), Point::new(1.234, 2.345));
+        assert_eq!(waypoint.point().lng(), 1.234);
+        assert_eq!(waypoint.point().lat(), 2.345);
+    }
+
+    #[test]
     fn consume_bad_waypoint() {
         let waypoint = consume!(
             "<wpt lat=\"32.4\" lon=\"notanumber\"></wpt>",
