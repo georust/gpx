@@ -135,9 +135,8 @@ fn gpx_reader_read_test_empty_elevation() {
     for track in &res.tracks {
         for segment in &track.segments {
             for point in &segment.points {
-                // Elevation should default to 0.00
-                let elevation = point.elevation.unwrap();
-                assert!(elevation == 0.00);
+                let elevation = point.elevation.is_none();
+                assert_eq!(elevation, true);
             }
         }
     }
