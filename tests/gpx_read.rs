@@ -123,6 +123,26 @@ fn gpx_reader_read_test_gpsies() {
 }
 
 #[test]
+fn gpx_reader_read_test_empty_elevation() {
+    let file = File::open("tests/fixtures/wahoo_example.gpx").unwrap();
+    let reader = BufReader::new(file);
+
+    let result = read(reader);
+    assert!(result.is_ok());
+    let res = result.unwrap();
+
+    // Test for every single point in the file.
+    for track in &res.tracks {
+        for segment in &track.segments {
+            for point in &segment.points {
+                let elevation = point.elevation.is_none();
+                assert_eq!(elevation, true);
+            }
+        }
+    }
+}
+
+#[test]
 fn gpx_reader_read_test_garmin_activity() {
     let file = File::open("tests/fixtures/garmin-activity.gpx").unwrap();
     let reader = BufReader::new(file);

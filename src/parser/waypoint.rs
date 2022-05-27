@@ -68,7 +68,11 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
                 match name.local_name.as_ref() {
                     "ele" => {
                         // Cast the elevation to an f64, from a string.
-                        waypoint.elevation = Some(string::consume(context, "ele", false)?.parse()?)
+                        waypoint.elevation = match string::consume(context, "ele", false) {
+                            Ok(v) => Some(v.parse()?),
+                            Err(GpxError::NoStringContent) => None,
+                            Err(other_err) => return Err(other_err),
+                        }
                     }
                     "speed" if context.version == GpxVersion::Gpx10 => {
                         // Speed is from GPX 1.0
