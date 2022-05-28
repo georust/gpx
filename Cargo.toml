@@ -2,13 +2,13 @@
 name = "gpx"
 description = "Rust read/write support for GPS Exchange Format (GPX)"
 license = "MIT"
-version = "0.8.5"
+version = "0.8.6"
 authors = ["The GeoRust Developers <mods@georust.org>"]
 readme = "README.md"
 documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/gpx"
 edition = "2018"
-rust-version = "1.53"
+rust-version = "1.56"
 
 [package.metadata.docs.rs]
 features = ["use-serde"]
