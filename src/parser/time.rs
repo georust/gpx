@@ -25,6 +25,12 @@ impl From<OffsetDateTime> for Time {
     }
 }
 
+impl From<Time> for OffsetDateTime {
+    fn from(t: Time) -> Self {
+        t.0
+    }
+}
+
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
     let time = string::consume(context, "time", false)?;

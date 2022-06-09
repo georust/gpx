@@ -1,6 +1,6 @@
 //! generic types for GPX
 
-use crate::parser::time::Time;
+pub use crate::parser::time::Time;
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
