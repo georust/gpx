@@ -1,13 +1,14 @@
 //! time handles parsing of xsd:dateTime.
 
+use std::io::Read;
+
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
-use std::io::Read;
-use time::{format_description::well_known::Rfc3339, OffsetDateTime, UtcOffset};
+use time::{format_description::well_known::Iso8601, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 use crate::errors::GpxResult;
-use crate::parser::{string, Context};
+use crate::parser::{Context, string};
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialOrd, PartialEq, Hash)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
@@ -15,7 +16,7 @@ pub struct Time(OffsetDateTime);
 
 impl Time {
     pub fn format(&self) -> GpxResult<String> {
-        self.0.format(&Rfc3339).map_err(From::from)
+        self.0.format(&Iso8601::DEFAULT).map_err(From::from)
     }
 }
 
@@ -33,16 +34,22 @@ impl From<Time> for OffsetDateTime {
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
-    let time = string::consume(context, "time", false)?;
+    let time_str = string::consume(context, "time", false)?;
 
-    let time = OffsetDateTime::parse(&time, &Rfc3339)?;
+    // Parse time string assuming an offset first and no offset as fallback
+    let time = OffsetDateTime::parse(&time_str, &Iso8601::PARSING).or_else(|_| {
+        PrimitiveDateTime::parse(&time_str, &Iso8601::PARSING).map(PrimitiveDateTime::assume_utc)
+    })?;
+
+    // let time = OffsetDateTime::parse(&time, &Rfc3339)?;
     Ok(time.to_offset(UtcOffset::UTC).into())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_time() {
@@ -68,14 +75,18 @@ mod tests {
         // let result = consume!("<time>-2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
         // assert!(result.is_ok());
 
-        // let result = consume!("<time>2001-10-26T21:32:52.12679</time>", GpxVersion::Gpx11);
-        // assert!(result.is_ok());
+        let result = consume!("<time>2001-10-26T21:32:52.12679</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
+
+        // https://github.com/georust/gpx/issues/77
+        let result = consume!("<time>2021-10-10T09:55:20.952</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
+
+        let result = consume!("<time>2001-10-26T21:32</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
 
         // These are invalid, again, from xsd:dateTime examples.
         let result = consume!("<time>2001-10-26</time>", GpxVersion::Gpx11);
-        assert!(result.is_err());
-
-        let result = consume!("<time>2001-10-26T21:32</time>", GpxVersion::Gpx11);
         assert!(result.is_err());
 
         let result = consume!("<time>2001-10-26T25:32:52+02:00</time>", GpxVersion::Gpx11);
