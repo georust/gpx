@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.9.0
+
+- [#78](https://github.com/georust/gpx/pull/78): Replace RFC3339 by ISO8601 for de-/encoding time stamps
+
 ## 0.8.6
 
 - [#65](https://github.com/georust/gpx/pull/65): Replace `chrono` to `time` crate
