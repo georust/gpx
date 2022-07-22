@@ -47,8 +47,8 @@ pub enum GpxError {
     MetadataParsingError(),
     #[error("invalid `{0}`: must be between `{1}`. Actual value: `{2}`")]
     LonLatOutOfBoundsError(&'static str, &'static str, f64),
-    #[error("error trying to parse RFC3339 formatted date")]
-    Rfc3339Error(#[from] time::error::Parse),
-    #[error("error trying to write RFC3339 formatted date")]
-    Rfc3339ErrorWriting(#[from] time::error::Format),
+    #[error("error trying to parse ISO8601 formatted date")]
+    Iso8601Error(#[from] time::error::Parse),
+    #[error("error trying to write ISO8601 formatted date")]
+    Iso8601ErrorWriting(#[from] time::error::Format),
 }
