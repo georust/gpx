@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use time::{format_description::well_known::Iso8601, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 use crate::errors::GpxResult;
-use crate::parser::{Context, string};
+use crate::parser::{string, Context};
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialOrd, PartialEq, Hash)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
@@ -57,11 +57,8 @@ mod tests {
         assert!(result.is_ok());
 
         // The following examples are taken from the xsd:dateTime examples.
-
-        // TODO, we currently don't allow dates which don't specify timezones,
-        // while the spec considers these to be "undetermined".
-        // let result = consume!("<time>2001-10-26T21:32:52</time>");
-        // assert!(result.is_ok());
+        let result = consume!("<time>2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
 
         let result = consume!("<time>2001-10-26T21:32:52+02:00</time>", GpxVersion::Gpx11);
         assert!(result.is_ok());
@@ -72,14 +69,7 @@ mod tests {
         let result = consume!("<time>2001-10-26T19:32:52+00:00</time>", GpxVersion::Gpx11);
         assert!(result.is_ok());
 
-        // let result = consume!("<time>-2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
-        // assert!(result.is_ok());
-
         let result = consume!("<time>2001-10-26T21:32:52.12679</time>", GpxVersion::Gpx11);
-        assert!(result.is_ok());
-
-        // https://github.com/georust/gpx/issues/77
-        let result = consume!("<time>2021-10-10T09:55:20.952</time>", GpxVersion::Gpx11);
         assert!(result.is_ok());
 
         let result = consume!("<time>2001-10-26T21:32</time>", GpxVersion::Gpx11);
@@ -94,5 +84,14 @@ mod tests {
 
         let result = consume!("<time>01-10-26T21:32</time>", GpxVersion::Gpx11);
         assert!(result.is_err());
+
+        // TODO we currently don't allow for negative years although the standard demands it
+        //  see https://www.w3.org/TR/xmlschema-2/#dateTime
+        let result = consume!("<time>-2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
+        assert!(result.is_err());
+
+        // https://github.com/georust/gpx/issues/77
+        let result = consume!("<time>2021-10-10T09:55:20.952</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
     }
 }
