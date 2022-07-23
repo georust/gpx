@@ -29,6 +29,12 @@ fn gpx_writer_write_test_with_accuracy() {
     check_write_for_example_file("tests/fixtures/with_accuracy.gpx");
 }
 
+#[test]
+/// [github.com/georust/gpx/issues/77](https://github.com/georust/gpx/issues/77)
+fn gpx_writer_write_test_outdooractive_export() {
+    check_write_for_example_file("tests/fixtures/outdooractive-export.gpx");
+}
+
 fn check_write_for_example_file(filename: &str) {
     let reference_gpx = read_test_gpx_file(filename);
     let written_gpx = write_and_reread_gpx(&reference_gpx);

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx version="1.1" creator="outdooractive - http://www.outdooractive.com" xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+     xmlns:oa="http://www.outdooractive.com/GPX/Extensions/1">
+    <metadata>
+        <name>Kilimanjaro - Machame Route</name>
+        <author>
+            <name>0b11001111</name>
+        </author>
+        <link href="https://www.outdooractive.com/r/..."/>
+        <time>2021-10-10T09:55:20.952</time>
+        <extensions>
+            <oa:oaCategory>alpineTour</oa:oaCategory>
+        </extensions>
+    </metadata>
+    <trk>
+        <name>Kilimanjaro - Machame Route</name>
+        <type>alpineTour</type>
+        <trkseg>
+            <trkpt lat="-3.173433" lon="37.238621">
+                <ele>1819.3</ele>
+                <name>Machame Gate</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.095258" lon="37.266295">
+                <ele>3016.9</ele>
+                <name>Machame Camp</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.066786" lon="37.276359">
+                <ele>3834.5</ele>
+                <name>Shira Cave Camp</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.095162" lon="37.329607">
+                <ele>3971.5</ele>
+                <name>Barranco Camp</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.113121" lon="37.354627">
+                <ele>4014.4</ele>
+                <name>Kranga Camp</name>
+                <desc>Skip this camp for 6-day version of trek. Water access is a ~40min walk from camp.</desc>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.099938" lon="37.378181">
+                <ele>4646.4</ele>
+                <name>Barafu Camp</name>
+                <desc>&quot;long&quot; walk to next stream</desc>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.076408" lon="37.353999">
+                <ele>5868.4</ele>
+                <name>Uhuru Peak</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.15682" lon="37.366824">
+                <ele>3065.6</ele>
+                <name>Mweka Camp</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+            <trkpt lat="-3.2195" lon="37.341486">
+                <ele>1637.9</ele>
+                <name>Mweka Gate</name>
+                <sym>waypointFlagComb</sym>
+                <extensions>
+                    <oa:mapZoom>12</oa:mapZoom>
+                </extensions>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>
