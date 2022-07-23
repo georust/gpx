@@ -15,6 +15,7 @@ use crate::parser::{string, Context};
 pub struct Time(OffsetDateTime);
 
 impl Time {
+    /// Render time in ISO 8601 format
     pub fn format(&self) -> GpxResult<String> {
         self.0.format(&Iso8601::DEFAULT).map_err(From::from)
     }
@@ -36,12 +37,12 @@ impl From<Time> for OffsetDateTime {
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
     let time_str = string::consume(context, "time", false)?;
 
-    // Parse time string assuming an offset first and no offset as fallback
+    // Try parsing as ISO 8601 with offset
     let time = OffsetDateTime::parse(&time_str, &Iso8601::PARSING).or_else(|_| {
+        // Try parsing as ISO 8601 without offset, assuming UTC
         PrimitiveDateTime::parse(&time_str, &Iso8601::PARSING).map(PrimitiveDateTime::assume_utc)
     })?;
 
-    // let time = OffsetDateTime::parse(&time, &Rfc3339)?;
     Ok(time.to_offset(UtcOffset::UTC).into())
 }
 
