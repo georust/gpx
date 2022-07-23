@@ -2,7 +2,9 @@
 
 ## 0.9.0
 
-- [#78](https://github.com/georust/gpx/pull/78): Replace RFC3339 by ISO8601 for de-/encoding time stamps
+- [#78](https://github.com/georust/gpx/pull/78): Replace RFC 3339 by ISO 8601 for de-/encoding time stamps,
+                                                 fix error handling bug on track parsing,
+                                                 apply Clippy suggestion
 
 ## 0.8.6
 
