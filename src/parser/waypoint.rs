@@ -220,8 +220,8 @@ mod tests {
         let waypoint = waypoint.unwrap();
 
         assert_eq!(waypoint.point(), Point::new(1.234, 2.345));
-        assert_eq!(waypoint.point().lng(), 1.234);
-        assert_eq!(waypoint.point().lat(), 2.345);
+        assert_eq!(waypoint.point().x(), 1.234);
+        assert_eq!(waypoint.point().y(), 2.345);
     }
 
     #[test]
