@@ -1,10 +1,11 @@
 //! time handles parsing of xsd:dateTime.
 
+use std::io::Read;
+
 /// format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
-use std::io::Read;
-use time::{format_description::well_known::Rfc3339, OffsetDateTime, UtcOffset};
+use time::{format_description::well_known::Iso8601, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 use crate::errors::GpxResult;
 use crate::parser::{string, Context};
@@ -14,8 +15,9 @@ use crate::parser::{string, Context};
 pub struct Time(OffsetDateTime);
 
 impl Time {
+    /// Render time in ISO 8601 format
     pub fn format(&self) -> GpxResult<String> {
-        self.0.format(&Rfc3339).map_err(From::from)
+        self.0.format(&Iso8601::DEFAULT).map_err(From::from)
     }
 }
 
@@ -33,16 +35,22 @@ impl From<Time> for OffsetDateTime {
 
 /// consume consumes an element as a time.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Time> {
-    let time = string::consume(context, "time", false)?;
+    let time_str = string::consume(context, "time", false)?;
 
-    let time = OffsetDateTime::parse(&time, &Rfc3339)?;
+    // Try parsing as ISO 8601 with offset
+    let time = OffsetDateTime::parse(&time_str, &Iso8601::PARSING).or_else(|_| {
+        // Try parsing as ISO 8601 without offset, assuming UTC
+        PrimitiveDateTime::parse(&time_str, &Iso8601::PARSING).map(PrimitiveDateTime::assume_utc)
+    })?;
+
     Ok(time.to_offset(UtcOffset::UTC).into())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_time() {
@@ -50,11 +58,8 @@ mod tests {
         assert!(result.is_ok());
 
         // The following examples are taken from the xsd:dateTime examples.
-
-        // TODO, we currently don't allow dates which don't specify timezones,
-        // while the spec considers these to be "undetermined".
-        // let result = consume!("<time>2001-10-26T21:32:52</time>");
-        // assert!(result.is_ok());
+        let result = consume!("<time>2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
 
         let result = consume!("<time>2001-10-26T21:32:52+02:00</time>", GpxVersion::Gpx11);
         assert!(result.is_ok());
@@ -65,17 +70,14 @@ mod tests {
         let result = consume!("<time>2001-10-26T19:32:52+00:00</time>", GpxVersion::Gpx11);
         assert!(result.is_ok());
 
-        // let result = consume!("<time>-2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
-        // assert!(result.is_ok());
+        let result = consume!("<time>2001-10-26T21:32:52.12679</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
 
-        // let result = consume!("<time>2001-10-26T21:32:52.12679</time>", GpxVersion::Gpx11);
-        // assert!(result.is_ok());
+        let result = consume!("<time>2001-10-26T21:32</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
 
         // These are invalid, again, from xsd:dateTime examples.
         let result = consume!("<time>2001-10-26</time>", GpxVersion::Gpx11);
-        assert!(result.is_err());
-
-        let result = consume!("<time>2001-10-26T21:32</time>", GpxVersion::Gpx11);
         assert!(result.is_err());
 
         let result = consume!("<time>2001-10-26T25:32:52+02:00</time>", GpxVersion::Gpx11);
@@ -83,5 +85,14 @@ mod tests {
 
         let result = consume!("<time>01-10-26T21:32</time>", GpxVersion::Gpx11);
         assert!(result.is_err());
+
+        // TODO we currently don't allow for negative years although the standard demands it
+        //  see https://www.w3.org/TR/xmlschema-2/#dateTime
+        let result = consume!("<time>-2001-10-26T21:32:52</time>", GpxVersion::Gpx11);
+        assert!(result.is_err());
+
+        // https://github.com/georust/gpx/issues/77
+        let result = consume!("<time>2021-10-10T09:55:20.952</time>", GpxVersion::Gpx11);
+        assert!(result.is_ok());
     }
 }

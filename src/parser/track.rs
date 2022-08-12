@@ -60,7 +60,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
             },
             XmlEvent::EndElement { ref name } => {
                 if name.local_name != "trk" {
-                    GpxError::InvalidClosingTag(name.local_name.clone(), "track");
+                    return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "track"));
                 }
                 context.reader.next(); //consume the end tag
                 return Ok(track);

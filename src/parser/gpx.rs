@@ -110,24 +110,31 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
                     return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "gpx"));
                 }
                 if gpx.version == GpxVersion::Gpx10 {
-                    let mut metadata: Metadata = Default::default();
-                    metadata.name = gpx_name;
-                    metadata.time = time;
-                    metadata.bounds = bounds;
-                    let mut person: Person = Default::default();
-                    person.name = author;
-                    if let Some(url) = url {
-                        let mut link: Link = Default::default();
-                        link.href = url;
-                        link.text = urlname;
-                        person.link = Some(link);
-                    }
-                    person.email = email;
-                    if person != Default::default() {
-                        metadata.author = Some(person);
-                    }
-                    metadata.keywords = keywords;
-                    metadata.description = description;
+                    let link = url.map(|url| Link {
+                        href: url,
+                        text: urlname,
+                        ..Default::default()
+                    });
+                    let person: Person = Person {
+                        name: author,
+                        email,
+                        link,
+                    };
+                    let author = if person != Default::default() {
+                        Some(person)
+                    } else {
+                        None
+                    };
+                    let metadata: Metadata = Metadata {
+                        name: gpx_name,
+                        time,
+                        bounds,
+                        keywords,
+                        description,
+                        author,
+                        ..Default::default()
+                    };
+
                     if metadata != Default::default() {
                         gpx.metadata = Some(metadata);
                     }

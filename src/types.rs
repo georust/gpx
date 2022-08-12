@@ -379,7 +379,7 @@ impl Waypoint {
     ///     let wpt = Waypoint::new(Point::new(-121.97, 37.24));
     ///     let point = wpt.point();
     ///
-    ///     println!("waypoint latitude: {}, longitude: {}", point.lat(), point.lng());
+    ///     println!("waypoint latitude: {}, longitude: {}", point.x(), point.y());
     /// }
     /// ```
     pub fn point(&self) -> Point<f64> {
