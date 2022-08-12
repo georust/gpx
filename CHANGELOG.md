@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## UNRELEASED
+
+- [#80](https://github.com/georust/gpx/pull/72): Update MSRV to 1.57.0
+
 ## 0.8.6
 
 - [#65](https://github.com/georust/gpx/pull/65): Replace `chrono` to `time` crate
