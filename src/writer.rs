@@ -28,6 +28,11 @@ use crate::{Gpx, GpxVersion};
 /// // You can give it anything that implements `std::io::Write`.
 /// write(&data, std::io::stdout()).unwrap();
 /// ```
+///
+/// # Errors
+///
+/// Propagates errors from the inner event writer.
+///
 pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
@@ -54,6 +59,11 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
 ///
 /// write_with_event_writer(&data, &mut writer).unwrap();
 /// ```
+///
+/// # Errors
+///
+/// Propagates errors from the given event writer.
+///
 #[allow(clippy::module_name_repetitions)]
 pub fn write_with_event_writer<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     let creator: &str = gpx

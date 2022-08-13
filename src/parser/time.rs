@@ -16,6 +16,12 @@ pub struct Time(OffsetDateTime);
 
 impl Time {
     /// Render time in ISO 8601 format
+    ///
+    /// # Errors
+    ///
+    /// Propagates errors from [`time::OffsetDateTime::format`] using the
+    /// [`time::format_description::well_known::Iso8601::DEFAULT`] format.
+    ///
     pub fn format(&self) -> GpxResult<String> {
         self.0.format(&Iso8601::DEFAULT).map_err(GpxError::from)
     }

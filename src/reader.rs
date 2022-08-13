@@ -32,6 +32,11 @@ use crate::{Gpx, GpxVersion};
 ///     }
 /// }
 /// ```
+///
+/// # Errors
+///
+/// Propagates errors from [consume](crate::parser::gpx::consume).
+///
 pub fn read<R: Read>(reader: R) -> GpxResult<Gpx> {
     gpx::consume(&mut create_context(reader, GpxVersion::Unknown))
 }

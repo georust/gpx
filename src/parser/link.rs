@@ -6,8 +6,8 @@ use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
+use crate::parser::{string, verify_starting_tag, Context};
 use crate::Link;
-use crate::parser::{Context, string, verify_starting_tag};
 
 /// Try to create a [`Link`] from an attribute list
 fn try_from_attributes(attributes: &[OwnedAttribute]) -> GpxResult<Link> {
