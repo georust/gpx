@@ -3,16 +3,15 @@
 use std::io::Read;
 
 use geo_types::Point;
+use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
 use crate::parser::{extensions, fix, link, string, time, verify_starting_tag, Context};
 use crate::{GpxVersion, Waypoint};
 
-/// consume consumes a GPX waypoint from the `reader` until it ends.
-pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxResult<Waypoint> {
-    let attributes = verify_starting_tag(context, tagname)?;
-
+/// Try to create a [`Waypoint`] from an attribute list
+fn try_from_attributes(attributes: &[OwnedAttribute]) -> GpxResult<Waypoint> {
     // get required latitude and longitude
     let latitude = attributes
         .iter()
@@ -44,23 +43,24 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
     if !(-180.0..180.0).contains(&longitude) {
         return Err(GpxError::LonLatOutOfBoundsError(
             "Longitude",
-            "[-180.0, 180.0",
+            "[-180.0, 180.0)",
             longitude,
         ));
     };
 
-    let mut waypoint: Waypoint = Waypoint::new(Point::new(longitude, latitude));
+    Ok(Waypoint::new(Point::new(longitude, latitude)))
+}
+
+/// consume consumes a GPX waypoint from the `reader` until it ends.
+pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxResult<Waypoint> {
+    let attributes = verify_starting_tag(context, tagname)?;
+    let mut waypoint = try_from_attributes(&attributes)?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("waypoint event")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -144,8 +144,9 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
 mod tests {
     use geo_types::Point;
 
-    use super::consume;
     use crate::{Fix, GpxVersion};
+
+    use super::consume;
 
     #[test]
     fn consume_waypoint() {

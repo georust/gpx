@@ -1,7 +1,9 @@
 //! gpx handles parsing of GPX elements.
 
-use geo_types::Rect;
 use std::io::Read;
+
+use geo_types::Rect;
+use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
@@ -20,10 +22,32 @@ fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
     }
 }
 
-/// consume consumes an entire GPX element.
-pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
-    let mut gpx = Gpx::default();
+/// Try to create a [`Gpx`] from an attribute list
+fn try_from_attributes(attributes: &[OwnedAttribute]) -> GpxResult<Gpx> {
+    let version = attributes
+        .iter()
+        .find(|attr| attr.name.local_name == "version")
+        .ok_or(GpxError::InvalidElementLacksAttribute("version", "gpx"))
+        .map(|v| version_string_to_version(&v.value))??;
+    let creator = attributes
+        .iter()
+        .find(|attr| attr.name.local_name == "creator")
+        .map(|c| c.value.clone());
 
+    Ok(Gpx {
+        version,
+        creator,
+        ..Default::default()
+    })
+}
+
+/// consume consumes an entire GPX element.
+#[allow(clippy::too_many_lines)]
+pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
+    // First we consume the gpx tag and its attributes
+    let attributes = verify_starting_tag(context, "gpx")?;
+
+    let mut gpx = try_from_attributes(&attributes)?;
     let mut author: Option<String> = None;
     let mut url: Option<String> = None;
     let mut urlname: Option<String> = None;
@@ -34,30 +58,13 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
     let mut description: Option<String> = None;
     let mut keywords: Option<String> = None;
 
-    // First we consume the gpx tag and its attributes
-    let attributes = verify_starting_tag(context, "gpx")?;
-    let version = attributes
-        .iter()
-        .find(|attr| attr.name.local_name == "version")
-        .ok_or(GpxError::InvalidElementLacksAttribute("version", "gpx"))?;
-    gpx.version = version_string_to_version(&version.value)?;
     context.version = gpx.version;
 
-    let creator = attributes
-        .iter()
-        .find(|attr| attr.name.local_name == "creator");
-    gpx.creator = creator.map(|c| c.value.clone());
-
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("Expecting an event")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -156,8 +163,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
 mod tests {
     use geo_types::Point;
 
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_gpx() {
