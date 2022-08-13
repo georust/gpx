@@ -225,7 +225,7 @@ fn write_link<W: Write>(link: &Link, writer: &mut EventWriter<W>) -> GpxResult<(
         writer,
     )?;
     write_string_if_exists("text", &link.text, writer)?;
-    write_string_if_exists("type", &link._type, writer)?;
+    write_string_if_exists("type", &link.type_, writer)?;
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
 }
@@ -311,7 +311,7 @@ fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> GpxResul
     for link in &track.links {
         write_link(link, writer)?;
     }
-    write_string_if_exists("type", &track._type, writer)?;
+    write_string_if_exists("type", &track.type_, writer)?;
     for segment in &track.segments {
         write_track_segment(segment, writer)?;
     }
@@ -329,7 +329,7 @@ fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> GpxResul
         write_link(link, writer)?;
     }
     write_value_if_exists("number", &route.number, writer)?;
-    write_string_if_exists("type", &route._type, writer)?;
+    write_string_if_exists("type", &route.type_, writer)?;
     for point in &route.points {
         write_waypoint("rtept", point, writer)?;
     }
@@ -372,7 +372,7 @@ fn write_waypoint<W: Write>(
         write_link(link, writer)?;
     }
     write_string_if_exists("sym", &waypoint.symbol, writer)?;
-    write_string_if_exists("type", &waypoint._type, writer)?;
+    write_string_if_exists("type", &waypoint.type_, writer)?;
     write_fix_if_exists(&waypoint.fix, writer)?;
     write_value_if_exists("sat", &waypoint.sat, writer)?;
     write_value_if_exists("hdop", &waypoint.hdop, writer)?;

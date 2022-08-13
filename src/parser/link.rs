@@ -39,7 +39,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Link> {
         match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "text" => link.text = Some(string::consume(context, "text", false)?),
-                "type" => link._type = Some(string::consume(context, "type", false)?),
+                "type" => link.type_ = Some(string::consume(context, "type", false)?),
                 child => {
                     return Err(GpxError::InvalidChildElement(String::from(child), "link"));
                 }
@@ -82,8 +82,8 @@ mod tests {
         assert!(link.text.is_some());
         assert_eq!(link.text.unwrap(), "hello");
 
-        assert!(link._type.is_some());
-        assert_eq!(link._type.unwrap(), "world");
+        assert!(link.type_.is_some());
+        assert_eq!(link.type_.unwrap(), "world");
     }
 
     #[test]
@@ -100,7 +100,7 @@ mod tests {
         assert_eq!(link.href, "http://topografix.com");
 
         assert!(link.text.is_none());
-        assert!(link._type.is_none());
+        assert!(link.type_.is_none());
     }
 
     #[test]

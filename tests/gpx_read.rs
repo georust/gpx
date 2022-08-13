@@ -173,7 +173,7 @@ fn gpx_reader_read_test_garmin_activity() {
     let track = &res.tracks[0];
 
     assert_eq!(track.name, Some(String::from("casual stroll")));
-    assert_eq!(track._type, Some(String::from("running")));
+    assert_eq!(track.type_, Some(String::from("running")));
 
     // Check some Geo operations on the track.
     let mls = track.multilinestring();
@@ -227,7 +227,7 @@ fn gpx_reader_read_test_garmin_activity() {
         assert!(point.description.is_none());
         assert!(point.source.is_none());
         assert!(point.symbol.is_none());
-        assert!(point._type.is_none());
+        assert!(point.type_.is_none());
         assert_eq!(point.links.len(), 0);
     }
 }
@@ -280,7 +280,7 @@ fn gpx_reader_read_test_lovers_lane() {
         assert!(point.description.is_none());
         assert!(point.source.is_none());
         assert!(point.symbol.is_none());
-        assert!(point._type.is_none());
+        assert!(point.type_.is_none());
         assert_eq!(point.links.len(), 0);
     }
 }

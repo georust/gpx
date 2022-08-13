@@ -6,6 +6,9 @@
                                                  fix error handling bug on track parsing,
                                                  apply Clippy suggestion
 - [#80](https://github.com/georust/gpx/pull/72): Update MSRV to 1.57.0
+- [#81](https://github.com/georust/gpx/pull/81): Rename the field `_type` to `type_` for `Route`, `Track`, `Waypoint`
+                                                 and `Link` in order to align with [Rust's naming conventions](https://rust-lang.github.io/api-guidelines/naming.html),
+                                                 see also [`clippy::used_underscore_binding`](https://rust-lang.github.io/rust-clippy/master/index.html#used_underscore_binding)
 
 ## 0.8.6
 

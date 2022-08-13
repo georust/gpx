@@ -35,7 +35,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
                     track.source = Some(string::consume(context, "src", true)?);
                 }
                 "type" => {
-                    track._type = Some(string::consume(context, "type", false)?);
+                    track.type_ = Some(string::consume(context, "type", false)?);
                 }
                 "trkseg" => {
                     track.segments.push(tracksegment::consume(context)?);
@@ -100,7 +100,7 @@ mod tests {
         assert_eq!(track.comment.unwrap(), "track comment");
         assert_eq!(track.description.unwrap(), "track description");
         assert_eq!(track.source.unwrap(), "track source");
-        assert_eq!(track._type.unwrap(), "track type");
+        assert_eq!(track.type_.unwrap(), "track type");
     }
 
     #[test]
