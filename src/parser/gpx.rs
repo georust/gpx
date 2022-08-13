@@ -22,7 +22,7 @@ fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
 
 /// consume consumes an entire GPX element.
 pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
-    let mut gpx: Gpx = Default::default();
+    let mut gpx = Gpx::default();
 
     let mut author: Option<String> = None;
     let mut url: Option<String> = None;
@@ -46,7 +46,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
     let creator = attributes
         .iter()
         .find(|attr| attr.name.local_name == "creator");
-    gpx.creator = creator.map(|c| c.value.to_owned());
+    gpx.creator = creator.map(|c| c.value.clone());
 
     loop {
         let next_event = {
@@ -120,10 +120,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
                         email,
                         link,
                     };
-                    let author = if person != Default::default() {
-                        Some(person)
-                    } else {
+                    let author = if person == Person::default() {
                         None
+                    } else {
+                        Some(person)
                     };
                     let metadata: Metadata = Metadata {
                         name: gpx_name,
@@ -135,7 +135,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
                         ..Default::default()
                     };
 
-                    if metadata != Default::default() {
+                    if metadata != Metadata::default() {
                         gpx.metadata = Some(metadata);
                     }
                 }

@@ -84,11 +84,10 @@ pub fn verify_starting_tag<R: Read>(
             Some(Ok(XmlEvent::StartElement {
                 name, attributes, ..
             })) => {
-                if name.local_name != local_name {
-                    return Err(GpxError::InvalidChildElement(name.local_name, local_name));
-                } else {
+                if name.local_name == local_name {
                     return Ok(attributes);
                 }
+                return Err(GpxError::InvalidChildElement(name.local_name, local_name));
             }
             Some(Ok(XmlEvent::EndElement { name, .. })) => {
                 return Err(GpxError::InvalidChildElement(name.local_name, local_name));

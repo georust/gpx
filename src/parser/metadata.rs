@@ -11,7 +11,7 @@ use crate::parser::{
 use crate::Metadata;
 
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
-    let mut metadata: Metadata = Default::default();
+    let mut metadata = Metadata::default();
     verify_starting_tag(context, "metadata")?;
 
     loop {

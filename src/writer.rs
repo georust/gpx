@@ -7,7 +7,7 @@ use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 use crate::errors::{GpxError, GpxResult};
 use crate::parser::time::Time;
-use crate::types::*;
+use crate::types::{Fix, Link, Person, Route, Track, TrackSegment, Waypoint};
 use crate::{Gpx, GpxVersion};
 
 /// Writes an activity to GPX format.
@@ -37,10 +37,8 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
 
 /// Writes an activity to GPX format.
 ///
-/// Takes [EventWriter](xml::writer::EventWriter) as its writer, and returns a
-/// [`Result<(), GpxError>`].
-///
-/// [`Result<(), GpxError>`]: std::result::Result<T>
+/// Takes [`EventWriter`]
+/// [`Result<(), GpxError>`](`std::result::Result`)
 ///
 /// ```
 /// use gpx::write_with_event_writer;
@@ -56,6 +54,7 @@ pub fn write<W: Write>(gpx: &Gpx, writer: W) -> GpxResult<()> {
 ///
 /// write_with_event_writer(&data, &mut writer).unwrap();
 /// ```
+#[allow(clippy::module_name_repetitions)]
 pub fn write_with_event_writer<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult<()> {
     let creator: &str = gpx
         .creator
@@ -94,15 +93,15 @@ fn version_to_version_string(version: GpxVersion) -> GpxResult<&'static str> {
     match version {
         GpxVersion::Gpx10 => Ok("1.0"),
         GpxVersion::Gpx11 => Ok("1.1"),
-        version => Err(GpxError::UnknownVersionError(version)),
+        version @ GpxVersion::Unknown => Err(GpxError::UnknownVersionError(version)),
     }
 }
 
 fn version_to_xml_url(version: GpxVersion) -> GpxResult<&'static str> {
     match version {
-        GpxVersion::Gpx10 => Ok("http://www.topografix.com/GPX/1/0"),
-        GpxVersion::Gpx11 => Ok("http://www.topografix.com/GPX/1/1"),
-        version => Err(GpxError::UnknownVersionError(version)),
+        GpxVersion::Gpx10 => Ok("https://www.topografix.com/GPX/1/0"),
+        GpxVersion::Gpx11 => Ok("https://www.topografix.com/GPX/1/1"),
+        version @ GpxVersion::Unknown => Err(GpxError::UnknownVersionError(version)),
     }
 }
 
@@ -110,7 +109,7 @@ fn write_metadata<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>) -> GpxResult
     match gpx.version {
         GpxVersion::Gpx10 => write_gpx10_metadata(gpx, writer),
         GpxVersion::Gpx11 => write_gpx11_metadata(gpx, writer),
-        version => Err(GpxError::UnknownVersionError(version)),
+        version @ GpxVersion::Unknown => Err(GpxError::UnknownVersionError(version)),
     }
 }
 

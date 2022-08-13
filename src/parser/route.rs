@@ -10,7 +10,7 @@ use crate::Route;
 
 /// consume consumes a GPX route from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
-    let mut route: Route = Default::default();
+    let mut route = Route::default();
     verify_starting_tag(context, "rte")?;
 
     loop {
@@ -40,7 +40,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
                     route.source = Some(string::consume(context, "src", true)?);
                 }
                 "number" => {
-                    route.number = Some(string::consume(context, "number", false)?.parse()?)
+                    route.number = Some(string::consume(context, "number", false)?.parse()?);
                 }
                 "type" => {
                     route._type = Some(string::consume(context, "type", false)?);

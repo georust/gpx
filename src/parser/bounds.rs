@@ -59,10 +59,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Rect<f64>> {
                 return Err(GpxError::InvalidChildElement(name.local_name, "bounds"));
             }
             XmlEvent::EndElement { name } => {
-                if name.local_name != "bounds" {
-                    return Err(GpxError::InvalidClosingTag(name.local_name, "bounds"));
+                return if name.local_name == "bounds" {
+                    Ok(bounds)
                 } else {
-                    return Ok(bounds);
+                    Err(GpxError::InvalidClosingTag(name.local_name, "bounds"))
                 }
             }
             _ => {}

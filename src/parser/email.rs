@@ -33,8 +33,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
                     "email",
                 ));
             }
-            XmlEvent::Characters(content) => {
-                return Err(GpxError::InvalidChildElement(content, "email"));
+            XmlEvent::Characters(characters) => {
+                return Err(GpxError::InvalidChildElement(characters, "email"));
             }
             XmlEvent::EndElement { ref name } => {
                 if name.local_name != "email" {

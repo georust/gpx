@@ -11,7 +11,7 @@ use crate::GpxCopyright;
 /// consume consumes a GPX copyright from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX copyright tag.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<GpxCopyright> {
-    let mut copyright: GpxCopyright = Default::default();
+    let mut copyright = GpxCopyright::default();
     let attributes = verify_starting_tag(context, "copyright")?;
     let attr = attributes
         .into_iter()

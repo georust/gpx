@@ -9,7 +9,7 @@ use crate::parser::{email, link, string, verify_starting_tag, Context};
 use crate::Person;
 
 pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxResult<Person> {
-    let mut person: Person = Default::default();
+    let mut person = Person::default();
     verify_starting_tag(context, tagname)?;
 
     loop {

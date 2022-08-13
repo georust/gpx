@@ -7,7 +7,7 @@ use std::io::Read;
 use serde::{Deserialize, Serialize};
 use time::{format_description::well_known::Iso8601, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
-use crate::errors::GpxResult;
+use crate::errors::{GpxError, GpxResult};
 use crate::parser::{string, Context};
 
 #[derive(Debug, Clone, Copy, Eq, Ord, PartialOrd, PartialEq, Hash)]
@@ -17,7 +17,7 @@ pub struct Time(OffsetDateTime);
 impl Time {
     /// Render time in ISO 8601 format
     pub fn format(&self) -> GpxResult<String> {
-        self.0.format(&Iso8601::DEFAULT).map_err(From::from)
+        self.0.format(&Iso8601::DEFAULT).map_err(GpxError::from)
     }
 }
 

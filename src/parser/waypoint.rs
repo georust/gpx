@@ -91,24 +91,24 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
                     "fix" => waypoint.fix = Some(fix::consume(context)?),
                     "geoidheight" => {
                         waypoint.geoidheight =
-                            Some(string::consume(context, "geoidheight", false)?.parse()?)
+                            Some(string::consume(context, "geoidheight", false)?.parse()?);
                     }
                     "sat" => waypoint.sat = Some(string::consume(context, "sat", false)?.parse()?),
                     "hdop" => {
-                        waypoint.hdop = Some(string::consume(context, "hdop", false)?.parse()?)
+                        waypoint.hdop = Some(string::consume(context, "hdop", false)?.parse()?);
                     }
                     "vdop" => {
-                        waypoint.vdop = Some(string::consume(context, "vdop", false)?.parse()?)
+                        waypoint.vdop = Some(string::consume(context, "vdop", false)?.parse()?);
                     }
                     "pdop" => {
-                        waypoint.pdop = Some(string::consume(context, "pdop", false)?.parse()?)
+                        waypoint.pdop = Some(string::consume(context, "pdop", false)?.parse()?);
                     }
                     "ageofdgpsdata" => {
                         waypoint.dgps_age =
-                            Some(string::consume(context, "ageofdgpsdata", false)?.parse()?)
+                            Some(string::consume(context, "ageofdgpsdata", false)?.parse()?);
                     }
                     "dgpsid" => {
-                        waypoint.dgpsid = Some(string::consume(context, "dgpsid", false)?.parse()?)
+                        waypoint.dgpsid = Some(string::consume(context, "dgpsid", false)?.parse()?);
                     }
 
                     // Finally the GPX 1.1 extensions

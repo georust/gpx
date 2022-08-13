@@ -24,7 +24,7 @@ pub fn consume<R: Read>(
                     tagname,
                 ));
             }
-            XmlEvent::Characters(content) => string = content,
+            XmlEvent::Characters(characters) => string = characters,
             XmlEvent::EndElement { ref name } => {
                 if name.local_name != tagname {
                     return Err(GpxError::InvalidClosingTag(

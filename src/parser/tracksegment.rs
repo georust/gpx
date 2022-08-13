@@ -10,7 +10,7 @@ use crate::TrackSegment;
 
 /// consume consumes a GPX track segment from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<TrackSegment> {
-    let mut segment: TrackSegment = Default::default();
+    let mut segment = TrackSegment::default();
     verify_starting_tag(context, "trkseg")?;
 
     loop {

@@ -10,7 +10,7 @@ use crate::Track;
 
 /// consume consumes a GPX track from the `reader` until it ends.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
-    let mut track: Track = Default::default();
+    let mut track = Track::default();
     verify_starting_tag(context, "trk")?;
 
     loop {
@@ -49,7 +49,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
                     track.links.push(link::consume(context)?);
                 }
                 "number" => {
-                    track.number = Some(string::consume(context, "number", false)?.parse()?)
+                    track.number = Some(string::consume(context, "number", false)?.parse()?);
                 }
                 "extensions" => {
                     extensions::consume(context)?;
@@ -60,7 +60,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
             },
             XmlEvent::EndElement { ref name } => {
                 if name.local_name != "trk" {
-                    return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "track"));
+                    return Err(GpxError::InvalidClosingTag(
+                        name.local_name.clone(),
+                        "track",
+                    ));
                 }
                 context.reader.next(); //consume the end tag
                 return Ok(track);

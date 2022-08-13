@@ -1,12 +1,13 @@
 //! generic types for GPX
 
-pub use crate::parser::time::Time;
 use geo_types::{Geometry, LineString, MultiLineString, Point, Rect};
 #[cfg(feature = "use-serde")]
 use serde::{Deserialize, Serialize};
 
+pub use crate::parser::time::Time;
+
 /// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub enum GpxVersion {
     Unknown,
@@ -53,7 +54,7 @@ pub struct Gpx {
 ///
 /// By linking to an appropriate license, you may place your data into the
 /// public domain or grant additional usage rights.
-#[derive(Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Default, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct GpxCopyright {
     pub author: Option<String>,
@@ -129,8 +130,9 @@ pub struct Route {
 impl Route {
     /// Gives the linestring of the segment's points, the sequence of points that
     /// comprises the track segment.
+    #[must_use]
     pub fn linestring(&self) -> LineString<f64> {
-        self.points.iter().map(|wpt| wpt.point()).collect()
+        self.points.iter().map(Waypoint::point).collect()
     }
 
     /// Creates a new Route with default values.
@@ -149,8 +151,9 @@ impl Route {
     ///     route.points.push(point);
     /// }
     ///
+    #[must_use]
     pub fn new() -> Route {
-        Default::default()
+        Route::default()
     }
 }
 
@@ -198,8 +201,9 @@ pub struct Track {
 impl Track {
     /// Gives the multi-linestring that this track represents, which is multiple
     /// linestrings.
+    #[must_use]
     pub fn multilinestring(&self) -> MultiLineString<f64> {
-        self.segments.iter().map(|seg| seg.linestring()).collect()
+        self.segments.iter().map(TrackSegment::linestring).collect()
     }
 
     /// Creates a new Track with default values.
@@ -211,8 +215,9 @@ impl Track {
     ///
     /// let segment = TrackSegment::new();
     /// track.segments.push(segment);
+    #[must_use]
     pub fn new() -> Track {
-        Default::default()
+        Track::default()
     }
 }
 
@@ -222,9 +227,9 @@ impl From<Track> for Geometry<f64> {
     }
 }
 
-/// TrackSegment represents a list of track points.
+/// [`TrackSegment`] represents a list of track points.
 ///
-/// This TrackSegment holds a list of Track Points which are logically
+/// This [`TrackSegment`] holds a list of [`Waypoint`]s which are logically
 /// connected in order. To represent a single GPS track where GPS reception
 /// was lost, or the GPS receiver was turned off, start a new Track Segment
 /// for each continuous span of track data.
@@ -240,11 +245,12 @@ pub struct TrackSegment {
 impl TrackSegment {
     /// Gives the linestring of the segment's points, the sequence of points that
     /// comprises the track segment.
+    #[must_use]
     pub fn linestring(&self) -> LineString<f64> {
-        self.points.iter().map(|wpt| wpt.point()).collect()
+        self.points.iter().map(Waypoint::point).collect()
     }
 
-    /// Creates a new TrackSegment with default values.
+    /// Creates a new [`TrackSegment`] with default values.
     ///
     /// ```
     /// extern crate gpx;
@@ -259,8 +265,9 @@ impl TrackSegment {
     ///     let point = Waypoint::new(Point::new(-121.97, 37.24));
     ///     trkseg.points.push(point);
     /// }
+    #[must_use]
     pub fn new() -> TrackSegment {
-        Default::default()
+        TrackSegment::default()
     }
 }
 
@@ -279,7 +286,7 @@ struct GpxPoint(Point<f64>);
 
 impl Default for GpxPoint {
     fn default() -> GpxPoint {
-        GpxPoint(Point::new(0 as f64, 0 as f64))
+        GpxPoint(Point::new(f64::from(0), f64::from(0)))
     }
 }
 
@@ -382,6 +389,7 @@ impl Waypoint {
     ///     println!("waypoint latitude: {}, longitude: {}", point.x(), point.y());
     /// }
     /// ```
+    #[must_use]
     pub fn point(&self) -> Point<f64> {
         self.point.0 //.0 to extract the geo_types::Point from the tuple struct GpxPoint
     }
@@ -402,6 +410,7 @@ impl Waypoint {
     ///     wpt.elevation = Some(553.21);
     /// }
     /// ```
+    #[must_use]
     pub fn new(point: Point<f64>) -> Waypoint {
         Waypoint {
             point: GpxPoint(point),
@@ -417,7 +426,7 @@ impl From<Waypoint> for Geometry<f64> {
 }
 
 /// Person represents a person or organization.
-#[derive(Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Default, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Person {
     /// Name of person or organization.
@@ -434,7 +443,7 @@ pub struct Person {
 ///
 /// An external resource could be a web page, digital photo,
 /// video clip, etc., with additional information.
-#[derive(Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Default, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub struct Link {
     /// URL of hyperlink.
@@ -448,7 +457,7 @@ pub struct Link {
 }
 
 /// Type of the GPS fix.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
 pub enum Fix {
     /// The GPS had no fix. To signify "the fix info is unknown", leave out the Fix entirely.
