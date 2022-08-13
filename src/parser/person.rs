@@ -13,15 +13,10 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
     verify_starting_tag(context, tagname)?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("person")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -56,8 +51,9 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_whole_person() {

@@ -2,36 +2,38 @@
 
 use std::io::Read;
 
+use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
-use crate::parser::{string, verify_starting_tag, Context};
 use crate::Link;
+use crate::parser::{Context, string, verify_starting_tag};
+
+/// Try to create a [`Link`] from an attribute list
+fn try_from_attributes(attributes: &[OwnedAttribute]) -> GpxResult<Link> {
+    let href_attribute = attributes
+        .iter()
+        .find(|attr| attr.name.local_name == "href")
+        .ok_or(GpxError::InvalidElementLacksAttribute("href", "link"))?;
+
+    Ok(Link {
+        href: href_attribute.value.clone(),
+        ..Default::default()
+    })
+}
 
 /// consume consumes a GPX link from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX link
 /// tag.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Link> {
-    let mut link = Link::default();
     let attributes = verify_starting_tag(context, "link")?;
-    let attr = attributes
-        .into_iter()
-        .find(|attr| attr.name.local_name == "href");
-
-    let attr = attr.ok_or(GpxError::InvalidElementLacksAttribute("href", "link"))?;
-
-    link.href = attr.value;
+    let mut link = try_from_attributes(&attributes)?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("link event")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -60,8 +62,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Link> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_simple_link() {

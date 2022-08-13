@@ -14,15 +14,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<TrackSegment> {
     verify_starting_tag(context, "trkseg")?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::TrackSegmentError()),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -59,8 +54,9 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
     use geo::euclidean_length::EuclideanLength;
 
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_full_trkseg() {

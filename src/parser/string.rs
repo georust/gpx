@@ -45,8 +45,9 @@ pub fn consume<R: Read>(
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_simple_string() {

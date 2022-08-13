@@ -14,15 +14,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Track> {
     verify_starting_tag(context, "trk")?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("track event")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {

@@ -15,15 +15,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
     verify_starting_tag(context, "metadata")?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::MetadataParsingError()),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -83,10 +78,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
 
 #[cfg(test)]
 mod tests {
+    use time::{Date, Month, PrimitiveDateTime, Time};
+
+    use crate::GpxVersion;
 
     use super::consume;
-    use crate::GpxVersion;
-    use time::{Date, Month, PrimitiveDateTime, Time};
 
     #[test]
     fn consume_empty() {

@@ -2,16 +2,14 @@
 
 use std::io::Read;
 
+use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
 use crate::parser::{verify_starting_tag, Context};
 
-/// consume consumes a GPX email from the `reader` until it ends.
-/// When it returns, the reader will be at the element after the end GPX email
-/// tag.
-pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
-    let attributes = verify_starting_tag(context, "email")?;
+/// Try to create a [`String`] from an attribute list
+fn try_from_attributes(attributes: &[OwnedAttribute]) -> GpxResult<String> {
     // get required id and domain attributes
     let id = attributes
         .iter()
@@ -23,7 +21,19 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
         .find(|attr| attr.name.local_name == "domain")
         .ok_or(GpxError::InvalidElementLacksAttribute("domain", "email"))?;
 
-    let email = format!("{id}@{domain}", id = &id.value, domain = &domain.value);
+    Ok(format!(
+        "{id}@{domain}",
+        id = &id.value,
+        domain = &domain.value
+    ))
+}
+
+/// consume consumes a GPX email from the `reader` until it ends.
+/// When it returns, the reader will be at the element after the end GPX email
+/// tag.
+pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
+    let attributes = verify_starting_tag(context, "email")?;
+    let email = try_from_attributes(&attributes)?;
 
     for event in &mut context.reader {
         match event? {
@@ -53,8 +63,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_simple_email() {

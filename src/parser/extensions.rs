@@ -41,8 +41,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_arbitrary_extensions() {

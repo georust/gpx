@@ -14,15 +14,10 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
     verify_starting_tag(context, "rte")?;
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("route event")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -79,8 +74,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_full_route() {

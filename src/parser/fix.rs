@@ -24,8 +24,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Fix> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::{Fix, GpxVersion};
+
+    use super::consume;
 
     #[test]
     fn consume_fix() {

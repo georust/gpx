@@ -11,24 +11,21 @@ use crate::GpxCopyright;
 /// consume consumes a GPX copyright from the `reader` until it ends.
 /// When it returns, the reader will be at the element after the end GPX copyright tag.
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<GpxCopyright> {
-    let mut copyright = GpxCopyright::default();
     let attributes = verify_starting_tag(context, "copyright")?;
-    let attr = attributes
+    let author = attributes
         .into_iter()
-        .find(|attr| attr.name.local_name == "author");
-
-    copyright.author = attr.map(|a| a.value);
+        .find(|attr| attr.name.local_name == "author")
+        .map(|a| a.value);
+    let mut copyright = GpxCopyright {
+        author,
+        ..Default::default()
+    };
 
     loop {
-        let next_event = {
-            if let Some(next) = context.reader.peek() {
-                match next {
-                    Ok(n) => n,
-                    Err(_) => return Err(GpxError::EventParsingError("copyright")),
-                }
-            } else {
-                break;
-            }
+        let next_event = match context.reader.peek() {
+            Some(Err(_)) => return Err(GpxError::EventParsingError("Expecting an event")),
+            Some(Ok(event)) => event,
+            None => break,
         };
 
         match next_event {
@@ -63,8 +60,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<GpxCopyright> {
 
 #[cfg(test)]
 mod tests {
-    use super::consume;
     use crate::GpxVersion;
+
+    use super::consume;
 
     #[test]
     fn consume_simple_copyright() {
