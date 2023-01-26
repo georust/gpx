@@ -157,7 +157,7 @@ mod tests {
     use geo_types::Point;
 
     use super::consume;
-    use crate::GpxVersion;
+    use crate::{GpxVersion, errors::GpxError};
 
     #[test]
     fn consume_gpx() {
@@ -195,10 +195,30 @@ mod tests {
     fn consume_gpx_full() {
         let gpx = consume!(
             "
-            <gpx version=\"1.0\">
+            <gpx version=\"1.0\" xmlns:locus=\"http://www.locusmap.eu\">
                 <time>2016-03-27T18:57:55Z</time>
                 <bounds minlat=\"45.487064362\" minlon=\"-74.031837463\" maxlat=\"45.701225281\" maxlon=\"-73.586273193\"></bounds>
-                <trk></trk>
+                <trk>
+                  <extensions>
+                    <line xmlns=\"http://www.topografix.com/GPX/gpx_style/0/2\">
+                      <color>00D7D7</color>
+                      <opacity>0.59</opacity>
+                      <width>6.0</width>
+                      <extensions>
+                        <locus:lsColorBase>#9600D7D7</locus:lsColorBase>
+                        <locus:lsWidth>6.0</locus:lsWidth>
+                        <locus:lsUnits>PIXELS</locus:lsUnits>
+                      </extensions>
+                    </line>
+                    <locus:activity>cycling</locus:activity>
+                    <locus:rteComputeType>9</locus:rteComputeType>
+                  </extensions>
+                  <trkseg>
+                    <trkpt lat=\"2.00742\" lon=\"2.286288\">
+                      <ele>1375.85</ele>
+                    </trkpt>
+                  </trkseg>
+                </trk>
                 <wpt lat=\"1.23\" lon=\"2.34\"></wpt>
                 <wpt lon=\"10.256\" lat=\"-81.324\">
                     <time>2001-10-26T19:32:52+00:00</time>
@@ -219,5 +239,102 @@ mod tests {
 
         let wpt = &gpx.waypoints[1];
         assert_eq!(wpt.point(), Point::new(10.256, -81.324));
+    }
+
+    #[test]
+    fn error_on_double_closing_tag() {
+        let gpx = consume!(
+            "
+            <gpx version=\"1.0\" xmlns:locus=\"http://www.locusmap.eu\">
+                <time>2016-03-27T18:57:55Z</time>
+                <bounds minlat=\"45.487064362\" minlon=\"-74.031837463\" maxlat=\"45.701225281\" maxlon=\"-73.586273193\"></bounds>
+                <trk>
+                  <extensions>
+                    <line xmlns=\"http://www.topografix.com/GPX/gpx_style/0/2\">
+                      <color>00D7D7</color>
+                      <opacity>0.59</opacity>
+                      <width>6.0</width>
+                      <extensions>
+                        <locus:lsColorBase>#9600D7D7</locus:lsColorBase>
+                        <locus:lsWidth>6.0</locus:lsWidth>
+                        <locus:lsUnits>PIXELS</locus:lsUnits>
+                      </extensions>
+                    </line>
+                    <locus:activity>cycling</locus:activity>
+                    <locus:rteComputeType>9</locus:rteComputeType>
+                  </extensions>
+                  </extensions>
+                  <trkseg>
+                    <trkpt lat=\"2.00742\" lon=\"2.286288\">
+                      <ele>1375.85</ele>
+                    </trkpt>
+                  </trkseg>
+                </trk>
+                <wpt lat=\"1.23\" lon=\"2.34\"></wpt>
+                <wpt lon=\"10.256\" lat=\"-81.324\">
+                    <time>2001-10-26T19:32:52+00:00</time>
+                </wpt>
+                <rte></rte>
+            </gpx>
+            ",
+            GpxVersion::Unknown
+        );
+
+        assert!(gpx.is_err());
+        // the track parser gets an internal "invalid closing tag"-error, and gives back an "EventParsingError("track event")
+        if let GpxError::EventParsingError(err) = gpx.unwrap_err() {
+          assert_eq!(err, "track event");
+        } else {
+          panic!("Expected different error.")
+        }
+    }
+
+
+    #[test]
+    fn fail_on_double_internal_closing_tag() {
+        let gpx = consume!(
+            "
+            <gpx version=\"1.0\" xmlns:locus=\"http://www.locusmap.eu\">
+                <time>2016-03-27T18:57:55Z</time>
+                <bounds minlat=\"45.487064362\" minlon=\"-74.031837463\" maxlat=\"45.701225281\" maxlon=\"-73.586273193\"></bounds>
+                <trk>
+                  <extensions>
+                    <line xmlns=\"http://www.topografix.com/GPX/gpx_style/0/2\">
+                      <color>00D7D7</color>
+                      <opacity>0.59</opacity>
+                      <width>6.0</width>
+                      <extensions>
+                        <locus:lsColorBase>#9600D7D7</locus:lsColorBase>
+                        <locus:lsWidth>6.0</locus:lsWidth>
+                        <locus:lsUnits>PIXELS</locus:lsUnits>
+                      </extensions>
+                    </line>
+                    <locus:activity>cycling</locus:activity>
+                    <locus:rteComputeType>9</locus:rteComputeType>
+                  </extensions>
+                  </extensions>
+                  <trkseg>
+                    <trkpt lat=\"2.00742\" lon=\"2.286288\">
+                      <ele>1375.85</ele>
+                    </trkpt>
+                  </trkseg>
+                </trk>
+                <wpt lat=\"1.23\" lon=\"2.34\"></wpt>
+                <wpt lon=\"10.256\" lat=\"-81.324\">
+                    <time>2001-10-26T19:32:52+00:00</time>
+                </wpt>
+                <rte></rte>
+            </gpx>
+            ",
+            GpxVersion::Unknown
+        );
+
+        assert!(gpx.is_err());
+        // the track parser gets an internal "invalid closing tag"-error, and gives back an "EventParsingError("track event")
+        if let GpxError::EventParsingError(err) = gpx.unwrap_err() {
+          assert_eq!(err, "track event");
+        } else {
+          panic!("Expected different error.")
+        }
     }
 }
