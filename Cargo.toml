@@ -8,22 +8,22 @@ readme = "README.md"
 documentation = "https://docs.rs/gpx"
 repository = "https://github.com/georust/gpx"
 edition = "2018"
-rust-version = "1.56"
+rust-version = "1.59"
 
 [package.metadata.docs.rs]
 features = ["use-serde"]
 
 [features]
-use-serde = [ "serde", "time/serde", "geo-types/serde" ]
+use-serde = ["serde", "time/serde", "geo-types/serde"]
 
 [dependencies]
 assert_approx_eq = "1"
 time = { version = "0.3", features = ["formatting", "parsing"] }
 error-chain = "0.12"
 thiserror = "1.0"
-geo-types = "0.7"
+geo-types = "0.7.8"
 xml-rs = "0.8"
-serde = { version = "1.0", features = [ "derive" ], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [dev-dependencies]
-geo = "0.18"
+geo = "0.23"
