@@ -1,7 +1,7 @@
 use std::io::Read;
 
 // use error_chain::{bail, ensure};
-use geo_types::{Coordinate, Rect};
+use geo_types::{Coord, Rect};
 use xml::reader::XmlEvent;
 
 use crate::errors::{GpxError, GpxResult};
@@ -43,11 +43,11 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Rect<f64>> {
     }
 
     let bounds: Rect<f64> = Rect::new(
-        Coordinate {
+        Coord {
             x: minlon,
             y: minlat,
         },
-        Coordinate {
+        Coord {
             x: maxlon,
             y: maxlat,
         },
