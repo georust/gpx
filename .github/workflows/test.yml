@@ -35,9 +35,8 @@ jobs:
           # giving us about 6 months of coverage.
           #
           # Minimum supported rust version (MSRV)
-          - "georust/geo-ci:proj-9.0.0-rust-1.57"
+          - "georust/geo-ci:proj-9.1.0-rust-1.64"
           # Two most recent releases - we omit older ones for expedient CI
-          - "georust/geo-ci:proj-9.0.0-rust-1.58"
           - "georust/geo-ci:proj-9.0.0-rust-1.59"
     container:
       image: ${{ matrix.container_image }}
