@@ -5,10 +5,11 @@
 ## 0.9.0
 - [#86](https://github.com/georust/gpx/pull/83): Bump MSRV to 1.65
 
+- [#84](https://github.com/georust/gpx/pull/84): Allow nested `<extension>` tags
+
 - [#78](https://github.com/georust/gpx/pull/78): Replace RFC 3339 by ISO 8601 for de-/encoding time stamps,
                                                  fix error handling bug on track parsing,
                                                  apply Clippy suggestion
-- [#80](https://github.com/georust/gpx/pull/72): Update MSRV to 1.57.0
 
 ## 0.8.6
 
