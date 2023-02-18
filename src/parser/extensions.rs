@@ -15,39 +15,31 @@ use super::verify_starting_tag;
 pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<()> {
     verify_starting_tag(context, "extensions")?;
 
-    // helper to keep track of inner tags until generic parser exists for extensions-content
-    let mut inner_tag_stack = Vec::<String>::new();
-
+    let mut depth = 1;
     for event in &mut context.reader {
         match event? {
             XmlEvent::StartElement { name, .. } => {
-                // push every opening-element on the stack
-                // we treat inner "extensions"-tags as any other tag
-                let child = name.local_name.clone();
-                inner_tag_stack.push(child);
-            },
-            XmlEvent::EndElement { name } => {
-                // as long as there is an inner tag open..
-                if let Some(current_inner_tag) = inner_tag_stack.pop() {
-                    // the closing tag has to match the current open tag, this makes it also impossible to close the "extensions" while an inner tag is open
-                    // handling this here is optional, xml-reader will return an XMLParseError("Unexpected closing tag: extensions, expected ..") before, so this code might be never reached
-                    if name.local_name != current_inner_tag {
-                      return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "'inner-extensions-tag'"));
-                    }                  
-                  } else {
-                    // otherwise it has to be the "extensions" closing tag
-                    if name.local_name != "extensions" {
-                      return Err(GpxError::InvalidClosingTag(name.local_name.clone(), "extensions"));
-                    }
-                    return Ok(());
+                // I think its bad to hardcode the check on name == "extensions", because it is not a generic approach
+                // and treats inner tags that are called "extensions" differently from any other inner tags, like "a", "foo", "bar"
+                // It is correct, but feels wrong, maybe only a personal feeling
+                if name.local_name == "extensions" {
+                    depth += 1;
                 }
-            },
-            _ => { }
+            }
+            XmlEvent::EndElement { name } => {
+                if name.local_name == "extensions" {
+                    // pop one
+                    depth -= 1;
+                    if depth == 0 {
+                        return Ok(());
+                    }
+                }
+            }
+            _ => {}
         }
     }
 
     Err(GpxError::MissingClosingTag("extensions"))
-
 }
 
 #[cfg(test)]
@@ -55,7 +47,7 @@ mod tests {
     use core::panic;
 
     use super::consume;
-    use crate::{GpxVersion, errors::GpxError};
+    use crate::{errors::GpxError, GpxVersion};
 
     #[test]
     fn consume_arbitrary_extensions() {
@@ -111,11 +103,18 @@ mod tests {
         match err {
             GpxError::XmlParseError(err) => match err.kind() {
                 xml::reader::ErrorKind::Syntax(err) => {
-                  assert_eq!(err, "Unexpected end of stream: still inside the root element")
-                },
-                _ => { panic!("expected other error")}
+                    assert_eq!(
+                        err,
+                        "Unexpected end of stream: still inside the root element"
+                    )
+                }
+                _ => {
+                    panic!("expected other error")
+                }
             },
-            _ => { panic!("expected other error") }
+            _ => {
+                panic!("expected other error")
+            }
         };
     }
 
@@ -139,11 +138,15 @@ mod tests {
         match err {
             GpxError::XmlParseError(err) => match err.kind() {
                 xml::reader::ErrorKind::Syntax(err) => {
-                  assert_eq!(err, "Unexpected closing tag: extensions, expected a")
-                },
-                _ => { panic!("expected other error")}
+                    assert_eq!(err, "Unexpected closing tag: extensions, expected a")
+                }
+                _ => {
+                    panic!("expected other error")
+                }
             },
-            _ => { panic!("expected other error") }
+            _ => {
+                panic!("expected other error")
+            }
         };
     }
 }
