@@ -3,6 +3,7 @@
 ## Unreleased
 
 - [#83](https://github.com/georust/gpx/pull/83): Bump MSRV to 1.59
+- [#84](https://github.com/georust/gpx/pull/84): Allow nested `<extension>` tags
 
 ## 0.9.0
 
