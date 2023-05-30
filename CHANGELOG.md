@@ -2,9 +2,8 @@
 
 ## Unreleased
 
-- [#83](https://github.com/georust/gpx/pull/83): Bump MSRV to 1.59
-
 ## 0.9.0
+- [#86](https://github.com/georust/gpx/pull/83): Bump MSRV to 1.65
 
 - [#78](https://github.com/georust/gpx/pull/78): Replace RFC 3339 by ISO 8601 for de-/encoding time stamps,
                                                  fix error handling bug on track parsing,
