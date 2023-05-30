@@ -44,7 +44,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
     if !(-180.0..180.0).contains(&longitude) {
         return Err(GpxError::LonLatOutOfBoundsError(
             "Longitude",
-            "[-180.0, 180.0",
+            "[-180.0, 180.0)",
             longitude,
         ));
     };
