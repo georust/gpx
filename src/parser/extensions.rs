@@ -138,7 +138,7 @@ mod tests {
         match err {
             GpxError::XmlParseError(err) => match err.kind() {
                 xml::reader::ErrorKind::Syntax(err) => {
-                    assert_eq!(err, "Unexpected closing tag: extensions, expected a")
+                    assert_eq!(err, "Unexpected closing tag: extensions != a")
                 }
                 _ => {
                     panic!("expected other error")
