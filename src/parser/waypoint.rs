@@ -44,7 +44,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
     if !(-180.0..180.0).contains(&longitude) {
         return Err(GpxError::LonLatOutOfBoundsError(
             "Longitude",
-            "[-180.0, 180.0",
+            "[-180.0, 180.0)",
             longitude,
         ));
     };
@@ -85,7 +85,7 @@ pub fn consume<R: Read>(context: &mut Context<R>, tagname: &'static str) -> GpxR
                     "src" => waypoint.source = Some(string::consume(context, "src", true)?),
                     "link" => waypoint.links.push(link::consume(context)?),
                     "sym" => waypoint.symbol = Some(string::consume(context, "sym", false)?),
-                    "type" => waypoint._type = Some(string::consume(context, "type", false)?),
+                    "type" => waypoint.type_ = Some(string::consume(context, "type", false)?),
 
                     // Optional accuracy information
                     "fix" => waypoint.fix = Some(fix::consume(context)?),
@@ -183,7 +183,7 @@ mod tests {
             "The white house is very nice!"
         );
         assert_eq!(waypoint.source.unwrap(), "Garmin eTrex");
-        assert_eq!(waypoint._type.unwrap(), "waypoint classification");
+        assert_eq!(waypoint.type_.unwrap(), "waypoint classification");
         assert_eq!(waypoint.elevation.unwrap(), 4608.12);
         assert_eq!(waypoint.fix.unwrap(), Fix::DGPS);
         assert_eq!(waypoint.sat.unwrap(), 4);

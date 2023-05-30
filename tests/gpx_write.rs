@@ -55,7 +55,7 @@ fn read_test_gpx_file(filename: &str) -> Gpx {
 
 fn write_and_reread_gpx(reference_gpx: &Gpx) -> Gpx {
     let mut buffer: Vec<u8> = Vec::new();
-    let result = write(&reference_gpx, &mut buffer);
+    let result = write(reference_gpx, &mut buffer);
     assert!(result.is_ok());
 
     let written_gpx = read(buffer.as_slice()).unwrap();
@@ -112,7 +112,7 @@ fn check_waypoints_equal(reference: &Vec<Waypoint>, written: &Vec<Waypoint>) {
         assert_eq!(r_wp.source, w_wp.source);
         check_links_equal(&r_wp.links, &w_wp.links);
         assert_eq!(r_wp.symbol, w_wp.symbol);
-        assert_eq!(r_wp._type, w_wp._type);
+        assert_eq!(r_wp.type_, w_wp.type_);
         assert_eq!(r_wp.fix, w_wp.fix);
         assert_eq!(r_wp.sat, w_wp.sat);
         assert_eq!(r_wp.hdop, w_wp.hdop);

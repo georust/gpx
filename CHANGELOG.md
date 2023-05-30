@@ -3,6 +3,8 @@
 ## Unreleased
 
 ## 0.9.0
+- [#87](https://github.com/georust/gpx/pull/83): Rename `Route::_type`, `Track::_type`, `Waypoint::_type`, `Link::_type` to `type_`
+
 - [#86](https://github.com/georust/gpx/pull/83): Bump MSRV to 1.65
 
 - [#84](https://github.com/georust/gpx/pull/84): Allow nested `<extension>` tags

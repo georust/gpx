@@ -8,7 +8,9 @@ use serde::{Deserialize, Serialize};
 /// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
+#[derive(Default)]
 pub enum GpxVersion {
+    #[default]
     Unknown,
     Gpx10,
     Gpx11,
@@ -17,12 +19,6 @@ pub enum GpxVersion {
 impl std::fmt::Display for GpxVersion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
-    }
-}
-
-impl Default for GpxVersion {
-    fn default() -> GpxVersion {
-        GpxVersion::Unknown
     }
 }
 
@@ -119,7 +115,7 @@ pub struct Route {
     pub number: Option<u32>,
 
     /// Type (classification) of route.
-    pub _type: Option<String>,
+    pub type_: Option<String>,
 
     /// Each Waypoint holds the coordinates, elevation, timestamp, and metadata
     /// for a single point in a track.
@@ -181,7 +177,7 @@ pub struct Track {
     pub links: Vec<Link>,
 
     /// Type (classification) of track.
-    pub _type: Option<String>,
+    pub type_: Option<String>,
 
     /// GPS number of track
     pub number: Option<u32>,
@@ -329,7 +325,7 @@ pub struct Waypoint {
     pub symbol: Option<String>,
 
     /// Type (classification) of the waypoint.
-    pub _type: Option<String>,
+    pub type_: Option<String>,
 
     // <magvar> degreesType </magvar> [0..1] ?
     /// Height of geoid in meters above WGS 84. This correspond to the sea level.
@@ -444,7 +440,7 @@ pub struct Link {
     pub text: Option<String>,
 
     /// Mime type of content (image/jpeg)
-    pub _type: Option<String>,
+    pub type_: Option<String>,
 }
 
 /// Type of the GPS fix.

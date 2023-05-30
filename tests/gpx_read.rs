@@ -136,7 +136,7 @@ fn gpx_reader_read_test_empty_elevation() {
         for segment in &track.segments {
             for point in &segment.points {
                 let elevation = point.elevation.is_none();
-                assert_eq!(elevation, true);
+                assert!(elevation);
             }
         }
     }
@@ -173,7 +173,7 @@ fn gpx_reader_read_test_garmin_activity() {
     let track = &res.tracks[0];
 
     assert_eq!(track.name, Some(String::from("casual stroll")));
-    assert_eq!(track._type, Some(String::from("running")));
+    assert_eq!(track.type_, Some(String::from("running")));
 
     // Check some Geo operations on the track.
     let mls = track.multilinestring();
@@ -206,7 +206,7 @@ fn gpx_reader_read_test_garmin_activity() {
 
         let after = PrimitiveDateTime::new(
             Date::from_calendar_date(2017, Month::July, 30).unwrap(),
-            Time::from_hms(0, 0, 0).unwrap().into(),
+            Time::from_hms(0, 0, 0).unwrap(),
         )
         .assume_utc()
         .into();
@@ -227,7 +227,7 @@ fn gpx_reader_read_test_garmin_activity() {
         assert!(point.description.is_none());
         assert!(point.source.is_none());
         assert!(point.symbol.is_none());
-        assert!(point._type.is_none());
+        assert!(point.type_.is_none());
         assert_eq!(point.links.len(), 0);
     }
 }
@@ -280,7 +280,7 @@ fn gpx_reader_read_test_lovers_lane() {
         assert!(point.description.is_none());
         assert!(point.source.is_none());
         assert!(point.symbol.is_none());
-        assert!(point._type.is_none());
+        assert!(point.type_.is_none());
         assert_eq!(point.links.len(), 0);
     }
 }
