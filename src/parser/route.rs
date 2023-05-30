@@ -43,7 +43,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
                     route.number = Some(string::consume(context, "number", false)?.parse()?)
                 }
                 "type" => {
-                    route._type = Some(string::consume(context, "type", false)?);
+                    route.type_ = Some(string::consume(context, "type", false)?);
                 }
                 "rtept" => {
                     route.points.push(waypoint::consume(context, "rtept")?);
@@ -107,7 +107,7 @@ mod tests {
         assert_eq!(route.description.unwrap(), "route description");
         assert_eq!(route.source.unwrap(), "route source");
         assert_eq!(route.number.unwrap(), 66);
-        assert_eq!(route._type.unwrap(), "route type");
+        assert_eq!(route.type_.unwrap(), "route type");
     }
 
     #[test]
