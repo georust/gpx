@@ -5,7 +5,7 @@
 #[macro_export]
 macro_rules! consume {
     ($xml:expr, $version:expr) => {{
-        use crate::parser::create_context;
+        use $crate::parser::create_context;
         use std::io::BufReader;
         consume(&mut create_context(
             BufReader::new($xml.as_bytes()),

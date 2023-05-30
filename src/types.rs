@@ -8,7 +8,9 @@ use serde::{Deserialize, Serialize};
 /// Allowable GPX versions. Currently, only GPX 1.0 and GPX 1.1 are accepted.
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "use-serde", derive(Serialize, Deserialize))]
+#[derive(Default)]
 pub enum GpxVersion {
+    #[default]
     Unknown,
     Gpx10,
     Gpx11,
@@ -20,11 +22,7 @@ impl std::fmt::Display for GpxVersion {
     }
 }
 
-impl Default for GpxVersion {
-    fn default() -> GpxVersion {
-        GpxVersion::Unknown
-    }
-}
+
 
 /// Gpx is the root element in the XML file.
 #[derive(Clone, Default, Debug, PartialEq)]

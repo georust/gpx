@@ -136,7 +136,7 @@ fn gpx_reader_read_test_empty_elevation() {
         for segment in &track.segments {
             for point in &segment.points {
                 let elevation = point.elevation.is_none();
-                assert_eq!(elevation, true);
+                assert!(elevation);
             }
         }
     }
@@ -206,7 +206,7 @@ fn gpx_reader_read_test_garmin_activity() {
 
         let after = PrimitiveDateTime::new(
             Date::from_calendar_date(2017, Month::July, 30).unwrap(),
-            Time::from_hms(0, 0, 0).unwrap().into(),
+            Time::from_hms(0, 0, 0).unwrap(),
         )
         .assume_utc()
         .into();

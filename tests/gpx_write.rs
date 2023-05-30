@@ -55,7 +55,7 @@ fn read_test_gpx_file(filename: &str) -> Gpx {
 
 fn write_and_reread_gpx(reference_gpx: &Gpx) -> Gpx {
     let mut buffer: Vec<u8> = Vec::new();
-    let result = write(&reference_gpx, &mut buffer);
+    let result = write(reference_gpx, &mut buffer);
     assert!(result.is_ok());
 
     let written_gpx = read(buffer.as_slice()).unwrap();
