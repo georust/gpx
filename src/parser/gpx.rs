@@ -11,6 +11,8 @@ use crate::parser::{
 };
 use crate::{Gpx, GpxVersion, Link, Metadata, Person};
 
+use super::extensions;
+
 /// Convert the version string to the version enum
 fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
     match version_str {
@@ -101,6 +103,9 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> Result<Gpx, GpxError> {
                 "keywords" if context.version == GpxVersion::Gpx10 => {
                     keywords = Some(string::consume(context, "keywords", true)?);
                 }
+                "extensions" => {
+                    extensions::consume(context)?;
+                }
                 child => {
                     return Err(GpxError::InvalidChildElement(String::from(child), "gpx"));
                 }
@@ -157,7 +162,7 @@ mod tests {
     use geo_types::Point;
 
     use super::consume;
-    use crate::{GpxVersion, errors::GpxError};
+    use crate::{errors::GpxError, GpxVersion};
 
     #[test]
     fn consume_gpx() {
@@ -195,7 +200,7 @@ mod tests {
     fn consume_gpx_full() {
         let gpx = consume!(
             "
-            <gpx version=\"1.0\" xmlns:locus=\"http://www.locusmap.eu\">
+            <gpx version=\"1.0\" xmlns:locus=\"http://www.locusmap.eu\" xmlns:ql=\"http://www.qlandkarte.org/xmlschemas/v1.1\">
                 <time>2016-03-27T18:57:55Z</time>
                 <bounds minlat=\"45.487064362\" minlon=\"-74.031837463\" maxlat=\"45.701225281\" maxlon=\"-73.586273193\"></bounds>
                 <trk>
@@ -224,6 +229,9 @@ mod tests {
                     <time>2001-10-26T19:32:52+00:00</time>
                 </wpt>
                 <rte></rte>
+                <extensions>
+                    <ql:key>715595d89a4f0d1145703cb1c227bd15</ql:key>
+                </extensions>
             </gpx>
             ",
             GpxVersion::Unknown
@@ -283,12 +291,11 @@ mod tests {
         assert!(gpx.is_err());
         // the track parser gets an internal "invalid closing tag"-error, and gives back an "EventParsingError("track event")
         if let GpxError::EventParsingError(err) = gpx.unwrap_err() {
-          assert_eq!(err, "track event");
+            assert_eq!(err, "track event");
         } else {
-          panic!("Expected different error.")
+            panic!("Expected different error.")
         }
     }
-
 
     #[test]
     fn fail_on_double_internal_closing_tag() {
@@ -332,9 +339,9 @@ mod tests {
         assert!(gpx.is_err());
         // the track parser gets an internal "invalid closing tag"-error, and gives back an "EventParsingError("track event")
         if let GpxError::EventParsingError(err) = gpx.unwrap_err() {
-          assert_eq!(err, "track event");
+            assert_eq!(err, "track event");
         } else {
-          panic!("Expected different error.")
+            panic!("Expected different error.")
         }
     }
 }
