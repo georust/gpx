@@ -1,6 +1,5 @@
 use std::io::Read;
 
-// use error_chain::{bail, ensure};
 use geo_types::{Coord, Rect};
 use xml::reader::XmlEvent;
 
