@@ -18,7 +18,6 @@ use-serde = ["serde", "time/serde", "geo-types/serde"]
 [dependencies]
 assert_approx_eq = "1"
 time = { version = "0.3", features = ["formatting", "parsing"] }
-error-chain = "0.12"
 thiserror = "1.0"
 geo-types = "0.7.8"
 xml-rs = "0.8.10"
