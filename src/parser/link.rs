@@ -36,8 +36,8 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Link> {
 
         match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
-                "text" => link.text = Some(string::consume(context, "text", false)?),
-                "type" => link.type_ = Some(string::consume(context, "type", false)?),
+                "text" => link.text = Some(string::consume(context, "text", true)?),
+                "type" => link.type_ = Some(string::consume(context, "type", true)?),
                 child => {
                     return Err(GpxError::InvalidChildElement(String::from(child), "link"));
                 }
@@ -105,5 +105,21 @@ mod tests {
         let link = consume!("<link></link>", GpxVersion::Gpx11);
 
         assert!(link.is_err());
+    }
+
+    #[test]
+    fn consume_empty_href_text_type() {
+        let link = consume!(
+            r#"<link href=""><text></text><type></type></link>"#,
+            GpxVersion::Gpx11
+        );
+
+        assert!(link.is_ok());
+
+        let link = link.unwrap();
+
+        assert_eq!(link.href, "");
+        assert_eq!(link.text, Some(String::from("")));
+        assert_eq!(link.type_, Some(String::from("")));
     }
 }

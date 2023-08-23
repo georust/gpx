@@ -3,6 +3,7 @@
 ## Unreleased
 
 - [#94](https://github.com/georust/gpx/pull/94): Bump MSRV to 1.67.
+- [#93](https://github.com/georust/gpx/pull/93): Allow empty strings in `<text>` and `<type>` of `<link>`
 
 ## 0.9.1
 
