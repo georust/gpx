@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- [#94](https://github.com/georust/gpx/pull/94): Bump MSRV to 1.67.
+
 ## 0.9.1
 
 - [#90](https://github.com/georust/gpx/pull/88): Allow `<extensions>` tags on the root element.
