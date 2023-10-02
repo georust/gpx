@@ -29,7 +29,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Metadata> {
         match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => {
-                    metadata.name = Some(string::consume(context, "name", false)?);
+                    metadata.name = Some(string::consume(context, "name", true)?);
                 }
                 "desc" => {
                     metadata.description = Some(string::consume(context, "desc", true)?);
