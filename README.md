@@ -78,7 +78,7 @@ pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<String, Box<dyn Error>> {
     let gpx_file = File::create(out_path);
     
     // Add track point
-    let geo_coord = coord! { x: 38.82, y: -121.1 };
+    let geo_coord = coord! { x: -121.1, y: 38.82 };
     let geo_point: Point = geo_coord.into();
     gpx.tracks[0].segments[0].points.push(Waypoint::new(geo_point));
 
