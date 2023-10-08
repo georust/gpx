@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- [#98](https://github.com/georust/gpx/pull/98): Add write examples to `README.md`
 - [#97](https://github.com/georust/gpx/pull/97): Allow empty strings in `<name>` within `<metadata>`
 - [#94](https://github.com/georust/gpx/pull/94): Bump MSRV to 1.67.
 - [#93](https://github.com/georust/gpx/pull/93): Allow empty strings in `<text>` and `<type>` of `<link>`
