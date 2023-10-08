@@ -50,7 +50,7 @@ use std::path::Path;
 use gpx::{Gpx, Track, TrackSegment, Waypoint, Route};
 use geo_types::{Point, coord};
 
-pub fn to_gpx<P: AsRef<Path>>(in_path: P, out_path: P) -> Result<String, Box<dyn Error>> {
+pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<String, Box<dyn Error>> {
     // Instantiate Gpx struct
     let mut gpx: Gpx = Gpx {
         version: GpxVersion::Gpx11, // or Gpx10
@@ -75,7 +75,6 @@ pub fn to_gpx<P: AsRef<Path>>(in_path: P, out_path: P) -> Result<String, Box<dyn
     });
 
     // Create file at path
-    let mut fp = File::open(in_path)?;
     let gpx_file = File::create(out_path);
     
     // Add track point
