@@ -9,6 +9,8 @@ primitives provided by [geo-types](https://github.com/georust/geo) to allow for 
 of GPS data.
 
 ## Example
+
+### Read a GPX file
 ```rust
 extern crate gpx;
 
@@ -39,6 +41,62 @@ fn main() {
     assert_eq!(segment.points[1].elevation, Some(4.94));
     assert_eq!(segment.points[2].elevation, Some(6.87));
 }
+```
+
+### Generate a new GPX file
+This example only generates tracks. You can add waypoints and routes as well by instantiating new ``Waypoint``s and ``Route``s.
+```rust
+use std::path::Path;
+use gpx::{Gpx, Track, TrackSegment, Waypoint, Route};
+use geo_types::{Point, coord};
+
+pub fn to_gpx<P: AsRef<Path>>(in_path: P, out_path: P) -> Result<String, Box<dyn Error>> {
+    // Instantiate Gpx struct
+    let mut gpx: Gpx = Gpx {
+        version: GpxVersion::Gpx11, // or Gpx10
+        creator: None, // Option<String>
+        metadata: None, // Option<Metadata>
+        waypoints: vec![], // Vec<Waypoint>
+        tracks: vec![], // Vec<Track>
+        routes: vec![], // Vec<Route>
+    };
+    gpx.tracks.push(Track {
+        name: Some("Track 1".to_string()), // Option<String>
+        comment: None, // Option<String>
+        description: None, // Option<String>
+        source: None, // Option<String>
+        links: vec![], // Vec<Link>
+        type_: None, // Option<String>
+        number: None, // Option<u32>
+        segments: vec![], // Vec<TrackSegment>
+    });
+    gpx.tracks[0].segments.push(TrackSegment { 
+        points: vec![] // Vec<Waypoint>
+    });
+
+    // Create file at path
+    let mut fp = File::open(in_path)?;
+    let gpx_file = File::create(out_path);
+    
+    // Add track point
+    let geo_coord = coord! { x: 38.82, y: -121.1 };
+    let geo_point: Point = geo_coord.into();
+    gpx.tracks[0].segments[0].points.push(Waypoint::new(geo_point));
+
+    // Write to file
+    write(&gpx, gpx_file?)?;
+
+    Ok(());
+}
+```
+
+### Write to string
+`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, use a mutable `BufWriter` to write it to a vector, and then convert the vector to a string.
+```rust
+let mut buf = BufWriter::new(Vec::new());
+write(&gpx, &mut buf)?;
+let bytes = buf.into_inner()?;
+let string = String::from_utf8(bytes)?;
 ```
 
 ## Current Status
