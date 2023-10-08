@@ -8,7 +8,7 @@ gpx is a library for reading and writing GPX (GPS Exchange Format) files. It use
 primitives provided by [geo-types](https://github.com/georust/geo) to allow for storage
 of GPS data.
 
-## Example
+## Examples
 
 ### Read a GPX file
 ```rust
