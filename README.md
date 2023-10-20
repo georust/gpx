@@ -45,45 +45,47 @@ fn main() {
 
 ### Generate a new GPX file
 This example only generates tracks. You can add waypoints and routes as well by instantiating new ``Waypoint``s and ``Route``s.
+
 ```rust
 use std::path::Path;
 use gpx::{Gpx, Track, TrackSegment, Waypoint, Route};
 use geo_types::{Point, coord};
 
-pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<String, Box<dyn Error>> {
+pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
     // Instantiate Gpx struct
-    let mut gpx: Gpx = Gpx {
-        version: GpxVersion::Gpx11, // or Gpx10
-        creator: None, // Option<String>
-        metadata: None, // Option<Metadata>
-        waypoints: vec![], // Vec<Waypoint>
-        tracks: vec![], // Vec<Track>
-        routes: vec![], // Vec<Route>
+    let track_segment = TrackSegment {
+        points: vec![]
     };
-    gpx.tracks.push(Track {
-        name: Some("Track 1".to_string()), // Option<String>
-        comment: None, // Option<String>
-        description: None, // Option<String>
-        source: None, // Option<String>
-        links: vec![], // Vec<Link>
-        type_: None, // Option<String>
-        number: None, // Option<u32>
-        segments: vec![], // Vec<TrackSegment>
-    });
-    gpx.tracks[0].segments.push(TrackSegment { 
-        points: vec![] // Vec<Waypoint>
-    });
+    let track = Track {
+        name: Some("Track 1".to_string()),
+        comment: None,
+        description: None,
+        source: None,
+        links: vec![],
+        type_: None,
+        number: None,
+        segments: vec![track_segment],
+    };
+    let mut gpx = Gpx {
+        version: GpxVersion::Gpx11,
+        creator: None,
+        metadata: None,
+        waypoints: vec![],
+        tracks: vec![track],
+        routes: vec![],
+    };
 
     // Create file at path
-    let gpx_file = File::create(out_path);
-    
+    let gpx_file = File::create(out_path)?;
+    let buf = BufWriter::new(gpx_file);
+
     // Add track point
     let geo_coord = coord! { x: -121.1, y: 38.82 };
     let geo_point: Point = geo_coord.into();
     gpx.tracks[0].segments[0].points.push(Waypoint::new(geo_point));
 
     // Write to file
-    write(&gpx, gpx_file?)?;
+    gpx::write(&gpx, buf)?;
 
     Ok(());
 }
@@ -92,10 +94,9 @@ pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<String, Box<dyn Error>> {
 ### Write to string
 `write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, use a mutable `BufWriter` to write it to a vector, and then convert the vector to a string.
 ```rust
-let mut buf = BufWriter::new(Vec::new());
-write(&gpx, &mut buf)?; // writes to buf
-let bytes = buf.into_inner()?;
-let string = String::from_utf8(bytes)?;
+let mut vec: Vec<u8> = Vec::new();
+gpx::write(&gpx, &mut vec)?;
+let string = String::from_utf8(vec)?;
 ```
 
 ## Current Status
