@@ -92,7 +92,7 @@ pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
 ```
 
 ### Write to string
-`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, use a mutable `BufWriter` to write it to a vector, and then convert the vector to a string.
+`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a UTF-8 vector, and then convert the vector to a string.
 ```rust
 let mut vec: Vec<u8> = Vec::new();
 gpx::write(&gpx, &mut vec)?;
