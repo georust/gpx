@@ -8,7 +8,9 @@ gpx is a library for reading and writing GPX (GPS Exchange Format) files. It use
 primitives provided by [geo-types](https://github.com/georust/geo) to allow for storage
 of GPS data.
 
-## Example
+## Examples
+
+### Read a GPX file
 ```rust
 extern crate gpx;
 
@@ -39,6 +41,62 @@ fn main() {
     assert_eq!(segment.points[1].elevation, Some(4.94));
     assert_eq!(segment.points[2].elevation, Some(6.87));
 }
+```
+
+### Generate a new GPX file
+This example only generates tracks. You can add waypoints and routes as well by instantiating new ``Waypoint``s and ``Route``s.
+
+```rust
+use geo_types::{coord, Point};
+use gpx::{Gpx, GpxVersion, Track, TrackSegment, Waypoint};
+use std::{error::Error, fs::File, io::BufWriter, path::Path};
+
+pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
+    // Instantiate Gpx struct
+    let track_segment = TrackSegment {
+        points: vec![]
+    };
+    let track = Track {
+        name: Some("Track 1".to_string()),
+        comment: None,
+        description: None,
+        source: None,
+        links: vec![],
+        type_: None,
+        number: None,
+        segments: vec![track_segment],
+    };
+    let mut gpx = Gpx {
+        version: GpxVersion::Gpx11,
+        creator: None,
+        metadata: None,
+        waypoints: vec![],
+        tracks: vec![track],
+        routes: vec![],
+    };
+
+    // Create file at path
+    let gpx_file = File::create(out_path)?;
+    let buf = BufWriter::new(gpx_file);
+
+    // Add track point
+    let geo_coord = coord! { x: -121.1, y: 38.82 };
+    let geo_point: Point = geo_coord.into();
+    gpx.tracks[0].segments[0].points.push(Waypoint::new(geo_point));
+
+    // Write to file
+    gpx::write(&gpx, buf)?;
+
+    Ok(())
+}
+```
+
+### Write to string
+`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a `u8` vector, and then convert the vector to a string.
+```rust
+let mut vec = Vec::new();
+gpx::write(&gpx, &mut vec)?;
+let string = String::from_utf8(vec)?;
 ```
 
 ## Current Status
