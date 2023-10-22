@@ -47,9 +47,9 @@ fn main() {
 This example only generates tracks. You can add waypoints and routes as well by instantiating new ``Waypoint``s and ``Route``s.
 
 ```rust
-use std::path::Path;
-use gpx::{Gpx, Track, TrackSegment, Waypoint, Route};
-use geo_types::{Point, coord};
+use geo_types::{coord, Point};
+use gpx::{Gpx, GpxVersion, Track, TrackSegment, Waypoint};
+use std::{error::Error, fs::File, io::BufWriter, path::Path};
 
 pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
     // Instantiate Gpx struct
@@ -87,14 +87,14 @@ pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
     // Write to file
     gpx::write(&gpx, buf)?;
 
-    Ok(());
+    Ok(())
 }
 ```
 
 ### Write to string
-`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a UTF-8 vector, and then convert the vector to a string.
+`write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a `u8` vector, and then convert the vector to a string.
 ```rust
-let mut vec: Vec<u8> = Vec::new();
+let mut vec = Vec::new();
 gpx::write(&gpx, &mut vec)?;
 let string = String::from_utf8(vec)?;
 ```
