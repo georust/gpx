@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.10.0
 
 - [#100](https://github.com/georust/gpx/pull/100): Add write examples to `README.md`
 - [#97](https://github.com/georust/gpx/pull/97): Allow empty strings in `<name>` within `<metadata>`
