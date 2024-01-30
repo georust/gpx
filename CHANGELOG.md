@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- [#101](https://github.com/georust/gpx/pull/101): Write speed to GPX 1.0 files
+
 ## 0.10.0
 
 - [#100](https://github.com/georust/gpx/pull/100): Add write examples to `README.md`

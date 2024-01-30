@@ -70,13 +70,13 @@ pub fn write_with_event_writer<W: Write>(gpx: &Gpx, writer: &mut EventWriter<W>)
     )?;
     write_metadata(gpx, writer)?;
     for point in &gpx.waypoints {
-        write_waypoint("wpt", point, writer)?;
+        write_waypoint(gpx.version, "wpt", point, writer)?;
     }
     for track in &gpx.tracks {
-        write_track(track, writer)?;
+        write_track(gpx.version, track, writer)?;
     }
     for route in &gpx.routes {
-        write_route(route, writer)?;
+        write_route(gpx.version, route, writer)?;
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
@@ -293,7 +293,7 @@ fn write_fix_if_exists<W: Write>(fix: &Option<Fix>, writer: &mut EventWriter<W>)
     Ok(())
 }
 
-fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> GpxResult<()> {
+fn write_track<W: Write>(version: GpxVersion, track: &Track, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("trk"), writer)?;
     write_string_if_exists("name", &track.name, writer)?;
     write_string_if_exists("cmt", &track.comment, writer)?;
@@ -304,13 +304,13 @@ fn write_track<W: Write>(track: &Track, writer: &mut EventWriter<W>) -> GpxResul
     }
     write_string_if_exists("type", &track.type_, writer)?;
     for segment in &track.segments {
-        write_track_segment(segment, writer)?;
+        write_track_segment(version, segment, writer)?;
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
 }
 
-fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> GpxResult<()> {
+fn write_route<W: Write>(version: GpxVersion, route: &Route, writer: &mut EventWriter<W>) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("rte"), writer)?;
     write_string_if_exists("name", &route.name, writer)?;
     write_string_if_exists("cmt", &route.comment, writer)?;
@@ -322,25 +322,27 @@ fn write_route<W: Write>(route: &Route, writer: &mut EventWriter<W>) -> GpxResul
     write_value_if_exists("number", &route.number, writer)?;
     write_string_if_exists("type", &route.type_, writer)?;
     for point in &route.points {
-        write_waypoint("rtept", point, writer)?;
+        write_waypoint(version, "rtept", point, writer)?;
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
 }
 
 fn write_track_segment<W: Write>(
+    version: GpxVersion,
     segment: &TrackSegment,
     writer: &mut EventWriter<W>,
 ) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("trkseg"), writer)?;
     for point in &segment.points {
-        write_waypoint("trkpt", point, writer)?;
+        write_waypoint(version, "trkpt", point, writer)?;
     }
     write_xml_event(XmlEvent::end_element(), writer)?;
     Ok(())
 }
 
 fn write_waypoint<W: Write>(
+    version: GpxVersion,
     tagname: &str,
     waypoint: &Waypoint,
     writer: &mut EventWriter<W>,
@@ -352,7 +354,12 @@ fn write_waypoint<W: Write>(
         writer,
     )?;
     write_value_if_exists("ele", &waypoint.elevation, writer)?;
-    // TODO: write speed if GPX version == 1.0
+    match version {
+        GpxVersion::Gpx10 => {
+            write_value_if_exists("speed", &waypoint.speed, writer)?;
+        }
+        _ => {}
+    }
     write_time_if_exists(&waypoint.time, writer)?;
     write_value_if_exists("geoidheight", &waypoint.geoidheight, writer)?;
     write_string_if_exists("name", &waypoint.name, writer)?;
