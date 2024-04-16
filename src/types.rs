@@ -382,6 +382,24 @@ impl Waypoint {
         self.point.0 //.0 to extract the geo_types::Point from the tuple struct GpxPoint
     }
 
+    /// Returns a mutable reference to the point of the waypoint.
+    ///
+    /// ```
+    /// extern crate geo_types;
+    /// extern crate gpx;
+    ///
+    /// use gpx::Waypoint;
+    /// use geo_types::Point;
+    ///
+    /// fn main() {
+    ///     let mut wpt = Waypoint::new(Point::new(-121.97, 37.24));
+    ///     wpt.point_mut().set_x(100.34);
+    /// }
+    /// ```
+    pub fn point_mut(&mut self) -> Point<f64> {
+        self.point.0
+    }
+
     /// Creates a new Waypoint from a given geographical point.
     ///
     /// ```
