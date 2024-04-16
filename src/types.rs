@@ -396,8 +396,8 @@ impl Waypoint {
     ///     wpt.point_mut().set_x(100.34);
     /// }
     /// ```
-    pub fn point_mut(&mut self) -> Point<f64> {
-        self.point.0
+    pub fn point_mut(&mut self) -> &mut Point<f64> {
+        &mut self.point.0
     }
 
     /// Creates a new Waypoint from a given geographical point.
