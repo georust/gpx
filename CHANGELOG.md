@@ -1,7 +1,7 @@
 # CHANGELOG
 
 ## Unreleased
-- [#108](https://github.com/georust/gpx/pull/108): Update MSRV to 1.77.
+- [#108](https://github.com/georust/gpx/pull/108): Update MSRV to 1.74.
 - [#101](https://github.com/georust/gpx/pull/101): Write speed to GPX 1.0 files
 
 ## 0.10.0
