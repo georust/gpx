@@ -293,7 +293,11 @@ fn write_fix_if_exists<W: Write>(fix: &Option<Fix>, writer: &mut EventWriter<W>)
     Ok(())
 }
 
-fn write_track<W: Write>(version: GpxVersion, track: &Track, writer: &mut EventWriter<W>) -> GpxResult<()> {
+fn write_track<W: Write>(
+    version: GpxVersion,
+    track: &Track,
+    writer: &mut EventWriter<W>,
+) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("trk"), writer)?;
     write_string_if_exists("name", &track.name, writer)?;
     write_string_if_exists("cmt", &track.comment, writer)?;
@@ -310,7 +314,11 @@ fn write_track<W: Write>(version: GpxVersion, track: &Track, writer: &mut EventW
     Ok(())
 }
 
-fn write_route<W: Write>(version: GpxVersion, route: &Route, writer: &mut EventWriter<W>) -> GpxResult<()> {
+fn write_route<W: Write>(
+    version: GpxVersion,
+    route: &Route,
+    writer: &mut EventWriter<W>,
+) -> GpxResult<()> {
     write_xml_event(XmlEvent::start_element("rte"), writer)?;
     write_string_if_exists("name", &route.name, writer)?;
     write_string_if_exists("cmt", &route.comment, writer)?;
@@ -354,11 +362,8 @@ fn write_waypoint<W: Write>(
         writer,
     )?;
     write_value_if_exists("ele", &waypoint.elevation, writer)?;
-    match version {
-        GpxVersion::Gpx10 => {
-            write_value_if_exists("speed", &waypoint.speed, writer)?;
-        }
-        _ => {}
+    if version == GpxVersion::Gpx10 {
+        write_value_if_exists("speed", &waypoint.speed, writer)?;
     }
     write_time_if_exists(&waypoint.time, writer)?;
     write_value_if_exists("geoidheight", &waypoint.geoidheight, writer)?;
