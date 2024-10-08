@@ -1,4 +1,8 @@
-on: push
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
 name: Run tests
 jobs:
   # The `ci-result` job doesn't actually test anything - it just aggregates the
@@ -30,20 +34,44 @@ jobs:
         working-directory: .
     strategy:
       matrix:
-        container_image:
+        toolchain:
           # We aim to support rust-stable plus (at least) the prior 3 releases,
           # giving us about 6 months of coverage.
           #
           # Minimum supported rust version (MSRV)
-          - "georust/geo-ci:rust-1.67"
-          # Two most recent releases - we omit older ones for expedient CI
-          - "georust/geo-ci:rust-1.69"
-          - "georust/geo-ci:rust-1.70"
-    container:
-      image: ${{ matrix.container_image }}
+          - "1.67"
+          # Two recent releases - we omit older ones for expedient CI
+          - "1.80"
+          - "stable"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Install stable
+        run: |
+          rustup toolchain install ${{ matrix.toolchain }} --no-self-update --profile minimal --component rust-src rustfmt clippy
+
+      - name: Check with Rustfmt
+        run: cargo fmt --all --check
+
+      - name: Build (--no-default-features)
+        run: cargo build --no-default-features
+      - name: Build (--all-features)
+        run: cargo build --all-features
+      - name: Run tests (--all-features)
+        run: cargo test --all-features
+      - name: Build
+        run: cargo build
+      - name: Run tests
+        run: cargo test
+
+      - name: Check with Clippy (--no-default-features)
+        run: cargo clippy --tests --no-default-features -- -D warnings
+      - name: Check with Clippy (--all-features)
+        run: cargo clippy --tests --all-features -- -D warnings
+      - name: Check with Clippy
+        run: cargo clippy --tests -- -D warnings
+
       - run: cargo build --no-default-features
       - run: cargo test --no-default-features
       - run: cargo build --all-features

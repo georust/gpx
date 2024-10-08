@@ -78,7 +78,7 @@ fn check_metadata_equal(reference_gpx: &Gpx, written_gpx: &Gpx) {
     check_links_equal(&reference.links, &written.links);
 }
 
-fn check_links_equal(reference: &Vec<Link>, written: &Vec<Link>) {
+fn check_links_equal(reference: &[Link], written: &[Link]) {
     assert_eq!(reference.len(), written.len());
     for (r, w) in reference.iter().zip(written) {
         assert_eq!(r.href, w.href);
@@ -98,7 +98,7 @@ fn check_points_equal(reference: &Gpx, written: &Gpx) {
     }
 }
 
-fn check_waypoints_equal(reference: &Vec<Waypoint>, written: &Vec<Waypoint>) {
+fn check_waypoints_equal(reference: &[Waypoint], written: &[Waypoint]) {
     assert_eq!(reference.len(), written.len());
     for (r_wp, w_wp) in reference.iter().zip(written) {
         assert_eq!(r_wp.point(), w_wp.point());
