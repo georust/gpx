@@ -45,6 +45,27 @@ pub struct Gpx {
     pub routes: Vec<Route>,
 }
 
+impl Gpx {
+    /// Creates a new, empty Gpx object with a given GPX version.
+    ///
+    /// ```
+    /// extern crate gpx;
+    ///
+    /// use gpx::{Gpx, GpxVersion};
+    ///
+    /// fn main() {
+    ///     let mut gpx = Gpx::new(GpxVersion::Gpx11);
+    ///     assert_eq!(gpx.version, GpxVersion::Gpx11);
+    /// }
+    /// ```
+    pub fn new(version: GpxVersion) -> Gpx {
+        Gpx {
+            version,
+            ..Default::default()
+        }
+    }
+}
+
 /// Information about the copyright holder and any license governing use of this file.
 ///
 /// By linking to an appropriate license, you may place your data into the
