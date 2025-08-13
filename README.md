@@ -73,9 +73,12 @@ fn main() {
 ### Write to string
 `write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a `u8` vector, and then convert the vector to a string.
 ```rust
+use gpx::{Gpx, GpxVersion};
+
+let gpx = Gpx::new(GpxVersion::Gpx11);
 let mut vec = Vec::new();
-gpx::write(&gpx, &mut vec)?;
-let string = String::from_utf8(vec)?;
+gpx::write(&gpx, &mut vec).unwrap();
+let string = String::from_utf8(vec).unwrap();
 ```
 
 ## Current Status
