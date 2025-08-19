@@ -49,7 +49,7 @@ jobs:
 
       - name: Install stable
         run: |
-          rustup toolchain install ${{ matrix.toolchain }} --no-self-update --profile minimal --component rust-src rustfmt clippy
+          rustup toolchain install ${{ matrix.toolchain }} --no-self-update --profile minimal --component rust-src,rustfmt,clippy
 
       - name: Check with Rustfmt
         run: cargo fmt --all --check
