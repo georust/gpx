@@ -385,16 +385,13 @@ impl Waypoint {
     /// Returns a mutable reference to the point of the waypoint.
     ///
     /// ```
-    /// extern crate geo_types;
-    /// extern crate gpx;
-    ///
     /// use gpx::Waypoint;
     /// use geo_types::Point;
     ///
-    /// fn main() {
-    ///     let mut wpt = Waypoint::new(Point::new(-121.97, 37.24));
-    ///     wpt.point_mut().set_x(100.34);
-    /// }
+    /// let mut wpt = Waypoint::new(Point::new(-121.97, 37.24));
+    /// wpt.point_mut().set_x(100.34);
+    /// assert_eq!(wpt.point().x(), 100.34);
+    /// assert_eq!(wpt.point().y(), 37.24);
     /// ```
     pub fn point_mut(&mut self) -> &mut Point<f64> {
         &mut self.point.0
