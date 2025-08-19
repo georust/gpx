@@ -43,3 +43,8 @@ mod writer;
 
 // Errors should be namespaced away.
 pub mod errors;
+
+// Ensure that examples in the README are tested
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+struct ReadmeDoctests;

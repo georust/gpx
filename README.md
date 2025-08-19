@@ -49,35 +49,14 @@ This example only generates tracks. You can add waypoints and routes as well by 
 ```rust
 use geo_types::{coord, Point};
 use gpx::{Gpx, GpxVersion, Track, TrackSegment, Waypoint};
-use std::{error::Error, fs::File, io::BufWriter, path::Path};
+use std::io::BufWriter;
+use tempfile::tempfile;
 
-pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
-    // Instantiate Gpx struct
-    let track_segment = TrackSegment {
-        points: vec![]
-    };
-    let track = Track {
-        name: Some("Track 1".to_string()),
-        comment: None,
-        description: None,
-        source: None,
-        links: vec![],
-        type_: None,
-        number: None,
-        segments: vec![track_segment],
-    };
-    let mut gpx = Gpx {
-        version: GpxVersion::Gpx11,
-        creator: None,
-        metadata: None,
-        waypoints: vec![],
-        tracks: vec![track],
-        routes: vec![],
-    };
-
-    // Create file at path
-    let gpx_file = File::create(out_path)?;
-    let buf = BufWriter::new(gpx_file);
+fn main() {
+    // Instantiate Gpx struct with an empty single-segment Track
+    let mut gpx = Gpx::new(GpxVersion::Gpx11);
+    gpx.tracks.push(Track::new());
+    gpx.tracks[0].segments.push(TrackSegment::new());
 
     // Add track point
     let geo_coord = coord! { x: -121.1, y: 38.82 };
@@ -85,18 +64,21 @@ pub fn to_gpx<P: AsRef<Path>>(out_path: P) -> Result<(), Box<dyn Error>> {
     gpx.tracks[0].segments[0].points.push(Waypoint::new(geo_point));
 
     // Write to file
-    gpx::write(&gpx, buf)?;
-
-    Ok(())
+    let gpx_file = tempfile().unwrap();
+    let buf = BufWriter::new(gpx_file);
+    gpx::write(&gpx, buf).unwrap();
 }
 ```
 
 ### Write to string
 `write` will write the GPX output to anything that implements `std::io::Write`. To save the output to a string, write it to a `u8` vector, and then convert the vector to a string.
 ```rust
+use gpx::{Gpx, GpxVersion};
+
+let gpx = Gpx::new(GpxVersion::Gpx11);
 let mut vec = Vec::new();
-gpx::write(&gpx, &mut vec)?;
-let string = String::from_utf8(vec)?;
+gpx::write(&gpx, &mut vec).unwrap();
+let string = String::from_utf8(vec).unwrap();
 ```
 
 ## Current Status
