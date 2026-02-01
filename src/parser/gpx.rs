@@ -18,7 +18,7 @@ fn version_string_to_version(version_str: &str) -> GpxResult<GpxVersion> {
     match version_str {
         "1.0" => Ok(GpxVersion::Gpx10),
         "1.1" => Ok(GpxVersion::Gpx11),
-        _ => Err(GpxError::UnknownVersionError(GpxVersion::Unknown)),
+        _ => Err(GpxError::UnsupportedVersionError(version_str.to_owned())),
     }
 }
 

@@ -29,6 +29,8 @@ pub enum GpxError {
     XmlParseError(#[from] xml::reader::Error),
     #[error("unknown GPX version: `{0}`")]
     UnknownVersionError(crate::types::GpxVersion),
+    #[error("unsupported GPX version: `{0}`")]
+    UnsupportedVersionError(String),
     #[error("tag opened twice: `{0}`")]
     TagOpenedTwice(&'static str),
     #[error("error while parsing 'track' segment")]
