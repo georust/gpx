@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- [#114](https://github.com/georust/gpx/issues/114): Allow empty route names when reading GPX files
 - [#110](https://github.com/georust/gpx/pull/110): Add Gpx::new() method, tidy up examples in the README
 - [#101](https://github.com/georust/gpx/pull/101): Write speed to GPX 1.0 files
 

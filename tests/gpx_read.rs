@@ -16,6 +16,26 @@ use std::error::Error;
 use time::{Date, Month, PrimitiveDateTime, Time};
 
 #[test]
+fn read_empty_route_names() {
+    for version in ["1.0", "1.1"] {
+        let xml = format!(
+            r#"<gpx version="{version}" creator="test">
+                <rte><name></name><rtept lat="1" lon="2"/></rte>
+                <rte><name/></rte>
+                <rte/>
+                <rte><name>Home</name></rte>
+            </gpx>"#
+        );
+        let routes = read(xml.as_bytes()).unwrap().routes;
+        assert_eq!(routes[0].name.as_deref(), Some(""));
+        assert_eq!(routes[0].points[0].point(), Point::new(2.0, 1.0));
+        assert_eq!(routes[1].name.as_deref(), Some(""));
+        assert_eq!(routes[2].name, None);
+        assert_eq!(routes[3].name.as_deref(), Some("Home"));
+    }
+}
+
+#[test]
 fn gpx_reader_read_test_badxml() {
     // Should fail with badly formatted XML.
     let file = File::open("tests/fixtures/badcharacter.xml").unwrap();
