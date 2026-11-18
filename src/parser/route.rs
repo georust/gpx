@@ -28,7 +28,7 @@ pub fn consume<R: Read>(context: &mut Context<R>) -> GpxResult<Route> {
         match next_event {
             XmlEvent::StartElement { ref name, .. } => match name.local_name.as_ref() {
                 "name" => {
-                    route.name = Some(string::consume(context, "name", false)?);
+                    route.name = Some(string::consume(context, "name", true)?);
                 }
                 "cmt" => {
                     route.comment = Some(string::consume(context, "cmt", true)?);
